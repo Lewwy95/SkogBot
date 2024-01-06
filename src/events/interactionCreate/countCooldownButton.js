@@ -40,6 +40,17 @@ module.exports = async (interaction) => {
             }).catch(console.error);
         }
 
+        // Return an error to the instigator if they tried to put themselves on a cooldown
+        if (interaction.user.id === member.id) {
+            return await interaction.followUp({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setDescription(`❌ You can\'t try to put yourself on an extended cooldown.`)
+                ],
+                ephemeral: true
+            }).catch(console.error);
+        }
+
         // Get the coins amount from the database
         const data = await db.get(`${interaction.guild.id}_data.count.coins`);
 
