@@ -115,8 +115,8 @@ module.exports = async (message) => {
                         }).catch(console.error);
                     } else {
                         // Remove any potential cooldowns from the member
-                        await db.pull(`${message.guild.id}_members.${message.author.username}.countCooldown`);
-                        await db.pull(`${message.guild.id}_members.${message.author.username}.countExtendedCooldown`);
+                        await db.delete(`${message.guild.id}_members.${message.author.username}.countCooldown`);
+                        await db.delete(`${message.guild.id}_members.${message.author.username}.countExtendedCooldown`);
                     }
 
                     // Create a variable to store the chance of actually resetting the game
