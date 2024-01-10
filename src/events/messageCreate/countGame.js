@@ -81,13 +81,18 @@ module.exports = async (message) => {
                     const result = await db.fetch(`${message.guild.id}_members.${message.author.username}.countCooldown`);
                     const extendedCooldown = await db.fetch(`${message.guild.id}_members.${message.author.username}.countExtendedCooldown`);
 
+                    // Create a new cooldown variable
+                    let newCooldown;
+
                     // Set the cooldown duration to one day if the member is on an extended cooldown
-                    if (extendedCooldown) {
-                        countCooldown = 86400000;
+                    if (extendedCooldown === true) {
+                        newCooldown = 86400000;
+                    } else {
+                        newCooldown = countCooldown;
                     }
 
                     // If the member is still on cooldown
-                    if (countCooldown - (Date.now() - result) > 0) {
+                    if (newCooldown - (Date.now() - result) > 0) {
                         // React to the message with an emoji
                         await message.react('⛔').catch(console.error);
 
@@ -95,7 +100,7 @@ module.exports = async (message) => {
                         await db.add(`${message.guild.id}_members.${message.author.username}.countFailedResets`, 1);
 
                         // Format the duration so it is readable
-                        const remaining = ms(countCooldown - (Date.now() - result), {
+                        const remaining = ms(newCooldown - (Date.now() - result), {
                             long: true
                         });
 
@@ -117,6 +122,9 @@ module.exports = async (message) => {
                         // Remove any potential cooldowns from the member
                         await db.delete(`${message.guild.id}_members.${message.author.username}.countCooldown`);
                         await db.delete(`${message.guild.id}_members.${message.author.username}.countExtendedCooldown`);
+
+                        // Reset the cooldown back to default
+                        newCooldown = countCooldown;
                     }
 
                     // Create a variable to store the chance of actually resetting the game
@@ -175,7 +183,7 @@ module.exports = async (message) => {
                                     inline: true
                                 }, {
                                     name: 'Cooldown Applied',
-                                    value: `\`${ms(countCooldown, { long: true })}\``,
+                                    value: `\`${ms(newCooldown, { long: true })}\``,
                                     inline: true
                                 }, {
                                     name: ' ',
@@ -238,7 +246,7 @@ module.exports = async (message) => {
                                 .setThumbnail(message.author.displayAvatarURL({ dynamic: true }))
                                 .addFields({
                                     name: 'Cooldown Applied',
-                                    value: `\`${ms(countCooldown, { long: true })}\``
+                                    value: `\`${ms(newCooldown, { long: true })}\``
                                 })
                             ],
                             allowedMentions: false
