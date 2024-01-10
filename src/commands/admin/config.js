@@ -43,6 +43,18 @@ const data = new SlashCommandBuilder()
     )
     .addSubcommand((options) =>
         options
+            .setName('openai')
+            .setDescription('Configure the OpenAI system.')
+            .addChannelOption((option) =>
+                option
+                    .setName('channel')
+                    .setDescription('Select a channel to act as the OpenAI channel.')
+                    .setRequired(true)
+                    .addChannelTypes(ChannelType.GuildText)
+            )
+    )
+    .addSubcommand((options) =>
+        options
             .setName('starboard')
             .setDescription('Configure the starboard.')
             .addChannelOption((option) =>
@@ -222,6 +234,25 @@ async function run({ interaction }) {
                 embeds: [new EmbedBuilder()
                     .setColor('Purple')
                     .setDescription(`✅ The landing channel has been configured to the <#${channel.id}> channel.`)
+                ],
+                ephemeral: true
+            }).catch(console.error);
+        }
+
+        break;
+
+        case 'openai': {
+            // Get the parameter from the command
+            const channel = interaction.options.getChannel('channel');
+
+            // Create a default OpenAI configuration
+            await db.set(`${interaction.guild.id}_configs.openAI.channelId`, channel.id);
+
+            // Follow up with the instigator
+            await interaction.followUp({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setDescription(`✅ The OpenAI system has been configured to the <#${channel.id}> channel.`)
                 ],
                 ephemeral: true
             }).catch(console.error);

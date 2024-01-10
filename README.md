@@ -15,7 +15,7 @@ Use the package manager NPM to install all dependencies by opening a terminal th
 npm install
 ```
 
-This project supports multiple .env files by using cross-env. You will need to create a '.rel.env' file in the root of your project as a minimum requirement. This file should follow the following format as an example, but with your database and token filled in:
+This project supports multiple .env files by using cross-env. You will need to create a '.rel.env' file in the root of your project as a minimum requirement. This file should follow the following format as an example, but with your OpenAI key, database and token filled in:
 
 ```.rel.env
 COUNTCOINS=10 # The amount of coins earned when contributing to the counting game (Required)
@@ -26,6 +26,8 @@ COUNTMULTIPLIER=1 # Counting game coins earned per correct number will be multip
 DATABASE= # MongoDB url (Required)
 
 MEMBERPOINTS=10 # The amount of points a member gains when sending a message (Required)
+
+AIKEY= # Chat-GPT AI key (Required)
 
 TOKEN= # Discord bot token (Required)
 ```

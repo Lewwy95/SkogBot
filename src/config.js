@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config({ path: `${process.cwd()}/.${process.env.NODE_ENV.replace(' ', '')}.env` });
 
 module.exports = {
+    openAIKey: process.env.OPENAIKEY,
     countCoins: parseInt(process.env.COUNTCOINS),
     countCooldown: parseInt(process.env.COUNTCOOLDOWN),
     countExtendedCooldownPrice: parseInt(process.env.COUNTEXTENDEDCOOLDOWNPRICE),
