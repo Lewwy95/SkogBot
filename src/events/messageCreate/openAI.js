@@ -10,6 +10,12 @@ module.exports = async (message) => {
     if (result && !message.author.bot) {
         // If the message was sent in the OpenAI channel
         if (message.channel.id === result.channelId) {
+            // Create a variable to store the mentioned member in the message
+            const mentionedUser = message.mentions.users.first();
+
+            // Do nothing if the bot isn't mentioned
+            if (!mentionedUser || mentionedUser.id !== message.client.user.id) return;
+
             // Create a new instance of OpenAI
             const openAI = new OpenAI({ apiKey: `${openAIKey}` });
 
