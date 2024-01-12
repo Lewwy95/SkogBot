@@ -33,7 +33,7 @@ module.exports = async (message) => {
             // Store the system role in the conversation array
             conversation.push({
                 role: 'system',
-                content: 'Chat-GPT is a friendly chatbot. Short answers only.'
+                content: 'Chat-GPT is a friendly chatbot. Short answers only unless requested.'
             });
 
             // Fetch previous messages and store them so OpenAI can keep track
