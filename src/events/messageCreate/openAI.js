@@ -25,7 +25,7 @@ module.exports = async (message) => {
             // Set how long the bot should be typing for
             const sendTypingInterval = setInterval(() => {
                 message.channel.sendTyping();
-            }, 5000);
+            }, 3500);
 
             // Create an empty conversation array
             let conversation = [];
@@ -33,7 +33,7 @@ module.exports = async (message) => {
             // Store the system role in the conversation array
             conversation.push({
                 role: 'system',
-                content: 'Chat-GPT is a friendly chatbot.'
+                content: 'Chat-GPT is a friendly chatbot. Short answers only.'
             });
 
             // Fetch previous messages and store them so OpenAI can keep track
