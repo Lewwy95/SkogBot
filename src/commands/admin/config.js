@@ -164,7 +164,7 @@ async function run({ interaction }) {
 
                 // Clear the timer if no facts configuration was found
                 if (!result) {
-                    console.log("No fact of the day configuration found in DB.");
+                    console.log('❌ No fact of the day configuration found in DB.');
                     return clearInterval(checkDaily);
                 }
 
@@ -173,7 +173,7 @@ async function run({ interaction }) {
 
                 // Clear the timer if the facts channel no longer exists
                 if (!cachedChannel) {
-                    console.log("No fact of the day channel found in guild.");
+                    console.log('❌ No fact of the day channel found in guild.');
                     return clearInterval(checkDaily);
                 }
 
@@ -201,8 +201,8 @@ async function run({ interaction }) {
                 }
             }
 
-            // Set a timer to check if it's a new day every hour
-            setInterval(checkDaily, ms('1h'));
+            // Set a timer to check if it's a day every fifteen minutes
+            setInterval(checkDaily, ms('15m'));
 
             // Follow up with the instigator
             await interaction.followUp({
