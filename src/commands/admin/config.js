@@ -1,4 +1,6 @@
 const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } = require('discord.js');
+const ms = require('ms');
+const fetch = require('node-fetch');
 const db = require('../../index');
 
 const data = new SlashCommandBuilder()
@@ -13,6 +15,18 @@ const data = new SlashCommandBuilder()
                 option
                     .setName('channel')
                     .setDescription('Select a channel to act as the counting game.')
+                    .setRequired(true)
+                    .addChannelTypes(ChannelType.GuildText)
+            )
+    )
+    .addSubcommand((options) =>
+        options
+            .setName('facts')
+            .setDescription('Configure the facts system. This will send a random fact 24 hours after configuration.')
+            .addChannelOption((option) =>
+                option
+                    .setName('channel')
+                    .setDescription('Select a channel to act as the facts channel.')
                     .setRequired(true)
                     .addChannelTypes(ChannelType.GuildText)
             )
@@ -128,6 +142,73 @@ async function run({ interaction }) {
                 embeds: [new EmbedBuilder()
                     .setColor('Purple')
                     .setDescription(`✅ The counting game has been configured to the <#${channel.id}> channel.`)
+                ],
+                ephemeral: true
+            }).catch(console.error);
+        }
+
+        break;
+
+        case 'facts': {
+            // Get the parameter from the command
+            const channel = interaction.options.getChannel('channel');
+
+            // Create a default facts configuration
+            await db.set(`${interaction.guild.id}_configs.facts.channelId`, channel.id);
+            await db.set(`${interaction.guild.id}_configs.facts.timestamp`, Date.now());
+
+            // Check if it's a new day before sending a new fact
+            const checkDaily = async () => {
+                // Get the facts configuration from database
+                const result = await db.get(`${interaction.guild.id}_configs.facts`);
+
+                // Clear the timer if no facts configuration was found
+                if (!result) {
+                    console.log("No fact of the day configuration found in DB.");
+                    return clearInterval(checkDaily);
+                }
+
+                // Get the facts channel from cache
+                const cachedChannel = interaction.guild.channels.cache.get(result.channelId);
+
+                // Clear the timer if the facts channel no longer exists
+                if (!cachedChannel) {
+                    console.log("No fact of the day channel found in guild.");
+                    return clearInterval(checkDaily);
+                }
+
+                // Check if it's a new day for a new fact
+                if (ms('1d') - (Date.now() - result.timestamp) > 0) {
+                    // Try to fetch the random fact
+                    const data = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/today').then(res => res.json());
+
+                    // Follow up with the instigator
+                    await cachedChannel.send({
+                        embeds: [new EmbedBuilder()
+                            .setColor('Purple')
+                            .setTitle('🔍 Fact Of The Day')
+                            .setDescription(`Powered by UselessFacts API.`)
+                            .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
+                            .addFields({
+                                name: 'Fact',
+                                value: `${data.text}`
+                            })
+                        ]
+                    }).catch(console.error);
+
+                    // Set the new timestamp
+                    await db.set(`${interaction.guild.id}_configs.facts.timestamp`, Date.now());
+                }
+            }
+
+            // Set a timer to check if it's a new day every hour
+            setInterval(checkDaily, ms('1h'));
+
+            // Follow up with the instigator
+            await interaction.followUp({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setDescription(`✅ The facts system has been configured to the <#${channel.id}> channel.`)
                 ],
                 ephemeral: true
             }).catch(console.error);
