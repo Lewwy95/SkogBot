@@ -1,4 +1,4 @@
-const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } = require('discord.js');
+const { PermissionFlagsBits, SlashCommandBuilder, EmbedBuilder, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const ms = require('ms');
 const fetch = require('node-fetch');
 const db = require('../../index');
@@ -29,6 +29,14 @@ const data = new SlashCommandBuilder()
                     .setDescription('Select a channel to act as the facts channel.')
                     .setRequired(true)
                     .addChannelTypes(ChannelType.GuildText)
+            )
+            .addStringOption((option) =>
+                option
+                    .setName('timestamp')
+                    .setDescription('Specify a Unix timestamp. Facts will be sent 24 hours after your provided date.')
+                    .setRequired(true)
+                    .setMinLength(2)
+                    .setMaxLength(24)
             )
     )
     .addSubcommand((options) =>
@@ -150,12 +158,13 @@ async function run({ interaction }) {
         break;
 
         case 'facts': {
-            // Get the parameter from the command
+            // Get the parameters from the command
             const channel = interaction.options.getChannel('channel');
+            const timestamp = interaction.options.getString('timestamp');
 
             // Create a default facts configuration
             await db.set(`${interaction.guild.id}_configs.facts.channelId`, channel.id);
-            await db.set(`${interaction.guild.id}_configs.facts.timestamp`, Date.now());
+            await db.set(`${interaction.guild.id}_configs.facts.timestamp`, timestamp);
 
             // Check if it's a new day before sending a new fact
             const checkDaily = async () => {
@@ -165,6 +174,12 @@ async function run({ interaction }) {
                 // Clear the timer if no facts configuration was found
                 if (!result) {
                     console.log('❌ No fact of the day configuration found in DB.');
+                    return clearInterval(checkDaily);
+                }
+
+                // Clear the timer if an invalid timestamp was found
+                if (!result.timestamp) {
+                    console.log('❌ No valid fact of the day timestamp found in DB.');
                     return clearInterval(checkDaily);
                 }
 
@@ -178,7 +193,7 @@ async function run({ interaction }) {
                 }
 
                 // Check if it's a new day for a new fact
-                if (ms('1d') - (Date.now() - result.timestamp) > 0) {
+                if (ms('1d') - (Date.now() - result.timestamp) <= 0) {
                     // Try to fetch the random fact
                     const data = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/today').then(res => res.json());
 
@@ -201,7 +216,7 @@ async function run({ interaction }) {
                 }
             }
 
-            // Set a timer to check if it's a day every fifteen minutes
+            // Set a timer to check if it's a new day
             setInterval(checkDaily, ms('15m'));
 
             // Follow up with the instigator
