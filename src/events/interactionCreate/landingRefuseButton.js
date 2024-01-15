@@ -69,6 +69,17 @@ module.exports = async (interaction) => {
             }).catch(console.error);
         }
 
+        // Return an error if the target is not kickable
+        if (!target.kickable) {
+            return await interaction.followUp({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setDescription('❌ You can\'t refuse this member\'s access as I can\'t kick them.')
+                ],
+                ephemeral: true
+            }).catch(console.error);
+        }
+
         // Remove the requesting member's data in the database
         await db.delete(`${interaction.guild.id}_members.${target.user.username}`);
 
