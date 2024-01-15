@@ -76,7 +76,6 @@ module.exports = {
     },
  
     options: {
-        dm_permission: false,
-        userPermissions: ['Administrator']
+        dm_permission: false
     }
 };
