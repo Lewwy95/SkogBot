@@ -1,4 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, RoleSelectMenuBuilder, ActionRowBuilder, ComponentType } = require('discord.js');
 const db = require('../../index');
 
 module.exports = async (interaction) => {
@@ -66,7 +66,7 @@ module.exports = async (interaction) => {
             }).catch(console.error);
         }
 
-        // Create a variable to check whether or not the requesting member has the Verified role
+        // Create a variable to check whether or not the requesting member has the roles
         const hasVerifiedRole = await target.roles.cache.some(role => role.id === result.verifiedRoleId);
 
         // Return an error to the instigator if the requesting member is already verified
@@ -80,19 +80,91 @@ module.exports = async (interaction) => {
             }).catch(console.error);
         }
 
-        // Remove the requesting member's request click in the database
-        await db.delete(`${interaction.guild.id}_members.${target.user.username}`);
-
-        // Remove the request in the database
-        await db.delete(`${interaction.guild.id}_data.accessReq_${interaction.channel.id}`);
-
-        // Give the requesting member the Verified role
-        await target.roles.add(result.verifiedRoleId);
-
         // Delete the reply
         await interaction.deleteReply();
 
-        // Delete the channel
-        return await interaction.channel.delete().catch(console.error);
+        // Create a role select menu
+        const roleSelect = new RoleSelectMenuBuilder()
+	        .setCustomId('landingGiveRole')
+            .setPlaceholder('Choose a role...')
+
+        // Bundle the row select menu into a row
+        const menuRow = new ActionRowBuilder()
+		    .addComponents(roleSelect)
+        
+        // Send the select menu to the instigator
+        const msg = await interaction.channel.send({
+            embeds: [new EmbedBuilder()
+                .setColor('Purple')
+                .setDescription(`👇 Please wait while a <@&${result.modRoleId}> assigns you a role.`)
+            ],
+            components: [menuRow]
+        });
+
+        // Hacky way to get the select menu value once selected
+        const collector = await msg.createMessageComponentCollector({ componentType: ComponentType.RoleSelect });
+
+        // Listen for menu selects
+        collector.on('collect', async (interaction) => {
+            // If the interaction is within the role select menu
+            if (interaction.customId === 'landingGiveRole') {
+                // Create a variable to check whether or not the instigator has the Moderator role
+                const hasModRole = await interaction.member.roles.cache.some(role => role.id === result.modRoleId);
+
+                // Return an error to the instigator if they are not a Moderator
+                if (!hasModRole) {
+                    return await interaction.reply({
+                        embeds: [new EmbedBuilder()
+                            .setColor('Purple')
+                            .setDescription(`❌ Only a member with the <@&${result.modRoleId}> role can assign roles.`)
+                        ],
+                        ephemeral: true
+                    }).catch(console.error);
+                }
+
+                // Create a variable to check whether or not the requesting member has the role
+                const hasRole = await target.roles.cache.some(role => role.id === interaction.values[0]);
+
+                // Return an error to the instigator if the requesting member is already verified
+                if (hasRole) {
+                    return await interaction.reply({
+                        embeds: [new EmbedBuilder()
+                            .setColor('Purple')
+                            .setDescription(`❌ That member already has the <@&${interaction.values[0]}> role.`)
+                        ],
+                        ephemeral: true
+                    }).catch(console.error);
+                }
+
+                // Return an error to the instigator if blacklisted roles were selected
+                if (interaction.values[0] === result.verifiedRoleId || interaction.values[0] === result.modRoleId) {
+                    return await interaction.reply({
+                        embeds: [new EmbedBuilder()
+                            .setColor('Purple')
+                            .setDescription(`❌ You can\'t give this member the <@&${interaction.values[0]}> role.`)
+                        ],
+                        ephemeral: true
+                    }).catch(console.error);
+                }
+
+                // Disable the menu if clicked
+                roleSelect.setDisabled(true);
+ 
+                // Remove the requesting member's request click in the database
+                await db.delete(`${interaction.guild.id}_members.${target.user.username}`);
+
+                // Remove the request in the database
+                await db.delete(`${interaction.guild.id}_data.accessReq_${interaction.channel.id}`);
+
+                // Give the requesting member the roles
+                await target.roles.add(result.verifiedRoleId);
+                await target.roles.add(interaction.values[0]);
+
+                // Delete the channel
+                await interaction.channel.delete().catch(console.error);
+            }
+        });
+
+        return;
     }
 };

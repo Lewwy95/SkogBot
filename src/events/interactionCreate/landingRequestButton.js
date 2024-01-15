@@ -1,4 +1,4 @@
-const { PermissionFlagsBits, EmbedBuilder, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { PermissionFlagsBits, EmbedBuilder, ChannelType, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } = require('discord.js');
 const db = require('../../index');
 
 module.exports = async (interaction) => {
@@ -115,7 +115,7 @@ module.exports = async (interaction) => {
         */
 
         // Send a message to the member's new channel explaining what's going on
-        await channel.send({
+        const msg = await channel.send({
             embeds: [new EmbedBuilder()
                 .setColor('Purple')
                 .setTitle('👍 Access Requested')
@@ -132,6 +132,29 @@ module.exports = async (interaction) => {
             components: [buttonRow],
             allowedMentions: false
         }).catch(console.error);
+
+        // Hacky way to disable the grant button once clicked
+        const collector = await msg.createMessageComponentCollector({ componentType: ComponentType.Button });
+
+        // Listen for grant button clicks
+        collector.on('collect', async (interaction) => {
+            // If it's the grant button
+            if (interaction.customId === 'landingGrantAccess') {
+                // Create a variable to check whether or not the instigator has the Moderator role
+                const hasModRole = await interaction.member.roles.cache.some(role => role.id === result.modRoleId);
+
+                // Do nothing if the instigator is not a Moderator
+                if (!hasModRole) return;
+
+                // Disable the button if clicked
+                grantButton.setDisabled(true);
+
+                // Edit the original message to show disabled buttons
+                await msg.edit({
+                    components: [buttonRow]
+                });
+            }
+        });
 
         // Store the requesting member in the database
         await db.set(`${interaction.guild.id}_data.accessReq_${channel.id}.accessReqUserId`, interaction.member.id);

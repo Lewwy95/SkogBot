@@ -25,17 +25,6 @@ module.exports = {
             }).catch(console.error);
         }
 
-        // Return an error message if this was not requested in the counting channel
-        if (interaction.channel.id !== result.channelId) {
-            return await interaction.followUp({
-                embeds: [new EmbedBuilder()
-                    .setColor('Purple')
-                    .setDescription(`❌ You can only use this in the <#${result.channelId}> channel.`)
-                ],
-                ephemeral: true
-            }).catch(console.error);
-        }
-
         // Check for member data in the database
         const data = await db.get(`${interaction.guild.id}_members.${interaction.targetUser.username}`);
 
