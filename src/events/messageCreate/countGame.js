@@ -150,12 +150,6 @@ module.exports = async (message) => {
                         // Add the member to a cooldown in the database
                         await db.set(`${message.guild.id}_members.${message.author.username}.countCooldown`, Date.now());
 
-                        // Create a statistics button
-                        const statsButton = new ButtonBuilder()
-                            .setLabel('View Member Stats')
-                            .setStyle(ButtonStyle.Secondary)
-                            .setCustomId('countMemberStats')
-
                         // Create a cooldown button
                         const cooldownButton = new ButtonBuilder()
                             .setLabel('Apply Extended Cooldown')
@@ -163,10 +157,10 @@ module.exports = async (message) => {
                             .setCustomId('countCooldown')
 
                         // Bundle the buttons into a row
-                        const buttonRow = new ActionRowBuilder().addComponents(statsButton, cooldownButton);
+                        const buttonRow = new ActionRowBuilder().addComponents(cooldownButton);
 
                         /*
-                        // THE BUTTONS ARE HANDLED IN:
+                        // THE BUTTON IS HANDLED IN:
                         // "./src/events/interactionCreate/"
                         */
 
@@ -220,8 +214,7 @@ module.exports = async (message) => {
 
                         // Set a timer to remove the cooldown
                         return setTimeout(async () => {
-                            // Disable the buttons
-                            statsButton.setDisabled(true);
+                            // Disable the button
                             cooldownButton.setDisabled(true);
 
                             // Edit the original message to show disabled buttons
