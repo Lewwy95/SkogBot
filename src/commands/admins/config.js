@@ -155,8 +155,8 @@ async function run({ interaction }) {
 
             case 'accessrequest': {
                 const channel = interaction.options.getChannel('channel');
-                const verifiedRole = interaction.options.getRole('verifiedrole');
-                const modRole = interaction.options.getRole('modrole');
+                const verifiedRole = interaction.options.getRole('verified');
+                const modRole = interaction.options.getRole('mod');
 
                 const query = { guildId: interaction.guild.id };
         
@@ -168,7 +168,9 @@ async function run({ interaction }) {
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
+                        verifiedRoleName: verifiedRole.name,
                         verifiedRoleId: verifiedRole.id,
+                        modRoleName: modRole.name,
                         modRoleId: modRole.id
                     });
                 } else {
@@ -177,7 +179,9 @@ async function run({ interaction }) {
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
+                        verifiedRoleName: verifiedRole.name,
                         verifiedRoleId: verifiedRole.id,
+                        modRoleName: modRole.name,
                         modRoleId: modRole.id
                     });
                 }
