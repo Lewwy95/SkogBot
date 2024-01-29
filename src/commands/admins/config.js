@@ -156,7 +156,7 @@ async function run({ interaction }) {
             case 'accessrequest': {
                 const channel = interaction.options.getChannel('channel');
                 const verifiedRole = interaction.options.getRole('verified');
-                const modRole = interaction.options.getRole('mod');
+                const modRole = interaction.options.getRole('moderator');
 
                 const query = { guildId: interaction.guild.id };
         
