@@ -1,98 +1,88 @@
 const { OpenAI } = require('openai');
 const { openAIKey } = require('../../config');
-const db = require('../../index');
+const openAIsSchema = require('../../models/openAIs');
 
 module.exports = async (message) => {
-    // Get the OpenAI configuration from the database
-    const result = await db.get(`${message.guild.id}_configs.openAI`);
+    try {
+        const query = { guildId: message.guild.id };
 
-    // If valid OpenAI configuration was found and the message was sent by a member
-    if (result && !message.author.bot) {
-        // If the message was sent in the OpenAI channel
-        if (message.channel.id === result.channelId) {
-            // Create a variable to store the mentioned member in the message
-            const mentionedUser = message.mentions.users.first();
+        const openAIExists = await openAIsSchema.exists(query);
 
-            // Do nothing if the bot isn't mentioned
-            if (!mentionedUser || mentionedUser.id !== message.client.user.id) return;
+        if (!openAIExists) {
+            return;
+        }
 
-            // Create a new instance of OpenAI
-            const openAI = new OpenAI({ apiKey: `${openAIKey}` });
+        const mentionedUser = message.mentions.users.first();
 
-            // Set the bot to start typing in the Open AI channel
-            await message.channel.sendTyping();
+        if (!mentionedUser || mentionedUser.id !== message.client.user.id) {
+            return;
+        }
 
-            // Set how long the bot should be typing for
-            const sendTypingInterval = setInterval(() => {
-                message.channel.sendTyping();
-            }, 3500);
+        const openAI = new OpenAI({ apiKey: `${openAIKey}` });
 
-            // Create an empty conversation array
-            let conversation = [];
+        await message.channel.sendTyping();
 
-            // Store the system role in the conversation array
-            conversation.push({
-                role: 'system',
-                content: 'Chat-GPT is a friendly chatbot. Short answers only unless requested.'
-            });
+        const sendTypingInterval = setInterval(() => {
+            message.channel.sendTyping();
+        }, 3500);
 
-            // Fetch previous messages and store them so OpenAI can keep track
-            let prevMessages = await message.channel.messages.fetch({ limit: 10 });
-            prevMessages.reverse();
+        let conversation = [];
 
-            // Loop through each previous message
-            prevMessages.forEach((msg) => {
-                // Do nothing if the author of the previous message was the bot
-                if (msg.author.bot && msg.author.id !== message.client.user.id) return;
+        const data = await openAIsSchema.findOne({ ...query });
 
-                // Format the username of the previous message
-                const username = msg.author.username.replace(/\s+/g, '_').replace(/[^\w\s]/gi, '');
+        conversation.push({
+            role: 'system',
+            content: data.behaviour
+        });
 
-                // Push the previous message content to the conversation array if it was from the bot
-                if (msg.author.id === message.client.user.id) {
-                    conversation.push({
-                        role: 'assistant',
-                        name: username,
-                        content: msg.content
-                    });
+        let prevMessages = await message.channel.messages.fetch({ limit: 10 });
+        prevMessages.reverse();
 
-                    return;
-                }
-
-                // Push the previous message content to the conversation array if it was from a member
-                conversation.push({
-                    role: 'user',
-                    name: username,
-                    content: msg.content
-                });
-            });
-
-            // Create an OpenAI response
-            const response = await openAI.chat.completions.create({
-                model: 'gpt-4',
-                messages: conversation
-            }).catch(console.error);
-
-            // Clear the typing status of the bot
-            clearInterval(sendTypingInterval);
-
-            // Send an error message to the channel if the API returned an error
-            if (!response) {
-                message.reply('I\'m having some trouble with the OpenAI API. Please try again later.');
+        prevMessages.forEach((msg) => {
+            if (msg.author.bot && msg.author.id !== message.client.user.id) {
                 return;
             }
 
-            // Create a response message
-            const responseMessage = response.choices[0].message.content;
+            const username = msg.author.username.replace(/\s+/g, '_').replace(/[^\w\s]/gi, '');
 
-            // Create a chunk size limit
-            const chunkSizeLimit = 2000;
+            if (msg.author.id === message.client.user.id) {
+                conversation.push({
+                    role: 'assistant',
+                    name: username,
+                    content: msg.content
+                });
 
-            // Reply to the member with an OpenAI generated message
-            for (let i = 0; i < responseMessage.length; i+= chunkSizeLimit) {
-                const chunk = responseMessage.substring(i, i + chunkSizeLimit);
-                await message.reply(chunk);
+                return;
             }
+
+            conversation.push({
+                role: 'user',
+                name: username,
+                content: msg.content
+            });
+        });
+
+        const response = await openAI.chat.completions.create({
+            model: 'gpt-4',
+            messages: conversation
+        }).catch(console.error);
+
+        clearInterval(sendTypingInterval);
+
+        if (!response) {
+            message.reply('I\'m having some trouble with the OpenAI API. Please try again later.');
+            return;
         }
+
+        const responseMessage = response.choices[0].message.content;
+
+        const chunkSizeLimit = 2000;
+
+        for (let i = 0; i < responseMessage.length; i+= chunkSizeLimit) {
+            const chunk = responseMessage.substring(i, i + chunkSizeLimit);
+            await message.reply(chunk);
+        }
+    } catch (error) {
+        console.log(`Error in ${__filename}:\n`, error);
     }
 };

@@ -1,10 +1,9 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const { CommandKit } = require('commandkit');
-const { Database } = require('quickmongo');
+const mongoose  = require('mongoose');
 const { token, database } = require('./config');
 const path = require('path');
-const db = new Database(`${database}`);
- 
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -22,14 +21,15 @@ const client = new Client({
     ]
 });
 
-(async () => { await db.connect(); })();
-module.exports = db;
+mongoose.connect(database).then(() => {
+    console.log('✅ Connected to the MongoDB database.');
 
-new CommandKit({
-    client,
-    commandsPath: path.join(__dirname, 'commands'),
-    eventsPath: path.join(__dirname, 'events'),
-    bulkRegister: true
+    new CommandKit({
+        client,
+        commandsPath: path.join(__dirname, 'commands'),
+        eventsPath: path.join(__dirname, 'events'),
+        bulkRegister: true
+    });
+    
+    client.login(`${token}`);
 });
- 
-client.login(`${token}`);

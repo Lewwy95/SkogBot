@@ -1,49 +1,56 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const ms = require('ms');
-const db = require('../../index');
+const voiceCreatorsSchema = require('../../models/voiceCreators');
 
 module.exports = async (oldState, newState) => {
-    // Get the voice creator configuration from the database
-    const result = await db.get(`${newState.guild.id}_configs.voiceCreator`);
+    try {
+        const query = { guildId: newState.guild.id };
 
-    // If valid voice creator configuration was found and the state was changed by a member
-    if (result && !newState.member.bot) {
-        // If the member joins the creator channel
-        if (oldState.channel !== newState.channel && newState.channel && newState.channel.id === result.channelId) {
-            // Create a new channel
+        const voiceCreatorExists = await voiceCreatorsSchema.exists(query);
+
+        if (!voiceCreatorExists) {
+            return;
+        }
+
+        if (newState.member.bot) {
+            return;
+        }
+
+        const data = await voiceCreatorsSchema.findOne({ ...query });
+
+        if (oldState.channel !== newState.channel && newState.channel && newState.channel.id === data.channelId) {
             const channel = await newState.guild.channels.create({
-                name: `🔊 ${newState.member.nickname ? `${newState.member.nickname}` : `${newState.member.user.username}`}'s Channel`,
+                name: `🔊 ${newState.member.displayName ? `${newState.member.displayName}` : `${newState.member.user.username}`} Channel`,
                 type: ChannelType.GuildVoice,
-                parent: result.parentId,
+                parent: data.parentId,
                 permissionOverwrites: [{
                         id: newState.member.id,
                         allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.MoveMembers, PermissionFlagsBits.MuteMembers, PermissionFlagsBits.DeafenMembers]
                     }
                 ]
-            }).catch(console.error);
+            });
 
-            // Move the member to their new channel
-            await newState.member.voice.setChannel(channel).catch(console.error);
+            await newState.member.voice.setChannel(channel);
 
-            // Check the member count of the channel
-            const checkMembers = () => {
-                // Get the channel from cache
+            const checkMembers = async () => {
                 const cachedChannel = newState.guild.channels.cache.get(channel.id);
 
-                // Clear the timer for this function if the channel no longer exists
-                if (!cachedChannel) return clearTimeout(checkMembers);
+                if (!cachedChannel) {
+                    clearTimeout(checkMembers);
+                    return;
+                }
 
-                // Check the member size and delete the channel if empty
                 if (cachedChannel.members.size < 1) {
-                    cachedChannel.delete().catch(console.error);
+                    await cachedChannel.delete();
+
                     clearTimeout(checkMembers);
                 } else {
-                    setTimeout(checkMembers, ms('3s'));
+                    setTimeout(checkMembers, 3000);
                 }
             }
 
-            // Set the check member count function to run on a timer
-            return setTimeout(checkMembers, ms('3s'));
+            setTimeout(checkMembers, 3000);
         }
+    } catch (error) {
+        console.log(`Error in ${__filename}:\n`, error);
     }
 };
