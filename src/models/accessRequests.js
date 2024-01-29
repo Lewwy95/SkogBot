@@ -21,17 +21,7 @@ const accessRequestsSchema = new Schema({
         required: true,
         default: null
     },
-    verifiedRoleName: {
-        type: String,
-        required: true,
-        default: null
-    },
     verifiedRoleId: {
-        type: String,
-        required: true,
-        default: null
-    },
-    modRoleName: {
         type: String,
         required: true,
         default: null

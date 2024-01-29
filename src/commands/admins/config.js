@@ -122,7 +122,7 @@ async function run({ interaction }) {
                     });
                 }
         
-                interaction.followUp(`A counting game has been configured to the <#${channel.id}> channel.\n\nThe cooldown value is **${ms(cooldown), { long: true }}**.`);
+                interaction.followUp(`A counting game has been configured to the <#${channel.id}> channel.\n\nThe cooldown value is **${ms(cooldown, { long: true })}**.`);
             }
 
             break;
@@ -168,9 +168,7 @@ async function run({ interaction }) {
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
-                        verifiedRoleName: verifiedRole.name,
                         verifiedRoleId: verifiedRole.id,
-                        modRoleName: modRole.name,
                         modRoleId: modRole.id
                     });
                 } else {
@@ -179,9 +177,7 @@ async function run({ interaction }) {
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
-                        verifiedRoleName: verifiedRole.name,
                         verifiedRoleId: verifiedRole.id,
-                        modRoleName: modRole.name,
                         modRoleId: modRole.id
                     });
                 }
