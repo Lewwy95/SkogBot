@@ -20,6 +20,10 @@ module.exports = async (message) => {
             return;
         }
 
+        if (message.author.id === message.client.user.id) {
+            return;
+        }
+
         if (isNaN(message.content)) {
             return;
         }
@@ -102,9 +106,9 @@ module.exports = async (message) => {
                 const buttonRow = new ActionRowBuilder().addComponents(buttonGameStats);
 
                 const resetMessage = await message.channel.send({
-                    content: `@everyone\n\n<@${message.author.id}> has reset the game by entering an incorrect number.\n\nThey are now on a cooldown for **${ms(data.cooldown, { long: true })}**.`,
+                    content: `<@${message.author.id}> has reset the game by entering an incorrect number.\n\nThey are now on a cooldown for **${ms(data.cooldown, { long: true })}**.`,
                     components: [buttonRow],
-                    allowedMentions: { parse: ['everyone'], users: [] }
+                    allowedMentions: { users: [] }
                 });
 
                 buttonGameStats

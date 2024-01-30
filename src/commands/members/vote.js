@@ -59,9 +59,9 @@ async function run({ interaction }) {
         const buttonRow = new ActionRowBuilder().addComponents(buttonYes, buttonNo);
 
         const voteMessage = await interaction.channel.send({
-            content: `@everyone\n\n<@${interaction.user.id}> has started a vote:\n\n"${question}"`,
+            content: `<@${interaction.user.id}> has started a vote:\n\n"${question}"`,
             components: [buttonRow],
-            allowedMentions: { parse: ['everyone'], users: [] }
+            allowedMentions: { users: [] }
         });
 
         interaction.deleteReply();
