@@ -5,6 +5,7 @@ const countingGamesSchema = require('../../models/countingGames');
 const openAIsSchema = require('../../models/openAIs');
 const accessRequestsSchema = require('../../models/accessRequests');
 const voiceCreatorsSchema = require('../../models/voiceCreators');
+const quotesSchema = require('../../models/quotes');
 
 const data = new SlashCommandBuilder()
     .setName('config')
@@ -82,6 +83,18 @@ const data = new SlashCommandBuilder()
                     .setDescription('Select a channel to serve as the voice creator.')
                     .setRequired(true)
                     .addChannelTypes(ChannelType.GuildVoice)
+            )
+    )
+    .addSubcommand((options) =>
+        options
+            .setName('quotes')
+            .setDescription('Configure a quotes system for this guild.')
+            .addChannelOption((option) =>
+                option
+                    .setName('channel')
+                    .setDescription('Select a channel to serve as the quotes system.')
+                    .setRequired(true)
+                    .addChannelTypes(ChannelType.GuildText)
             )
     )
 
@@ -232,6 +245,34 @@ async function run({ interaction }) {
                 }
         
                 interaction.followUp(`A voice creator system has been configured to the <#${channel.id}> channel.`);
+            }
+
+            break;
+
+            case 'quotes': {
+                const channel = interaction.options.getChannel('channel');
+
+                const query = { guildId: interaction.guild.id };
+        
+                const quoteExists = await quotesSchema.exists(query);
+
+                if (!quoteExists) {
+                    await quotesSchema.create({
+                        ...query,
+                        guildName: interaction.guild.name,
+                        channelName: channel.name,
+                        channelId: channel.id
+                    });
+                } else {
+                    await quotesSchema.updateOne({
+                        ...query,
+                        guildName: interaction.guild.name,
+                        channelName: channel.name,
+                        channelId: channel.id
+                    });
+                }
+        
+                interaction.followUp(`A quotes system has been configured to the <#${channel.id}> channel.`);
             }
 
             break;
