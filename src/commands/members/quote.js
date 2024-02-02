@@ -61,7 +61,8 @@ async function run({ interaction }) {
         });
 
         data.quotes.push({ 
-            quotes: quote
+            quote: quote,
+            author: author.username
         });
 
         await data.save();

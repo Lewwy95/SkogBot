@@ -13,7 +13,7 @@ module.exports = async (message) => {
         const data = await quotesSchema.findOne({ ...query });
 
         if (message.channel.id === data.channelId && message.author.id !== message.client.user.id) {
-            if (message.content.includes('"')) {
+            if (message.content.includes('"') || message.content.includes('-')) {
                 message.reply('Are you trying to add a quote? You can use the **/quote** command for that.');
             }
         }
