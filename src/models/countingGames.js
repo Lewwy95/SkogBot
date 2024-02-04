@@ -26,22 +26,6 @@ const countingGamesSchema = new Schema({
         required: true,
         default: 1
     },
-    recordNumber: {
-        type: Number,
-        default: null
-    },
-    contributions: {
-        type: Number,
-        default: 0
-    },
-    successfulResets: {
-        type: Number,
-        default: 0
-    },
-    failedResets: {
-        type: Number,
-        default: 0
-    },
     lastMember: {
         type: String,
         default: null

@@ -24,18 +24,6 @@ const memberProfilesSchema = new Schema({
     countingGameCooldown: {
         type: Date,
         default: null
-    },
-    countingGameContributions: {
-        type: Number,
-        default: 0
-    },
-    countingGameSuccessfulResets: {
-        type: Number,
-        default: 0
-    },
-    countingGameFailedResets: {
-        type: Number,
-        default: 0
     }
 }, { timestamps: true });
 
