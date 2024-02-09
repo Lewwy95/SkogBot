@@ -17,7 +17,7 @@ module.exports = async (oldState, newState) => {
             const channel = await newState.guild.channels.create({
                 name: `🔊 ${newState.member.displayName ? `${newState.member.displayName}` : `${newState.member.user.username}`} Channel`,
                 type: ChannelType.GuildVoice,
-                parent: data.parentId,
+                parent: query.parentId,
                 permissionOverwrites: [{
                         id: newState.member.id,
                         allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.MoveMembers, PermissionFlagsBits.MuteMembers, PermissionFlagsBits.DeafenMembers]
