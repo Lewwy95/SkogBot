@@ -2,17 +2,13 @@ const countingGamesSchema = require('../../models/countingGames');
 
 module.exports = async (message) => {
     try {
-        const query = { guildId: message.guild.id };
+        const query = await countingGamesSchema.findOne({ guildId: message.guild.id });
 
-        const gameExists = await countingGamesSchema.exists(query);
-
-        if (!gameExists) {
+        if (!query) {
             return;
         }
 
-        const data = await countingGamesSchema.findOne({ ...query });
-
-        if (message.channel.id !== data.channelId) {
+        if (message.channel.id !== query.channelId) {
             return;
         }
 

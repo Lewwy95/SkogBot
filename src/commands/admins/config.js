@@ -113,21 +113,19 @@ async function run({ interaction }) {
                 const channel = interaction.options.getChannel('channel');
                 const cooldown = interaction.options.getNumber('cooldown');
 
-                const query = { guildId: interaction.guild.id };
-        
-                const gameExists = await countingGamesSchema.exists(query);
+                const query = await countingGamesSchema.findOne({ guildId: interaction.guild.id });
 
-                if (!gameExists) {
+                if (!query) {
                     await countingGamesSchema.create({
-                        ...query,
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
                         cooldown: cooldown
                     });
                 } else {
-                    await countingGamesSchema.updateOne({
-                        ...query,
+                    await query.updateOne({
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
@@ -143,19 +141,17 @@ async function run({ interaction }) {
             case 'openai': {
                 const behaviour = interaction.options.getString('behaviour');
 
-                const query = { guildId: interaction.guild.id };
-        
-                const openAIExists = await openAIsSchema.exists(query);
+                const query = await openAIsSchema.findOne({ guildId: interaction.guild.id });
 
-                if (!openAIExists) {
+                if (!query) {
                     await openAIsSchema.create({
-                        ...query,
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         behaviour: behaviour
                     });
                 } else {
-                    await openAIsSchema.updateOne({
-                        ...query,
+                    await query.updateOne({
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         behaviour: behaviour
                     });
@@ -171,13 +167,11 @@ async function run({ interaction }) {
                 const verifiedRole = interaction.options.getRole('verified');
                 const modRole = interaction.options.getRole('moderator');
 
-                const query = { guildId: interaction.guild.id };
-        
-                const accessRequestExists = await accessRequestsSchema.exists(query);
+                const query = await accessRequestsSchema.findOne({ guildId: interaction.guild.id });
 
-                if (!accessRequestExists) {
+                if (!query) {
                     await accessRequestsSchema.create({
-                        ...query,
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
@@ -187,8 +181,8 @@ async function run({ interaction }) {
                         modRoleId: modRole.id
                     });
                 } else {
-                    await accessRequestsSchema.updateOne({
-                        ...query,
+                    await query.updateOne({
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
@@ -220,13 +214,11 @@ async function run({ interaction }) {
             case 'voicecreator': {
                 const channel = interaction.options.getChannel('channel');
 
-                const query = { guildId: interaction.guild.id };
-        
-                const voiceCreatorExists = await voiceCreatorsSchema.exists(query);
+                const query = await voiceCreatorsSchema.findOne({ guildId: interaction.guild.id });
 
-                if (!voiceCreatorExists) {
+                if (!query) {
                     await voiceCreatorsSchema.create({
-                        ...query,
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
@@ -234,8 +226,8 @@ async function run({ interaction }) {
                         parentId: channel.parent.id
                     });
                 } else {
-                    await voiceCreatorsSchema.updateOne({
-                        ...query,
+                    await query.updateOne({
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id,
@@ -252,20 +244,18 @@ async function run({ interaction }) {
             case 'quotes': {
                 const channel = interaction.options.getChannel('channel');
 
-                const query = { guildId: interaction.guild.id };
-        
-                const quoteExists = await quotesSchema.exists(query);
+                const query = await quotesSchema.findOne({ guildId: interaction.guild.id });
 
-                if (!quoteExists) {
+                if (!query) {
                     await quotesSchema.create({
-                        ...query,
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id
                     });
                 } else {
-                    await quotesSchema.updateOne({
-                        ...query,
+                    await query.updateOne({
+                        guildId: interaction.guild.id,
                         guildName: interaction.guild.name,
                         channelName: channel.name,
                         channelId: channel.id

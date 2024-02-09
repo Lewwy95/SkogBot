@@ -29,18 +29,14 @@ async function run({ interaction }) {
     try {
         await interaction.deferReply({ ephemeral: true });
 
-        const query = { guildId: interaction.guild.id };
+        const query = await quotesSchema.findOne({ guildId: interaction.guild.id });
 
-        const quoteExists = await quotesSchema.exists(query);
-
-        if (!quoteExists) {
+        if (!query) {
             interaction.followUp('The quote system is currently offline. Please try again later.');
             return;
         }
 
-        const data = await quotesSchema.findOne({ ...query });
-
-        const channel = interaction.guild.channels.cache.find(channel => channel.id === data.channelId);
+        const channel = interaction.guild.channels.cache.find(channel => channel.id === query.channelId);
 
         if (!channel) {
             interaction.followUp('The quote system is currently offline. Please try again later.');
@@ -60,13 +56,13 @@ async function run({ interaction }) {
             allowedMentions: { parse: [] }
         });
 
-        data.quotes.push({ 
+        query.quotes.push({ 
             quote: quote,
             author: author.username,
             submittedBy: interaction.user.username
         });
 
-        await data.save();
+        await query.save();
 
         interaction.followUp(`Thank you for submitting this quote. You can view it in the <#${channel.id}> channel.`);
     } catch (error) {

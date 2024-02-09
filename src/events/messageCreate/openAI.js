@@ -4,11 +4,9 @@ const openAIsSchema = require('../../models/openAIs');
 
 module.exports = async (message) => {
     try {
-        const query = { guildId: message.guild.id };
+        const query = await openAIsSchema.findOne({ guildId: message.guild.id });
 
-        const openAIExists = await openAIsSchema.exists(query);
-
-        if (!openAIExists) {
+        if (!query) {
             return;
         }
 
@@ -28,11 +26,9 @@ module.exports = async (message) => {
 
         let conversation = [];
 
-        const data = await openAIsSchema.findOne({ ...query });
-
         conversation.push({
             role: 'system',
-            content: data.behaviour
+            content: query.behaviour
         });
 
         let prevMessages = await message.channel.messages.fetch({ limit: 10 });

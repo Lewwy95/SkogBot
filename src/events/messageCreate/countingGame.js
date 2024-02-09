@@ -4,17 +4,13 @@ const memberProfilesSchema = require('../../models/memberProfiles');
 
 module.exports = async (message) => {
     try {
-        const query = { guildId: message.guild.id };
+        const countingQuery = await countingGamesSchema.findOne({ guildId: message.guild.id });
 
-        const gameExists = await countingGamesSchema.exists(query);
-
-        if (!gameExists) {
+        if (!countingQuery) {
             return;
         }
 
-        const data = await countingGamesSchema.findOne({ ...query });
-
-        if (message.channel.id !== data.channelId) {
+        if (message.channel.id !== countingQuery.channelId) {
             return;
         }
 
@@ -26,27 +22,21 @@ module.exports = async (message) => {
             return;
         }
 
-        const memberQuery = {
-            guildId: message.guild.id,
-            memberId: message.author.id
-        };
+        let memberQuery = await memberProfilesSchema.findOne({ guildId: message.guild.id, memberId: message.author.id });
 
-        const memberExists = await memberProfilesSchema.exists(memberQuery);
-
-        if (!memberExists) {
-            await memberProfilesSchema.create({
-                ...memberQuery,
+        if (!memberQuery) {
+            memberQuery = await memberProfilesSchema.create({
+                guildId: message.guild.id,
                 guildName: message.guild.name,
-                memberUsername: message.author.username
+                memberUsername: message.author.username,
+                memberId: message.author.id
             });
         }
 
-        const memberData = await memberProfilesSchema.findOne({ ...memberQuery });
-
-        if (data.cooldown - (Date.now() - memberData.countingGameCooldown) > 0) {
+        if (countingQuery.cooldown - (Date.now() - memberQuery.countingGameCooldown) > 0) {
             message.react('😇');
 
-            const remaining = ms(data.cooldown - (Date.now() - memberData.countingGameCooldown), { long: true });
+            const remaining = ms(countingQuery.cooldown - (Date.now() - memberQuery.countingGameCooldown), { long: true });
 
             message.channel.send({
                 content: `<@${message.author.id}> is on a cooldown. They have **${remaining}** remaining.`,
@@ -55,34 +45,27 @@ module.exports = async (message) => {
 
             return;
         } else {
-            await memberProfilesSchema.updateOne({ 
-                ...memberQuery,
-                countingGameCooldown: null
-            });
+            await memberQuery.updateOne({ countingGameCooldown: null });
         }
 
-        if (message.author.username === data.lastMember) {
+        if (message.author.username === countingQuery.lastMember) {
             message.react('✋');
 
             message.channel.send({
-                content: `<@${message.author.id}> just submitted a number when it is not their turn.\n\nThe next correct number is **${data.nextNumber}**.`,
+                content: `<@${message.author.id}> just submitted a number when it is not their turn.\n\nThe next correct number is **${countingQuery.nextNumber}**.`,
                 allowedMentions: { parse: [] }
             });
 
             return;
         }
 
-        if (Math.trunc(message.content) !== data.nextNumber) {
-            await memberProfilesSchema.updateOne({ 
-                ...memberQuery,
-                countingGameCooldown: Date.now()
-            });
+        if (Math.trunc(message.content) !== countingQuery.nextNumber) {
+            await memberQuery.updateOne({ countingGameCooldown: Date.now() });
 
             const resetChance = Math.random();
 
             if (resetChance < 0.5) { // Reset game (50%)
-                await countingGamesSchema.updateOne({
-                    ...query,
+                await countingQuery.updateOne({
                     nextNumber: 1,
                     lastMember: null
                 });
@@ -90,14 +73,14 @@ module.exports = async (message) => {
                 message.react('🪦');
 
                 message.channel.send({
-                    content: `<@${message.author.id}> just reset the game by entering an incorrect number.\n\nThey are now on a cooldown for **${ms(data.cooldown, { long: true })}**.`,
+                    content: `<@${message.author.id}> just reset the game by entering an incorrect number.\n\nThey are now on a cooldown for **${ms(countingQuery.cooldown, { long: true })}**.`,
                     allowedMentions: { users: [] }
                 });
             } else {
                 message.react('😇');
 
                 message.channel.send({
-                    content: `<@${message.author.id}> just entered an incorrect number but the game continues.\n\nThey are now on a cooldown for **${ms(data.cooldown, { long: true })}**.`,
+                    content: `<@${message.author.id}> just entered an incorrect number but the game continues.\n\nThey are now on a cooldown for **${ms(countingQuery.cooldown, { long: true })}**.`,
                     allowedMentions: { parse: [] }
                 });
             }
@@ -105,7 +88,7 @@ module.exports = async (message) => {
             return;
         }
 
-        await countingGamesSchema.updateOne({ 
+        await countingQuery.updateOne({ 
             nextNumber: Math.trunc(message.content) +1,
             lastMember: message.author.username
         });

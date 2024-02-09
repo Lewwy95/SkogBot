@@ -3,11 +3,9 @@ const voiceCreatorsSchema = require('../../models/voiceCreators');
 
 module.exports = async (oldState, newState) => {
     try {
-        const query = { guildId: newState.guild.id };
+        const query = await voiceCreatorsSchema.findOne({ guildId: newState.guild.id });
 
-        const voiceCreatorExists = await voiceCreatorsSchema.exists(query);
-
-        if (!voiceCreatorExists) {
+        if (!query) {
             return;
         }
 
@@ -15,9 +13,7 @@ module.exports = async (oldState, newState) => {
             return;
         }
 
-        const data = await voiceCreatorsSchema.findOne({ ...query });
-
-        if (oldState.channel !== newState.channel && newState.channel && newState.channel.id === data.channelId) {
+        if (oldState.channel !== newState.channel && newState.channel && newState.channel.id === query.channelId) {
             const channel = await newState.guild.channels.create({
                 name: `🔊 ${newState.member.displayName ? `${newState.member.displayName}` : `${newState.member.user.username}`} Channel`,
                 type: ChannelType.GuildVoice,
@@ -44,11 +40,11 @@ module.exports = async (oldState, newState) => {
 
                     clearTimeout(checkMembers);
                 } else {
-                    setTimeout(checkMembers, 3000);
+                    setTimeout(checkMembers, 60000); // 1 minute
                 }
             }
 
-            setTimeout(checkMembers, 3000);
+            setTimeout(checkMembers, 60000); // 1 minute
         }
     } catch (error) {
         console.log(`Error in ${__filename}:\n`, error);
