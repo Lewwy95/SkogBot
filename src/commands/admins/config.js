@@ -71,7 +71,7 @@ async function run({ interaction }) {
         break;
 
         case 'Verify': {
-            elementSchema = accessRequestSchema;
+            elementSchema = verifySchema;
         }
 
         break;
