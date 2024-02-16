@@ -21,11 +21,6 @@ const voiceCreatorSchema = new Schema({
         required: true,
         default: null
     },
-    parentName: {
-        type: String,
-        required: true,
-        default: null
-    },
     parentId: {
         type: String,
         required: true,

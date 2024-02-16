@@ -20,6 +20,11 @@ const openAISchema = new Schema({
         type: String,
         required: true,
         default: null
+    },
+    parentId: {
+        type: String,
+        required: true,
+        default: null
     }
 }, { timestamps: true });
 

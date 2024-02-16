@@ -90,14 +90,16 @@ async function run({ interaction }) {
             guildId: interaction.guild.id,
             guildName: interaction.guild.name,
             channelName: channel.name,
-            channelId: channel.id
+            channelId: channel.id,
+            parentId: channel.parent?.id ? channel.parent.id : 'None'
          });
     } else {
         await query.updateOne({
             guildId: interaction.guild.id,
             guildName: interaction.guild.name,
             channelName: channel.name,
-            channelId: channel.id
+            channelId: channel.id,
+            parentId: channel.parent?.id ? channel.parent?.id : 'None'
         });
     }
 

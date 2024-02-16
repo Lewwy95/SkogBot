@@ -21,6 +21,11 @@ const quoteSchema = new Schema({
         required: true,
         default: null
     },
+    parentId: {
+        type: String,
+        required: true,
+        default: null
+    },
     quotes: {
         type: Array,
         default: null

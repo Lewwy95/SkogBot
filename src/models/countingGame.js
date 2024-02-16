@@ -21,6 +21,11 @@ const countingGameSchema = new Schema({
         required: true,
         default: null
     },
+    parentId: {
+        type: String,
+        required: true,
+        default: null
+    },
     nextNumber: {
         type: Number,
         required: true,
