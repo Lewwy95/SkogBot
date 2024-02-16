@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const openAIsSchema = new Schema({
+const openAISchema = new Schema({
     guildName: {
         type: String,
         required: true,
@@ -11,11 +11,16 @@ const openAIsSchema = new Schema({
         required: true,
         default: null
     },
-    behaviour: {
+    channelName: {
         type: String,
         required: true,
-        default: 'A friendly chat bot.'
+        default: null
+    },
+    channelId: {
+        type: String,
+        required: true,
+        default: null
     }
 }, { timestamps: true });
 
-module.exports = model('Open AIs', openAIsSchema);
+module.exports = model('Open AI', openAISchema);

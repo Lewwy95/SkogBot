@@ -11,13 +11,8 @@ const data = new SlashCommandBuilder()
  */
 
 function run({ interaction }) {
-    try {
-        const result = ['Heads', 'Tails'];
-
-        interaction.reply(`The coin has landed on **${result[Math.floor(Math.random() * result.length)]}**.`);
-    } catch (error) {
-        console.log(`Error in ${__filename}:\n`, error);
-    }
+    const result = ['Heads', 'Tails'];
+    interaction.reply(`The coin has landed on **${result[Math.floor(Math.random() * result.length)]}**.`);
 };
 
 module.exports = { data, run };

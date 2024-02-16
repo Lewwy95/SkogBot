@@ -11,14 +11,10 @@ const data = new SlashCommandBuilder()
  */
 
 function run({ interaction, client }) {
-    try {
-        interaction.reply({
-            content: `I am online with a ping of **${client.ws.ping}ms**.`,
-            ephemeral: true 
-        });
-    } catch (error) {
-        console.log(`Error in ${__filename}:\n`, error);
-    }
+    interaction.reply({
+        content: `I am online with a ping of **${client.ws.ping}ms**.`,
+        ephemeral: true 
+    });
 };
 
 module.exports = { data, run };

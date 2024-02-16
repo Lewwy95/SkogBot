@@ -11,15 +11,11 @@ const data = new SlashCommandBuilder()
  */
 
 async function run({ interaction, handler }) {
-    try {
-        await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
 
-        handler.reloadCommands().then(() => {
-            interaction.followUp('All application commands have been reloaded.');
-        });
-    } catch (error) {
-        console.log(`Error in ${__filename}:\n`, error);
-    }
+    handler.reloadCommands().then(() => {
+        interaction.followUp('All application commands have been reloaded.');
+    });
 };
 
 module.exports = { data, run };

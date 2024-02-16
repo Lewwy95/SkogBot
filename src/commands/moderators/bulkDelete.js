@@ -25,22 +25,18 @@ const data = new SlashCommandBuilder()
  */
 
 async function run({ interaction }) {
-    try {
-        await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
         
-        const amount = interaction.options.getNumber('amount');
-        let channel = interaction.options.getChannel('channel');
+    const amount = interaction.options.getNumber('amount');
+    let channel = interaction.options.getChannel('channel');
 
-        if (!channel) {
-            channel = interaction.channel;
-        }
-
-        await channel.bulkDelete(amount, true);
-
-        interaction.followUp(`You have deleted **${amount}** messages from the <#${channel.id}> channel.`);
-    } catch (error) {
-        console.log(`Error in ${__filename}:\n`, error);
+    if (!channel) {
+        channel = interaction.channel;
     }
+
+    await channel.bulkDelete(amount, true);
+
+    interaction.followUp(`You have deleted **${amount}** messages from the <#${channel.id}> channel.`);
 };
 
 module.exports = { data, run };

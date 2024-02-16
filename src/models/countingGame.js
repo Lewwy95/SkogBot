@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const voiceCreatorsSchema = new Schema({
+const countingGameSchema = new Schema({
     guildName: {
         type: String,
         required: true,
@@ -21,16 +21,16 @@ const voiceCreatorsSchema = new Schema({
         required: true,
         default: null
     },
-    parentName: {
-        type: String,
+    nextNumber: {
+        type: Number,
         required: true,
-        default: null
+        default: 1
     },
-    parentId: {
+    lastMember: {
         type: String,
         required: true,
-        default: null
+        default: 'SkogBot'
     }
 }, { timestamps: true });
 
-module.exports = model('Voice Creators', voiceCreatorsSchema);
+module.exports = model('Counting Game', countingGameSchema);

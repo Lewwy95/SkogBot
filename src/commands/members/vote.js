@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
 const { ButtonKit } = require('commandkit');
 
 const data = new SlashCommandBuilder()
@@ -38,147 +38,152 @@ const data = new SlashCommandBuilder()
  */
 
 async function run({ interaction }) {
-    try {
-        await interaction.deferReply();
+    await interaction.deferReply();
 
-        const question = interaction.options.getString('question');
-        const time = interaction.options.getNumber('time');
+    const question = interaction.options.getString('question');
+    const time = interaction.options.getNumber('time');
 
-        const buttonYes = new ButtonKit()
-            .setLabel('Yes')
-            .setEmoji('👍')
-            .setStyle(ButtonStyle.Primary)
-            .setCustomId('buttonYes');
+    const buttonYes = new ButtonKit()
+        .setLabel('Yes')
+        .setEmoji('👍')
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId('buttonYes');
 
-        const buttonNo = new ButtonKit()
-            .setLabel('No')
-            .setEmoji('👎')
-            .setStyle(ButtonStyle.Primary)
-            .setCustomId('buttonNo');
+    const buttonNo = new ButtonKit()
+        .setLabel('No')
+        .setEmoji('👎')
+        .setStyle(ButtonStyle.Primary)
+        .setCustomId('buttonNo');
  
-        const buttonRow = new ActionRowBuilder().addComponents(buttonYes, buttonNo);
+    const buttonRow = new ActionRowBuilder().addComponents(buttonYes, buttonNo);
 
-        const voteMessage = await interaction.channel.send({
-            content: `<@${interaction.user.id}> has started a vote:\n\n"${question}"`,
-            components: [buttonRow],
-            allowedMentions: { users: [] }
+    const voteMessage = await interaction.channel.send({
+        embeds: [new EmbedBuilder()
+            .setColor('Purple')
+            .setAuthor({
+                name: `${interaction.user.displayName ? interaction.user.displayName : interaction.user.username}`,
+                iconURL: interaction.user.displayAvatarURL({ dynamic: true })
+            })
+            .setTitle('Vote')
+            .setDescription(`"${question}"`)
+            .setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
+        ],
+        components: [buttonRow],
+        allowedMentions: { users: [] }
+    });
+
+    interaction.deleteReply();
+
+    const creatorId = interaction.user.id;
+    let buttonYesVoters = [];
+    let buttonNoVoters = [];
+    let buttonYesVotes = 0;
+    let buttonNoVotes = 0;
+
+    buttonYes
+        .onClick(
+            (buttonInteraction) => {
+                if (buttonInteraction.user.id === creatorId) {
+                    buttonInteraction.reply({
+                        content: 'You can\'t participate in your own vote.',
+                        ephemeral: true 
+                    });
+                    return;
+                }
+
+                if (buttonYesVoters.includes(buttonInteraction.user.id) || buttonNoVoters.includes(buttonInteraction.user.id)) {
+                    buttonInteraction.reply({
+                        content: 'You are only able to vote once.',
+                        ephemeral: true 
+                    });
+                    return;
+                }
+
+                buttonYesVoters.push(buttonInteraction.user.id);
+                buttonYesVotes ++;
+
+                buttonInteraction.reply({
+                    content: 'Thank you for your vote.',
+                    ephemeral: true 
+                });
+            },
+            { message: voteMessage, time: `${time ? time : 300000}`, autoReset: false },
+        )
+        .onEnd(() => {
+            buttonYes.setDisabled(true);
+            voteMessage.edit({ components: [buttonRow] });
         });
 
-        interaction.deleteReply();
-
-        const creatorId = interaction.user.id;
-        let buttonYesVoters = [];
-        let buttonNoVoters = [];
-        let buttonYesVotes = 0;
-        let buttonNoVotes = 0;
-
-        buttonYes
-            .onClick(
-                (buttonInteraction) => {
-                    if (buttonInteraction.user.id === creatorId) {
-                        buttonInteraction.reply({
-                            content: 'You can\'t participate in your own vote.',
-                            ephemeral: true 
-                        });
-                        return;
-                    }
-
-                    if (buttonYesVoters.includes(buttonInteraction.user.id) || buttonNoVoters.includes(buttonInteraction.user.id)) {
-                        buttonInteraction.reply({
-                            content: 'You are only able to vote once.',
-                            ephemeral: true 
-                        });
-                        return;
-                    }
-
-                    buttonYesVoters.push(buttonInteraction.user.id);
-                    buttonYesVotes ++;
-
+    buttonNo
+        .onClick(
+            (buttonInteraction) => {
+                if (buttonInteraction.user.id === creatorId) {
                     buttonInteraction.reply({
-                        content: 'Thank you for your vote.',
+                        content: 'You can\'t participate in your own vote.',
                         ephemeral: true 
                     });
-                },
-                { message: voteMessage, time: `${time ? time : 300000}`, autoReset: false },
-            )
-            .onEnd(() => {
-                buttonYes.setDisabled(true);
-                voteMessage.edit({ components: [buttonRow] });
-            });
+                    return;
+                }
 
-        buttonNo
-            .onClick(
-                (buttonInteraction) => {
-                    if (buttonInteraction.user.id === creatorId) {
-                        buttonInteraction.reply({
-                            content: 'You can\'t participate in your own vote.',
-                            ephemeral: true 
-                        });
-                        return;
-                    }
-
-                    if (buttonNoVoters.includes(buttonInteraction.user.id) || buttonYesVoters.includes(buttonInteraction.user.id)) {
-                        buttonInteraction.reply({
-                            content: 'You are only able to vote once.',
-                            ephemeral: true 
-                        });
-                        return;
-                    }
-
-                    buttonNoVoters.push(buttonInteraction.user.id);
-                    buttonNoVotes ++;
-
+                if (buttonNoVoters.includes(buttonInteraction.user.id) || buttonYesVoters.includes(buttonInteraction.user.id)) {
                     buttonInteraction.reply({
-                        content: 'Thank you for your vote.',
+                        content: 'You are only able to vote once.',
                         ephemeral: true 
                     });
-                },
-                { message: voteMessage, time: `${time ? time : 300000}`, autoReset: false },
-            )
-            .onEnd(() => {
-                buttonNo.setDisabled(true);
-
-                if (buttonYesVotes > buttonNoVotes) {
-                    buttonYes.setStyle(ButtonStyle.Success);
-                    buttonNo.setStyle(ButtonStyle.Danger);
-
-                    buttonYes.setLabel('Yes Wins')
-                    buttonNo.setLabel('No Loses')
-
-                    buttonYes.setEmoji('🥳');
-                    buttonNo.setEmoji('😭');
+                    return;
                 }
 
-                if (buttonNoVotes > buttonYesVotes) {
-                    buttonNo.setStyle(ButtonStyle.Success);
-                    buttonYes.setStyle(ButtonStyle.Danger);
+                buttonNoVoters.push(buttonInteraction.user.id);
+                buttonNoVotes ++;
 
-                    buttonNo.setLabel('No Wins')
-                    buttonYes.setLabel('Yes Loses')
-
-                    buttonNo.setEmoji('🥳');
-                    buttonYes.setEmoji('😭');
-                }
-
-                if (buttonYesVotes === buttonNoVotes) {
-                    buttonYes.setStyle(ButtonStyle.Success);
-                    buttonNo.setStyle(ButtonStyle.Success);
-
-                    buttonYes.setLabel('Tie')
-                    buttonNo.setLabel('Tie')
-
-                    buttonYes.setEmoji('🥲');
-                    buttonNo.setEmoji('🥲');
-                }
-
-                voteMessage.edit({
-                    content: `This vote has ended.`,
-                    components: [buttonRow]
+                buttonInteraction.reply({
+                    content: 'Thank you for your vote.',
+                    ephemeral: true 
                 });
+            },
+            { message: voteMessage, time: `${time ? time : 300000}`, autoReset: false },
+        )
+        .onEnd(() => {
+            buttonNo.setDisabled(true);
+
+            if (buttonYesVotes > buttonNoVotes) {
+                buttonYes.setStyle(ButtonStyle.Success);
+                buttonNo.setStyle(ButtonStyle.Danger);
+
+                buttonYes.setLabel('Yes Wins')
+                buttonNo.setLabel('No Loses')
+
+                buttonYes.setEmoji('🥳');
+                buttonNo.setEmoji('😭');
+            }
+
+            if (buttonNoVotes > buttonYesVotes) {
+                buttonNo.setStyle(ButtonStyle.Success);
+                buttonYes.setStyle(ButtonStyle.Danger);
+
+                buttonNo.setLabel('No Wins')
+                buttonYes.setLabel('Yes Loses')
+
+                buttonNo.setEmoji('🥳');
+                buttonYes.setEmoji('😭');
+            }
+
+            if (buttonYesVotes === buttonNoVotes) {
+                buttonYes.setStyle(ButtonStyle.Success);
+                buttonNo.setStyle(ButtonStyle.Success);
+
+                buttonYes.setLabel('Tie')
+                buttonNo.setLabel('Tie')
+
+                buttonYes.setEmoji('🥲');
+                buttonNo.setEmoji('🥲');
+            }
+
+            voteMessage.edit({
+                content: `This vote has ended.`,
+                components: [buttonRow]
             });
-    } catch (error) {
-        console.log(`Error in ${__filename}:\n`, error);
-    }
+        });
 };
 
 module.exports = { data, run };

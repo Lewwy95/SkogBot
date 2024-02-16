@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const memberProfilesSchema = new Schema({
+const verifySchema = new Schema({
     guildName: {
         type: String,
         required: true,
@@ -11,20 +11,16 @@ const memberProfilesSchema = new Schema({
         required: true,
         default: null
     },
-    memberUsername: {
+    channelName: {
         type: String,
         required: true,
         default: null
     },
-    memberId: {
+    channelId: {
         type: String,
         required: true,
-        default: null
-    },
-    countingGameCooldown: {
-        type: Date,
         default: null
     }
 }, { timestamps: true });
 
-module.exports = model('Member Profiles', memberProfilesSchema);
+module.exports = model('Verify', verifySchema);

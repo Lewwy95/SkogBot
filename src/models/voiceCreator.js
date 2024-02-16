@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const accessRequestsSchema = new Schema({
+const voiceCreatorSchema = new Schema({
     guildName: {
         type: String,
         required: true,
@@ -21,26 +21,16 @@ const accessRequestsSchema = new Schema({
         required: true,
         default: null
     },
-    verifiedRoleName: {
+    parentName: {
         type: String,
         required: true,
         default: null
     },
-    verifiedRoleId: {
+    parentId: {
         type: String,
         required: true,
         default: null
-    },
-    modRoleName: {
-        type: String,
-        required: true,
-        default: null
-    },
-    modRoleId: {
-        type: String,
-        required: true,
-        default: null
-    },
+    }
 }, { timestamps: true });
 
-module.exports = model('Access Requests', accessRequestsSchema);
+module.exports = model('Voice Creator', voiceCreatorSchema);

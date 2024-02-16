@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const countingGamesSchema = new Schema({
+const quoteSchema = new Schema({
     guildName: {
         type: String,
         required: true,
@@ -21,20 +21,10 @@ const countingGamesSchema = new Schema({
         required: true,
         default: null
     },
-    nextNumber: {
-        type: Number,
-        required: true,
-        default: 1
-    },
-    lastMember: {
-        type: String,
-        default: null
-    },
-    cooldown: {
-        type: Number,
-        required: true,
+    quotes: {
+        type: Array,
         default: null
     }
 }, { timestamps: true });
 
-module.exports = model('Counting Games', countingGamesSchema);
+module.exports = model('Quote', quoteSchema);

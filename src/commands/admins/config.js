@@ -1,101 +1,36 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ChannelType, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { ButtonKit } = require('commandkit');
-const ms = require('ms');
-const countingGamesSchema = require('../../models/countingGames');
-const openAIsSchema = require('../../models/openAIs');
-const accessRequestsSchema = require('../../models/accessRequests');
-const voiceCreatorsSchema = require('../../models/voiceCreators');
-const quotesSchema = require('../../models/quotes');
+const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
+const countingGameSchema = require('../../models/countingGame');
+const memberCounterSchema = require('../../models/memberCounter');
+const openAISchema = require('../../models/openAI');
+const quoteSchema = require('../../models/quote');
+const verifySchema = require('../../models/verify');
+const voiceCreatorSchema = require('../../models/voiceCreator');
 
 const data = new SlashCommandBuilder()
     .setName('config')
-    .setDescription('Configure multiple elements of this guild.')
+    .setDescription('Configure an element of this guild.')
     .setDMPermission(false)
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
-    .addSubcommand((options) =>
-        options
-            .setName('countinggame')
-            .setDescription('Configure a counting game for this guild.')
-            .addChannelOption((option) =>
-                option
-                    .setName('channel')
-                    .setDescription('Select a channel to serve as a counting game.')
-                    .setRequired(true)
-                    .addChannelTypes(ChannelType.GuildText)
-            )
-            .addNumberOption((option) =>
-                option
-                    .setName('cooldown')
-                    .setDescription('Select a cooldown value that members will be placed on when disrupting a counting game.')
-                    .setRequired(true)
-                    .addChoices(
-                        { name: "5 Minutes", value: 300000 },
-                        { name: "10 Minutes", value: 600000 },
-                        { name: "15 Minutes", value: 900000 },
-                        { name: "30 Minutes", value: 1800000 }
-                    )
+    .addStringOption((option) =>
+        option
+            .setName('element')
+            .setDescription('Select an element of this guild to modify.')
+            .setRequired(true)
+            .addChoices(
+                { name: 'Counting Game', value: 'Counting Game' },
+                { name: 'Member Counter', value: 'Member Counter' },
+                { name: 'Open-AI', value: 'Open-AI' },
+                { name: 'Quote', value: 'Quote' },
+                { name: 'Verify', value: 'Verify' },
+                { name: 'Voice Creator', value: 'Voice Creator' }
             )
     )
-    .addSubcommand((options) =>
-        options
-            .setName('openai')
-            .setDescription('Configure an OpenAI for this guild.')
-            .addStringOption((option) =>
-                option
-                    .setName('behaviour')
-                    .setDescription('Specify valid behaviour for an OpenAI (e.g. A friendly chat bot).')
-                    .setRequired(true)
-                    .setMinLength(4)
-                    .setMaxLength(128)
-            )
-    )
-    .addSubcommand((options) =>
-        options
-            .setName('accessrequest')
-            .setDescription('Configure an access request system for this guild.')
-            .addChannelOption((option) =>
-                option
-                    .setName('channel')
-                    .setDescription('Select a channel to serve as an access request system.')
-                    .setRequired(true)
-                    .addChannelTypes(ChannelType.GuildText)
-            )
-            .addRoleOption((option) =>
-                option
-                    .setName('verified')
-                    .setDescription('Select a role to act as the Verified role.')
-                    .setRequired(true)
-            )
-            .addRoleOption((option) =>
-                option
-                    .setName('moderator')
-                    .setDescription('Select a role to act as the Moderator role.')
-                    .setRequired(true)
-            )
-    )
-    .addSubcommand((options) =>
-        options
-            .setName('voicecreator')
-            .setDescription('Configure a voice creator system for this guild.')
-            .addChannelOption((option) =>
-                option
-                    .setName('channel')
-                    .setDescription('Select a channel to serve as the voice creator.')
-                    .setRequired(true)
-                    .addChannelTypes(ChannelType.GuildVoice)
-            )
-    )
-    .addSubcommand((options) =>
-        options
-            .setName('quotes')
-            .setDescription('Configure a quotes system for this guild.')
-            .addChannelOption((option) =>
-                option
-                    .setName('channel')
-                    .setDescription('Select a channel to serve as the quotes system.')
-                    .setRequired(true)
-                    .addChannelTypes(ChannelType.GuildText)
-            )
+    .addChannelOption((option) =>
+        option
+            .setName('channel')
+            .setDescription('Select a channel to associate this element with.')
+            .setRequired(true)
+            .addChannelTypes(ChannelType.GuildText, ChannelType.GuildVoice)
     )
 
 /**
@@ -103,173 +38,70 @@ const data = new SlashCommandBuilder()
  */
 
 async function run({ interaction }) {
-    try {
-        await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
 
-        const subCommand = interaction.options.getSubcommand();
+    const element = interaction.options.getString('element');
+    const channel = interaction.options.getChannel('channel');
 
-        switch (subCommand) {
-            case 'countinggame': {
-                const channel = interaction.options.getChannel('channel');
-                const cooldown = interaction.options.getNumber('cooldown');
+    let elementSchema;
 
-                const query = await countingGamesSchema.findOne({ guildId: interaction.guild.id });
-
-                if (!query) {
-                    await countingGamesSchema.create({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        channelName: channel.name,
-                        channelId: channel.id,
-                        cooldown: cooldown
-                    });
-                } else {
-                    await query.updateOne({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        channelName: channel.name,
-                        channelId: channel.id,
-                        cooldown: cooldown
-                    });
-                }
-        
-                interaction.followUp(`A counting game has been configured to the <#${channel.id}> channel.\n\nThe cooldown value is **${ms(cooldown, { long: true })}**.`);
-            }
-
-            break;
-
-            case 'openai': {
-                const behaviour = interaction.options.getString('behaviour');
-
-                const query = await openAIsSchema.findOne({ guildId: interaction.guild.id });
-
-                if (!query) {
-                    await openAIsSchema.create({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        behaviour: behaviour
-                    });
-                } else {
-                    await query.updateOne({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        behaviour: behaviour
-                    });
-                }
-        
-                interaction.followUp(`An OpenAI has been configured with the following behaviour:\n\n**${behaviour}**`);
-            }
-
-            break;
-
-            case 'accessrequest': {
-                const channel = interaction.options.getChannel('channel');
-                const verifiedRole = interaction.options.getRole('verified');
-                const modRole = interaction.options.getRole('moderator');
-
-                const query = await accessRequestsSchema.findOne({ guildId: interaction.guild.id });
-
-                if (!query) {
-                    await accessRequestsSchema.create({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        channelName: channel.name,
-                        channelId: channel.id,
-                        verifiedRoleName: verifiedRole.name,
-                        verifiedRoleId: verifiedRole.id,
-                        modRoleName: modRole.name,
-                        modRoleId: modRole.id
-                    });
-                } else {
-                    await query.updateOne({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        channelName: channel.name,
-                        channelId: channel.id,
-                        verifiedRoleName: verifiedRole.name,
-                        verifiedRoleId: verifiedRole.id,
-                        modRoleName: modRole.name,
-                        modRoleId: modRole.id
-                    });
-                }
-
-                const buttonAccessRequest = new ButtonKit()
-                    .setLabel('Request Access')
-                    .setEmoji('🔑')
-                    .setStyle(ButtonStyle.Primary)
-                    .setCustomId('buttonAccessRequest');
- 
-                const buttonRow = new ActionRowBuilder().addComponents(buttonAccessRequest);
-
-                channel.send({
-                    content: 'Request access to the guild by clicking on the button below.',
-                    components: [buttonRow]
-                });
-        
-                interaction.followUp(`An access request system has been configured to the <#${channel.id}> channel.\n\nVerified Role: <@&${verifiedRole.id}>\nModerator Role: <@&${modRole.id}>`);
-            }
-
-            break;
-
-            case 'voicecreator': {
-                const channel = interaction.options.getChannel('channel');
-
-                const query = await voiceCreatorsSchema.findOne({ guildId: interaction.guild.id });
-
-                if (!query) {
-                    await voiceCreatorsSchema.create({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        channelName: channel.name,
-                        channelId: channel.id,
-                        parentName: channel.parent.name,
-                        parentId: channel.parent.id
-                    });
-                } else {
-                    await query.updateOne({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        channelName: channel.name,
-                        channelId: channel.id,
-                        parentName: channel.parent.name,
-                        parentId: channel.parent.id
-                    });
-                }
-        
-                interaction.followUp(`A voice creator system has been configured to the <#${channel.id}> channel.`);
-            }
-
-            break;
-
-            case 'quotes': {
-                const channel = interaction.options.getChannel('channel');
-
-                const query = await quotesSchema.findOne({ guildId: interaction.guild.id });
-
-                if (!query) {
-                    await quotesSchema.create({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        channelName: channel.name,
-                        channelId: channel.id
-                    });
-                } else {
-                    await query.updateOne({
-                        guildId: interaction.guild.id,
-                        guildName: interaction.guild.name,
-                        channelName: channel.name,
-                        channelId: channel.id
-                    });
-                }
-        
-                interaction.followUp(`A quotes system has been configured to the <#${channel.id}> channel.`);
-            }
-
-            break;
+    switch (element) {
+        case 'Counting Game': {
+            elementSchema = countingGameSchema;
         }
-    } catch (error) {
-        console.log(`Error in ${__filename}:\n`, error);
+
+        break;
+
+        case 'Member Counter': {
+            elementSchema = memberCounterSchema;
+        }
+
+        break;
+
+        case 'Open-AI': {
+            elementSchema = openAISchema;
+        }
+
+        break;
+
+        case 'Quote': {
+            elementSchema = quoteSchema;
+        }
+
+        break;
+
+        case 'Verify': {
+            elementSchema = accessRequestSchema;
+        }
+
+        break;
+
+        case 'Voice Creator': {
+            elementSchema = voiceCreatorSchema;
+        }
+
+        break;
     }
+
+    const query = await elementSchema.findOne({ guildId: interaction.guild.id });
+
+    if (!query) {
+        await elementSchema.create({
+            guildId: interaction.guild.id,
+            guildName: interaction.guild.name,
+            channelName: channel.name,
+            channelId: channel.id
+         });
+    } else {
+        await query.updateOne({
+            guildId: interaction.guild.id,
+            guildName: interaction.guild.name,
+            channelName: channel.name,
+            channelId: channel.id
+        });
+    }
+
+    interaction.followUp(`You assigned the **${element}** element to the <#${channel.id}> channel.`);
 };
 
 module.exports = { data, run };

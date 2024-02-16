@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const quotesSchema = new Schema({
+const memberCounterSchema = new Schema({
     guildName: {
         type: String,
         required: true,
@@ -20,11 +20,7 @@ const quotesSchema = new Schema({
         type: String,
         required: true,
         default: null
-    },
-    quotes: {
-        type: Array,
-        default: null
     }
 }, { timestamps: true });
 
-module.exports = model('Quotes', quotesSchema);
+module.exports = model('Member Counter', memberCounterSchema);
