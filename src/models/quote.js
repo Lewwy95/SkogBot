@@ -25,10 +25,6 @@ const quoteSchema = new Schema({
         type: String,
         required: true,
         default: null
-    },
-    quotes: {
-        type: Array,
-        default: null
     }
 }, { timestamps: true });
 

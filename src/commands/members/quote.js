@@ -70,14 +70,6 @@ async function run({ interaction }) {
         allowedMentions: { users: [] }
     });
 
-    query.quotes.push({ 
-        quote: quote,
-        author: author.username,
-        submittedBy: interaction.user.username
-    });
-
-    await query.save();
-
     interaction.followUp(`Thank you for submitting this quote. You can view it in the <#${channel.id}> channel.`);
 };
 
