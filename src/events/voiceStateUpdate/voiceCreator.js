@@ -19,30 +19,23 @@ module.exports = async (oldState, newState) => {
             parent: query.parentId,
             permissionOverwrites: [{
                     id: newState.member.id,
-                    allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.MoveMembers, PermissionFlagsBits.MuteMembers, PermissionFlagsBits.DeafenMembers]
+                    allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.MoveMembers, PermissionFlagsBits.MuteMembers, PermissionFlagsBits.DeafenMembers]
                 }
             ]
         });
 
+        channel.send({
+            content: `<@${newState.member.user.id}> is the owner of this channel.\n\nThey have extra permissions for this channel:\n- Manage Channel\n- Mute Members\n- Deafen Members\n- Move Members\n\nThis channel will be deleted once it becomes empty.`,
+            allowedMentions: { users: [] }
+        });
+
+        query.channels.push({ 
+            channelName: channel.name,
+            channelId: channel.id
+        });
+    
+        await query.save();
+
         await newState.member.voice.setChannel(channel);
-
-        const checkMembers = async () => {
-            const cachedChannel = newState.guild.channels.cache.get(channel.id);
-
-            if (!cachedChannel) {
-                clearTimeout(checkMembers);
-                return;
-            }
-
-            if (cachedChannel.members.size < 1) {
-                await cachedChannel.delete();
-
-                clearTimeout(checkMembers);
-            } else {
-                setTimeout(checkMembers, 60000); // 1 minute
-            }
-        }
-
-        setTimeout(checkMembers, 60000); // 1 minute
     }
 };

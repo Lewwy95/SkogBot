@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const voiceCreatorSchema = new Schema({
+const dailyFactSchema = new Schema({
     guildName: {
         type: String,
         required: true,
@@ -26,10 +26,10 @@ const voiceCreatorSchema = new Schema({
         required: true,
         default: null
     },
-    channels: {
-        type: Array,
+    timestamp: {
+        type: Date,
         default: null
     }
 }, { timestamps: true });
 
-module.exports = model('Voice Creator', voiceCreatorSchema);
+module.exports = model('Daily Fact', dailyFactSchema);
