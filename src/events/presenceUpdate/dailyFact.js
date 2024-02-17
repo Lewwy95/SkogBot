@@ -21,7 +21,7 @@ module.exports = async (oldMember, newMember) => {
         await channel.send({
             embeds: [new EmbedBuilder()
                 .setColor('Purple')
-                .setTitle('🔍 Daily Fact')
+                .setTitle('Daily Fact')
                 .setDescription(`Powered by UselessFacts API.`)
                 .setThumbnail(newMember.client.user.displayAvatarURL({ dynamic: true }))
                 .addFields({

@@ -4,6 +4,7 @@ const dailyFactSchema = require('../../models/dailyFact');
 const memberCounterSchema = require('../../models/memberCounter');
 const openAISchema = require('../../models/openAI');
 const quoteSchema = require('../../models/quote');
+const suggestionSchema = require('../../models/suggestion');
 const verifySchema = require('../../models/verify');
 const voiceCreatorSchema = require('../../models/voiceCreator');
 
@@ -23,6 +24,7 @@ const data = new SlashCommandBuilder()
                 { name: 'Member Counter', value: 'Member Counter' },
                 { name: 'Open-AI', value: 'Open-AI' },
                 { name: 'Quote', value: 'Quote' },
+                { name: 'Suggestion', value: 'Suggestion' },
                 { name: 'Verify', value: 'Verify' },
                 { name: 'Voice Creator', value: 'Voice Creator' }
             )
@@ -74,6 +76,12 @@ async function run({ interaction }) {
 
         case 'Quote': {
             elementSchema = quoteSchema;
+        }
+
+        break;
+
+        case 'Suggestion': {
+            elementSchema = suggestionSchema;
         }
 
         break;

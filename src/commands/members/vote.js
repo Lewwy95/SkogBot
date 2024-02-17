@@ -58,6 +58,7 @@ async function run({ interaction }) {
     const buttonRow = new ActionRowBuilder().addComponents(buttonYes, buttonNo);
 
     const voteMessage = await interaction.channel.send({
+        content: 'This vote is currently active.',
         embeds: [new EmbedBuilder()
             .setColor('Purple')
             .setAuthor({
@@ -180,7 +181,7 @@ async function run({ interaction }) {
             }
 
             voteMessage.edit({
-                content: `This vote has ended.`,
+                content: `This vote has expired.`,
                 components: [buttonRow]
             });
         });
