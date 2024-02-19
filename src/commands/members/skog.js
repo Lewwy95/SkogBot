@@ -14,9 +14,13 @@ const data = new SlashCommandBuilder()
 async function run({ interaction }) {
     await interaction.deferReply();
         
-    const data = await fetch('https://www.reddit.com/r/Djungelskog/random/.json').then(res => res.json());
+    const data = await fetch('https://www.reddit.com/r/Djungelskog/random/.json').then(res => res.json()).catch(console.error);
 
-    interaction.followUp({ embeds: [new EmbedBuilder().setImage(`${data[0].data.children[0].data.url}`)] });
+    console.log(data);
+
+    setTimeout(function() {
+        interaction.followUp({ embeds: [new EmbedBuilder().setImage(`${data[0].data.children[0].data.url}`)] });
+    }, 3000);
 };
 
 module.exports = { data, run };
