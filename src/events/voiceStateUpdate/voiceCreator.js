@@ -13,8 +13,20 @@ module.exports = async (oldState, newState) => {
     }
 
     if (oldState.channel !== newState.channel && newState.channel && newState.channel.id === query.channelId) {
+        const channelName = [
+            'Loot Lounge',
+            'Frag Forge',
+            'GPU Gala',
+            'Chuckle Chamber',
+            'Hilarity Hangar',
+            'Glitch Gig',
+            'Warp Way',
+            'Pixel Pit',
+            'Quest Quarters'
+        ];
+
         const channel = await newState.guild.channels.create({
-            name: `🔊 ${newState.member.displayName ? `${newState.member.displayName}` : `${newState.member.user.username}`} Channel`,
+            name: `🔊 ${channelName[Math.floor(Math.random() * channelName.length)]}`,
             type: ChannelType.GuildVoice,
             parent: query.parentId,
             permissionOverwrites: [{
@@ -29,10 +41,7 @@ module.exports = async (oldState, newState) => {
             allowedMentions: { users: [] }
         });
 
-        query.channels.push({ 
-            channelName: channel.name,
-            channelId: channel.id
-        });
+        query.channels.push({ channelId: channel.id });
     
         await query.save();
 

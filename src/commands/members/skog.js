@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 
 const data = new SlashCommandBuilder()
     .setName('skog')
-    .setDescription('Fetch a random post of Djungelskog from Reddit.')
+    .setDescription('Fetch a random image of Djungelskog from Reddit.')
     .setDMPermission(false)
     .setDefaultMemberPermissions(PermissionFlagsBits.EmbedLinks)
 

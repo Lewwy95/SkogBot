@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
 const countingGameSchema = require('../../models/countingGame');
 const dailyFactSchema = require('../../models/dailyFact');
+const dailyTriviaSchema = require('../../models/dailyTrivia');
 const memberCounterSchema = require('../../models/memberCounter');
 const openAISchema = require('../../models/openAI');
 const quoteSchema = require('../../models/quote');
@@ -21,6 +22,7 @@ const data = new SlashCommandBuilder()
             .addChoices(
                 { name: 'Counting Game', value: 'Counting Game' },
                 { name: 'Daily Fact', value: 'Daily Fact' },
+                { name: 'Daily Trivia', value: 'Daily Trivia' },
                 { name: 'Member Counter', value: 'Member Counter' },
                 { name: 'Open-AI', value: 'Open-AI' },
                 { name: 'Quote', value: 'Quote' },
@@ -58,6 +60,12 @@ async function run({ interaction }) {
 
         case 'Daily Fact': {
             elementSchema = dailyFactSchema;
+        }
+
+        break;
+
+        case 'Daily Trivia': {
+            elementSchema = dailyTriviaSchema;
         }
 
         break;

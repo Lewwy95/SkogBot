@@ -180,10 +180,8 @@ async function run({ interaction }) {
                 buttonNo.setEmoji('🥲');
             }
 
-            voteMessage.edit({
-                content: `This vote has expired.`,
-                components: [buttonRow]
-            });
+            voteMessage.edit({ components: [buttonRow] });
+            voteMessage.reply('This vote has ended.');
         });
 };
 

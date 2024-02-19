@@ -55,7 +55,7 @@ async function run({ interaction }) {
         return;
     }
 
-    channel.send({
+    const quoteMessage = await channel.send({
         embeds: [new EmbedBuilder()
             .setColor('Purple')
             .setAuthor({
@@ -69,6 +69,8 @@ async function run({ interaction }) {
         ],
         allowedMentions: { users: [] }
     });
+
+    await quoteMessage.pin();
 
     interaction.followUp(`Thank you for submitting this quote. You can view it in the <#${channel.id}> channel.`);
 };
