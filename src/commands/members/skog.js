@@ -14,9 +14,9 @@ const data = new SlashCommandBuilder()
 async function run({ interaction }) {
     await interaction.deferReply();
         
-    const data = await fetch('https://meme-api.com/gimme/Djungelskog').then(res => res.json());
+    const data = await fetch('https://www.reddit.com/r/Djungelskog/random/.json').then(res => res.json());
 
-    interaction.followUp({ embeds: [new EmbedBuilder().setImage(`${data.url}`)] });
+    interaction.followUp({ embeds: [new EmbedBuilder().setImage(`${data[0].data.children[0].data.url}`)] });
 };
 
 module.exports = { data, run };
