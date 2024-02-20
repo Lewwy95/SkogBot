@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, ChannelType, EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { ButtonKit } = require('commandkit');
 const countingGameSchema = require('../../models/countingGame');
 const dailyFactSchema = require('../../models/dailyFact');
 const dailySkogSchema = require('../../models/dailySkog');
@@ -7,6 +8,7 @@ const memberCounterSchema = require('../../models/memberCounter');
 const openAISchema = require('../../models/openAI');
 const quoteSchema = require('../../models/quote');
 const suggestionSchema = require('../../models/suggestion');
+const ticketSchema = require('../../models/ticket');
 const verifySchema = require('../../models/verify');
 const voiceCreatorSchema = require('../../models/voiceCreator');
 
@@ -29,6 +31,7 @@ const data = new SlashCommandBuilder()
                 { name: 'Open-AI', value: 'Open-AI' },
                 { name: 'Quote', value: 'Quote' },
                 { name: 'Suggestion', value: 'Suggestion' },
+                { name: 'Ticket', value: 'Ticket' },
                 { name: 'Verify', value: 'Verify' },
                 { name: 'Voice Creator', value: 'Voice Creator' }
             )
@@ -98,6 +101,41 @@ async function run({ interaction }) {
 
         case 'Suggestion': {
             elementSchema = suggestionSchema;
+        }
+
+        break;
+
+        case 'Ticket': {
+            elementSchema = ticketSchema;
+
+            const buttonTicket = new ButtonKit()
+                .setLabel('Create Ticket')
+                .setEmoji('🤚')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('buttonTicket');
+
+            const buttonRow = new ActionRowBuilder().addComponents(buttonTicket);
+
+            await channel.send({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setTitle('Create Ticket')
+                    .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
+                    .addFields(
+                        {
+                            name: 'Info',
+                            value: 'Creating a ticket is for server related issues only.',
+                            inline: true
+                        },
+                        {
+                            name: 'Moderator',
+                            value: 'A Moderator will be available to assist you with your ticket.',
+                            inline: true
+                        }
+                    )
+                ],
+                components: [buttonRow]
+            });
         }
 
         break;
