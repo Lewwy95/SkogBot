@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, PermissionFlagsBits, ChannelType, EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { ButtonKit } = require('commandkit');
+const birthdaySchema = require('../../models/birthday');
 const countingGameSchema = require('../../models/countingGame');
 const dailyFactSchema = require('../../models/dailyFact');
 const dailySkogSchema = require('../../models/dailySkog');
@@ -23,6 +24,7 @@ const data = new SlashCommandBuilder()
             .setDescription('Select an element of this guild to modify.')
             .setRequired(true)
             .addChoices(
+                { name: 'Birthday', value: 'Birthday' },
                 { name: 'Counting Game', value: 'Counting Game' },
                 { name: 'Daily Fact', value: 'Daily Fact' },
                 { name: 'Daily Skog', value: 'Daily Skog' },
@@ -57,6 +59,41 @@ async function run({ interaction }) {
     let elementSchema;
 
     switch (element) {
+        case 'Birthday': {
+            elementSchema = birthdaySchema;
+
+            const buttonBirthdaySet = new ButtonKit()
+                .setLabel('Set Birthday')
+                .setEmoji('📅')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('buttonBirthdaySet');
+
+            const buttonRow = new ActionRowBuilder().addComponents(buttonBirthdaySet);
+
+            await channel.send({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setTitle('Birthday Handler')
+                    .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
+                    .addFields(
+                        {
+                            name: 'Info',
+                            value: 'Setting your birthday will notify members at the appropriate time.',
+                            inline: true
+                        },
+                        {
+                            name: 'Removal',
+                            value: 'Please submit a ticket if you\'d like your birthday to be removed.',
+                            inline: true
+                        }
+                    )
+                ],
+                components: [buttonRow]
+            });
+        }
+
+        break;
+
         case 'Counting Game': {
             elementSchema = countingGameSchema;
         }
@@ -119,7 +156,7 @@ async function run({ interaction }) {
             await channel.send({
                 embeds: [new EmbedBuilder()
                     .setColor('Purple')
-                    .setTitle('Create Ticket')
+                    .setTitle('Ticket Creator')
                     .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
                     .addFields(
                         {
