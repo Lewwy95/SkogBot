@@ -30,7 +30,7 @@ module.exports = async (oldMember, newMember) => {
         const storedDay = storedDate[2];
         const storedMonth = storedDate[1];
 
-        if (todayDay === storedDay && todayMonth === storedMonth) {
+        if (todayMonth === storedMonth) {
             const member = newMember.guild.members.cache.find(member => member.id === value.memberId);
 
             if (!member) {
@@ -39,7 +39,16 @@ module.exports = async (oldMember, newMember) => {
 
             const hasBirthdayRole = await member.roles.cache.some(role => role.id === birthdayRole.id);
 
-            if (hasBirthdayRole) {
+            if (hasBirthdayRole && todayDay !== storedDay) {
+                await member.roles.remove(birthdayRole.id);
+                return;
+            }
+
+            if (hasBirthdayRole && todayDay === storedDay) {
+                return;
+            }
+
+            if (todayDay !== storedDay) {
                 return;
             }
 
