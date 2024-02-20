@@ -46,6 +46,8 @@ module.exports = async (interaction) => {
         ]
     });
 
+    interaction.followUp(`Your ticket has been submitted and can be viewed in the <#${ticketChannel.id}> channel.`);
+
     const buttonResolve = new ButtonKit()
         .setLabel('Resolve Ticket')
         .setEmoji('✅')
