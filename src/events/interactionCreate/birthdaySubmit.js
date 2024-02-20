@@ -19,7 +19,7 @@ module.exports = async (interaction) => {
 
     const birthday = interaction.fields.getTextInputValue('modalInputBirthday');
 
-    const split = birthday.split('-');
+    const split = birthday.split('/');
     const birthdayDay = split[0];
     const birthdayMonth = split[1];
     const birthdayYear = split[2];
@@ -27,8 +27,7 @@ module.exports = async (interaction) => {
     query.birthdays.push({ 
         member: interaction.user.username,
         memberId: interaction.user.id,
-        date: new Date(`${birthdayYear}-${birthdayMonth}-${birthdayDay}T00:01:00.0000`),
-        sent: false
+        date: new Date(`${birthdayYear}-${birthdayMonth}-${birthdayDay}T00:01:00.0000`)
     });
 
     await query.save();
