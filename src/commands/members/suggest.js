@@ -40,13 +40,13 @@ async function run({ interaction }) {
     const suggestion = interaction.options.getString('suggestion');
 
     const buttonAgree = new ButtonKit()
-        .setLabel('Agree')
+        .setLabel('0')
         .setEmoji('👍')
         .setStyle(ButtonStyle.Primary)
         .setCustomId('buttonAgree');
 
     const buttonDisagree = new ButtonKit()
-        .setLabel('Disagree')
+        .setLabel('0')
         .setEmoji('👎')
         .setStyle(ButtonStyle.Primary)
         .setCustomId('buttonDisagree');
@@ -99,6 +99,9 @@ async function run({ interaction }) {
                 buttonAgreeVoters.push(buttonInteraction.user.id);
                 buttonAgreeVotes ++;
 
+                buttonAgree.setLabel(`${buttonAgreeVotes}`);
+                suggestMessage.edit({ components: [buttonRow] });
+
                 buttonInteraction.reply({
                     content: 'Thank you for your vote.',
                     ephemeral: true 
@@ -110,8 +113,8 @@ async function run({ interaction }) {
             buttonAgree.setDisabled(true);
             buttonDisagree.setDisabled(true);
 
-            buttonAgree.setLabel(`${buttonAgreeVotes}`)
-            buttonDisagree.setLabel(`${buttonDisagreeVotes}`)
+            buttonAgree.setLabel(`${buttonAgreeVotes}`);
+            buttonDisagree.setLabel(`${buttonDisagreeVotes}`);
 
             suggestMessage.edit({
                 content: `The vote for this suggestion has expired.`,
@@ -140,6 +143,9 @@ async function run({ interaction }) {
 
                 buttonDisagreeVoters.push(buttonInteraction.user.id);
                 buttonDisagreeVotes ++;
+
+                buttonDisagree.setLabel(`${buttonDisagreeVotes}`);
+                suggestMessage.edit({ components: [buttonRow] });
 
                 buttonInteraction.reply({
                     content: 'Thank you for your vote.',

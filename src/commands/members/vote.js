@@ -18,19 +18,28 @@ const data = new SlashCommandBuilder()
         option
             .setName('time')
             .setDescription('The time it takes for the vote to expire.')
-            .addChoices({
-                name: '3 Minutes',
-                value: 180000
-            }, {
-                name: '5 Minutes',
-                value: 300000
-            }, {
-                name: '10 Minutes',
-                value: 600000
-            }, {
-                name: '30 Minutes',
-                value: 1800000
-            })
+            .addChoices(
+                {
+                    name: '3 Minutes',
+                    value: 180000
+                }, 
+                {
+                    name: '5 Minutes',
+                    value: 300000
+                }, 
+                {
+                    name: '10 Minutes',
+                    value: 600000
+                }, 
+                {
+                    name: '30 Minutes',
+                    value: 1800000
+                },
+                {
+                    name: '1 Hour',
+                    value: 3600000
+                }
+            )
     )
 
 /**
@@ -44,13 +53,13 @@ async function run({ interaction }) {
     const time = interaction.options.getNumber('time');
 
     const buttonYes = new ButtonKit()
-        .setLabel('Yes')
+        .setLabel('0')
         .setEmoji('👍')
         .setStyle(ButtonStyle.Primary)
         .setCustomId('buttonYes');
 
     const buttonNo = new ButtonKit()
-        .setLabel('No')
+        .setLabel('0')
         .setEmoji('👎')
         .setStyle(ButtonStyle.Primary)
         .setCustomId('buttonNo');
@@ -102,6 +111,9 @@ async function run({ interaction }) {
                 buttonYesVoters.push(buttonInteraction.user.id);
                 buttonYesVotes ++;
 
+                buttonYes.setLabel(`${buttonYesVotes}`);
+                voteMessage.edit({ components: [buttonRow] });
+
                 buttonInteraction.reply({
                     content: 'Thank you for your vote.',
                     ephemeral: true 
@@ -111,7 +123,10 @@ async function run({ interaction }) {
         )
         .onEnd(() => {
             buttonYes.setDisabled(true);
+            buttonNo.setDisabled(true);
+
             voteMessage.edit({ components: [buttonRow] });
+            voteMessage.reply('This vote has ended.');
         });
 
     buttonNo
@@ -136,6 +151,9 @@ async function run({ interaction }) {
                 buttonNoVoters.push(buttonInteraction.user.id);
                 buttonNoVotes ++;
 
+                buttonNo.setLabel(`${buttonNoVotes}`);
+                voteMessage.edit({ components: [buttonRow] });
+
                 buttonInteraction.reply({
                     content: 'Thank you for your vote.',
                     ephemeral: true 
@@ -144,40 +162,8 @@ async function run({ interaction }) {
             { message: voteMessage, time: `${time ? time : 300000}`, autoReset: false },
         )
         .onEnd(() => {
+            buttonYes.setDisabled(true);
             buttonNo.setDisabled(true);
-
-            if (buttonYesVotes > buttonNoVotes) {
-                buttonYes.setStyle(ButtonStyle.Success);
-                buttonNo.setStyle(ButtonStyle.Danger);
-
-                buttonYes.setLabel('Yes Wins')
-                buttonNo.setLabel('No Loses')
-
-                buttonYes.setEmoji('🥳');
-                buttonNo.setEmoji('😭');
-            }
-
-            if (buttonNoVotes > buttonYesVotes) {
-                buttonNo.setStyle(ButtonStyle.Success);
-                buttonYes.setStyle(ButtonStyle.Danger);
-
-                buttonNo.setLabel('No Wins')
-                buttonYes.setLabel('Yes Loses')
-
-                buttonNo.setEmoji('🥳');
-                buttonYes.setEmoji('😭');
-            }
-
-            if (buttonYesVotes === buttonNoVotes) {
-                buttonYes.setStyle(ButtonStyle.Success);
-                buttonNo.setStyle(ButtonStyle.Success);
-
-                buttonYes.setLabel('Tie')
-                buttonNo.setLabel('Tie')
-
-                buttonYes.setEmoji('🥲');
-                buttonNo.setEmoji('🥲');
-            }
 
             voteMessage.edit({ components: [buttonRow] });
             voteMessage.reply('This vote has ended.');
