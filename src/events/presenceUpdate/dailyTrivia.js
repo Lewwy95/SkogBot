@@ -31,15 +31,15 @@ module.exports = async (oldMember, newMember) => {
                     },
                     {
                         name: 'Answer',
-                        value: 'The answer will be revealed in **1 hour**.'
+                        value: 'The answer will be revealed in **30 minutes**.'
                     }
                 )
             ]
         });
 
         setTimeout(function() {
-            triviaMessage.reply({ content: `The correct answer was **${data.results[0].correct_answer}**!` });
-        }, 3600000);
+            triviaMessage.reply({ content: `The correct answer is **${data.results[0].correct_answer}**!` });
+        }, 1800000);
 
         await query.updateOne({ timestamp: Date.now() });
     }

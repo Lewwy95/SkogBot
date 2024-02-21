@@ -22,15 +22,14 @@ module.exports = async (interaction) => {
     const split = birthday.split('/');
     const birthdayDay = split[0];
     const birthdayMonth = split[1];
-    const birthdayYear = split[2];
 
     query.birthdays.push({ 
         member: interaction.user.username,
         memberId: interaction.user.id,
-        date: new Date(`${birthdayYear}-${birthdayMonth}-${birthdayDay}T00:01:00.0000`)
+        date: new Date(`2000-${birthdayMonth}-${birthdayDay}T00:01:00.0000`)
     });
 
     await query.save();
 
-    interaction.followUp('Your birthday has been saved.');
+    interaction.followUp('Thank you. Your birthday has been saved to the database.');
 };

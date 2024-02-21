@@ -22,10 +22,10 @@ module.exports = async (interaction) => {
 
     const modalInputBirthday = new TextInputBuilder()
         .setCustomId('modalInputBirthday')
-        .setLabel("Input your birthday in DD/MM/YYYY:")
+        .setLabel("Input your birthday in DD/MM:")
         .setStyle(TextInputStyle.Short)
-        .setMinLength(10)
-        .setMaxLength(10)
+        .setMinLength(5)
+        .setMaxLength(5)
 
     const modalRow = new ActionRowBuilder().addComponents(modalInputBirthday);
     modalBirthday.addComponents(modalRow);

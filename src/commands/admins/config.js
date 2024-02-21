@@ -156,7 +156,7 @@ async function run({ interaction }) {
             await channel.send({
                 embeds: [new EmbedBuilder()
                     .setColor('Purple')
-                    .setTitle('Ticket Creator')
+                    .setTitle('Ticket Handler')
                     .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
                     .addFields(
                         {

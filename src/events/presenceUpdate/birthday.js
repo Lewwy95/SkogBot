@@ -1,6 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
 const birthdaySchema = require('../../models/birthday');
-const birthday = require('../../models/birthday');
 
 module.exports = async (oldMember, newMember) => {
     const query = await birthdaySchema.findOne({ guildId: newMember.guild.id });
@@ -54,7 +53,7 @@ module.exports = async (oldMember, newMember) => {
 
             await member.roles.add(birthdayRole.id);
 
-            await channel.send({
+            const birthdayMessage = await channel.send({
                 embeds: [new EmbedBuilder()
                     .setColor('Purple')
                     .setTitle('Birthday Handler')
@@ -67,6 +66,8 @@ module.exports = async (oldMember, newMember) => {
                 ],
                 allowedMentions: { users: [] }
             });
+
+            birthdayMessage.react('🎉');
         }
     });
 };
