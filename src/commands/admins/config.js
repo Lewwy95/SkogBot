@@ -179,6 +179,35 @@ async function run({ interaction }) {
 
         case 'Verify': {
             elementSchema = verifySchema;
+
+            const buttonVerifyRequest = new ButtonKit()
+                .setLabel('Request Verification')
+                .setEmoji('🤚')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('buttonVerifyRequest');
+
+            const buttonRow = new ActionRowBuilder().addComponents(buttonVerifyRequest);
+
+            await channel.send({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setTitle('Verification Handler')
+                    .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
+                    .addFields(
+                        {
+                            name: 'Info',
+                            value: 'You must request verification before gaining access to the server.',
+                            inline: true
+                        },
+                        {
+                            name: 'Moderator',
+                            value: 'A Moderator will be available to assist you with your request.',
+                            inline: true
+                        }
+                    )
+                ],
+                components: [buttonRow]
+            });
         }
 
         break;

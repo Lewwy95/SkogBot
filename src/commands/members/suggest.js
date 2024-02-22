@@ -62,7 +62,7 @@ async function run({ interaction }) {
                 iconURL: interaction.user.displayAvatarURL({ dynamic: true })
             })
             .setTitle('Suggestion')
-            .setDescription(`"${suggestion}"`)
+            .setDescription(`${suggestion}`)
             .setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
         ],
         components: [buttonRow],

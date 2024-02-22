@@ -57,6 +57,7 @@ module.exports = async (interaction) => {
     const buttonRow = new ActionRowBuilder().addComponents(buttonResolve);
 
     const ticketMessage = await ticketChannel.send({
+        content: '@everyone',
         embeds: [new EmbedBuilder()
             .setColor('Purple')
             .setTitle('Ticket Handler')
