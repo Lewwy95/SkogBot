@@ -15,7 +15,7 @@ module.exports = async (oldMember, newMember) => {
         return;
     }
     
-    if (10000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
+    if (86400000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
         const data = await fetch('https://opentdb.com/api.php?amount=1&difficulty=easy&type=multiple').then(res => res.json());
         const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
         const answer = data.results[0].correct_answer.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
@@ -63,7 +63,7 @@ module.exports = async (oldMember, newMember) => {
                 content: `The correct answer is **${answer}**!\n\n${correctString}`,
                 allowedMentions: { users: [] }
             });
-        }, 10000);
+        }, 1800000);
 
         await query.updateOne({ timestamp: Date.now() });
     }
