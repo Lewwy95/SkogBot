@@ -15,8 +15,10 @@ module.exports = async (oldMember, newMember) => {
         return;
     }
     
-    if (86400000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
+    if (10000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
         const data = await fetch('https://opentdb.com/api.php?amount=1&difficulty=easy&type=multiple').then(res => res.json());
+        const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
+        const answer = data.results[0].correct_answer.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
 
         const triviaMessage = await channel.send({
             embeds: [new EmbedBuilder()
@@ -27,7 +29,7 @@ module.exports = async (oldMember, newMember) => {
                 .addFields(
                     {
                         name: 'Question',
-                        value: `${data.results[0].question}`
+                        value: question
                     },
                     {
                         name: 'Answer',
@@ -38,14 +40,15 @@ module.exports = async (oldMember, newMember) => {
         });
 
         let correctMembers = [];
-        let correctString = `These are the members that got it right:`;
+        let correctString = `These are the members who answered correctly:`;
+        const messageAmount = await newMember.guild.members.cache.filter(member => !member.user.bot).size;
 
         setTimeout(async function() {
-            await channel.messages.fetch({ limit: 100 }).then(messages => {
+            await channel.messages.fetch({ limit: messageAmount }).then(messages => {
                 messages.forEach(message => {
                     const msg = message.content.toLowerCase();
 
-                    if (msg.includes(data.results[0].correct_answer.toLowerCase()) && !correctMembers.includes(message.author.id)) {
+                    if (msg.includes(answer.toLowerCase()) && !correctMembers.includes(message.author.id) && !message.author.bot) {
                         correctMembers.push(message.author.id);
                         correctString += `\n<@${message.author.id}>`;
                     }
@@ -53,14 +56,14 @@ module.exports = async (oldMember, newMember) => {
             });
 
             if (correctMembers.length === 0 || correctMembers === undefined) {
-                correctString = 'No member had managed to this question correctly.';
+                correctString = 'No members had managed to answer this question correctly.';
             }
 
             triviaMessage.reply({
-                content: `The correct answer is **${data.results[0].correct_answer}**!\n\n${correctString}`,
+                content: `The correct answer is **${answer}**!\n\n${correctString}`,
                 allowedMentions: { users: [] }
             });
-        }, 1800000);
+        }, 10000);
 
         await query.updateOne({ timestamp: Date.now() });
     }

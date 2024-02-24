@@ -13,7 +13,7 @@ module.exports = async (oldMember, newMember) => {
         return;
     }
 
-    const count = await newMember.guild.members.cache.filter(member => !member.user.bot).size;  
+    const count = await newMember.guild.members.cache.filter(member => !member.user.bot).size;
 
     channel.setName(`Member Count: ${count}`);
 };
