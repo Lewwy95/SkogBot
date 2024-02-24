@@ -1,13 +1,13 @@
-const { PermissionFlagsBits, EmbedBuilder, ChannelType, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { PermissionFlagsBits, ChannelType, EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { ButtonKit } = require('commandkit');
 const ticketSchema = require('../../models/ticket');
 
 module.exports = async (interaction) => {
-    if (!interaction.isButton()) {
+    if (!interaction.isModalSubmit()) {
         return;
     }
 
-    if (interaction.customId !== 'buttonTicket') {
+    if (interaction.customId !== 'modalTicket') {
         return;
     }
 
@@ -25,6 +25,8 @@ module.exports = async (interaction) => {
         interaction.followUp('There is no role with the name **"Moderator"** in this guild.');
         return;
     }
+
+    const ticket = interaction.fields.getTextInputValue('modalInputTicket');
 
     const ticketChannel = await interaction.guild.channels.create({
         name: `🚨・${interaction.user.displayName ? `${interaction.user.displayName}` : `${interaction.user.username}`} Ticket`,
@@ -46,8 +48,6 @@ module.exports = async (interaction) => {
         ]
     });
 
-    interaction.followUp(`Your ticket has been submitted and can be viewed in the <#${ticketChannel.id}> channel.`);
-
     const buttonResolve = new ButtonKit()
         .setLabel('Resolve Ticket')
         .setEmoji('✅')
@@ -64,14 +64,12 @@ module.exports = async (interaction) => {
             .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
             .addFields(
                 {
-                    name: 'Info',
-                    value: 'Please explain the problem you are experiencing in detail.',
-                    inline: true
+                    name: 'Issue',
+                    value: `${ticket}`,
                 },
                 {
                     name: 'Button',
                     value: 'A Moderator will resolve your ticket when necessary.',
-                    inline: true
                 }
             )
         ],
@@ -93,4 +91,6 @@ module.exports = async (interaction) => {
             },
             { message: ticketMessage }
         )
+
+    interaction.followUp(`Your ticket has been submitted and can be viewed in the <#${ticketChannel.id}> channel.`);
 };

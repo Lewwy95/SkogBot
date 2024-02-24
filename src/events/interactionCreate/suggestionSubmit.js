@@ -1,43 +1,25 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { ButtonKit } = require('commandkit');
 const suggestionSchema = require('../../models/suggestion');
 
-const data = new SlashCommandBuilder()
-    .setName('suggest')
-    .setDescription('Create a suggestion that members can vote for.')
-    .setDMPermission(false)
-    .setDefaultMemberPermissions(PermissionFlagsBits.SendMessages)
-    .addStringOption((option) =>
-        option
-            .setName('suggestion')
-            .setDescription('The suggestion that members will vote on.')
-            .setRequired(true)
-            .setMinLength(12)
-            .setMaxLength(240)
-    )
+module.exports = async (interaction) => {
+    if (!interaction.isModalSubmit()) {
+        return;
+    }
 
-/**
- * @param {import('commandkit').SlashCommandProps} param0
- */
-
-async function run({ interaction }) {
-    await interaction.deferReply({ ephemeral: true });
+    if (interaction.customId !== 'modalSuggestion') {
+        return;
+    }
 
     const query = await suggestionSchema.findOne({ guildId: interaction.guild.id });
 
     if (!query) {
-        interaction.followUp('The suggestion system is currently offline. Please try again later.');
         return;
     }
 
-    const channel = interaction.guild.channels.cache.find(channel => channel.id === query.channelId);
+    await interaction.deferReply({ ephemeral: true });
 
-    if (!channel) {
-        interaction.followUp('The suggestion system is currently offline. Please try again later.');
-        return;
-    }
-
-    const suggestion = interaction.options.getString('suggestion');
+    const suggestion = interaction.fields.getTextInputValue('modalInputSuggestion');
 
     const buttonAgree = new ButtonKit()
         .setLabel('0')
@@ -53,7 +35,7 @@ async function run({ interaction }) {
  
     const buttonRow = new ActionRowBuilder().addComponents(buttonAgree, buttonDisagree);
 
-    const suggestMessage = await channel.send({
+    const suggestMessage = await interaction.channel.send({
         content: 'The vote for this suggestion is currently active.',
         embeds: [new EmbedBuilder()
             .setColor('Purple')
@@ -68,8 +50,6 @@ async function run({ interaction }) {
         components: [buttonRow],
         allowedMentions: { users: [] }
     });
-
-    interaction.followUp(`Thank you for submitting this suggestion. You can view it in the <#${channel.id}> channel.`);
 
     const creatorId = interaction.user.id;
     let buttonAgreeVoters = [];
@@ -166,6 +146,6 @@ async function run({ interaction }) {
                 components: [buttonRow]
             });
         });
-};
 
-module.exports = { data, run };
+    interaction.followUp(`Your suggestion has been submitted.`);
+};

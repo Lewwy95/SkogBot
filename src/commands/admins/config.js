@@ -3,7 +3,6 @@ const { ButtonKit } = require('commandkit');
 const birthdaySchema = require('../../models/birthday');
 const countingGameSchema = require('../../models/countingGame');
 const dailyFactSchema = require('../../models/dailyFact');
-const dailySkogSchema = require('../../models/dailySkog');
 const dailyTriviaSchema = require('../../models/dailyTrivia');
 const memberCounterSchema = require('../../models/memberCounter');
 const openAISchema = require('../../models/openAI');
@@ -27,7 +26,6 @@ const data = new SlashCommandBuilder()
                 { name: 'Birthday', value: 'Birthday' },
                 { name: 'Counting Game', value: 'Counting Game' },
                 { name: 'Daily Fact', value: 'Daily Fact' },
-                { name: 'Daily Skog', value: 'Daily Skog' },
                 { name: 'Daily Trivia', value: 'Daily Trivia' },
                 { name: 'Member Counter', value: 'Member Counter' },
                 { name: 'Open-AI', value: 'Open-AI' },
@@ -106,12 +104,6 @@ async function run({ interaction }) {
 
         break;
 
-        case 'Daily Skog': {
-            elementSchema = dailySkogSchema;
-        }
-
-        break;
-
         case 'Daily Trivia': {
             elementSchema = dailyTriviaSchema;
         }
@@ -138,6 +130,35 @@ async function run({ interaction }) {
 
         case 'Suggestion': {
             elementSchema = suggestionSchema;
+
+            const buttonSuggestion = new ButtonKit()
+                .setLabel('Add Suggestion')
+                .setEmoji('🤚')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('buttonSuggestion');
+
+            const buttonRow = new ActionRowBuilder().addComponents(buttonSuggestion);
+
+            await channel.send({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setTitle('Suggestion Handler')
+                    .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
+                    .addFields(
+                        {
+                            name: 'Info',
+                            value: 'Adding a suggestion will allow other members to vote on it for an extended period of time.',
+                            inline: true
+                        },
+                        {
+                            name: 'Votes',
+                            value: 'A suggestion\'s vote will expire when **24 hours** have passed since the last vote was cast.',
+                            inline: true
+                        }
+                    )
+                ],
+                components: [buttonRow]
+            });
         }
 
         break;
