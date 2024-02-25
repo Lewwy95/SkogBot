@@ -4,6 +4,7 @@ const birthdaySchema = require('../../models/birthday');
 const countingGameSchema = require('../../models/countingGame');
 const dailyFactSchema = require('../../models/dailyFact');
 const dailyTriviaSchema = require('../../models/dailyTrivia');
+const eventSchema = require('../../models/event');
 const memberCounterSchema = require('../../models/memberCounter');
 const openAISchema = require('../../models/openAI');
 const quoteSchema = require('../../models/quote');
@@ -27,6 +28,7 @@ const data = new SlashCommandBuilder()
                 { name: 'Counting Game', value: 'Counting Game' },
                 { name: 'Daily Fact', value: 'Daily Fact' },
                 { name: 'Daily Trivia', value: 'Daily Trivia' },
+                { name: 'Event', value: 'Event' },
                 { name: 'Member Counter', value: 'Member Counter' },
                 { name: 'Open-AI', value: 'Open-AI' },
                 { name: 'Quote', value: 'Quote' },
@@ -106,6 +108,41 @@ async function run({ interaction }) {
 
         case 'Daily Trivia': {
             elementSchema = dailyTriviaSchema;
+        }
+
+        break;
+
+        case 'Event': {
+            elementSchema = eventSchema;
+
+            const buttonEvent = new ButtonKit()
+                .setLabel('Request to Host Event')
+                .setEmoji('🥳')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('buttonEvent');
+
+            const buttonRow = new ActionRowBuilder().addComponents(buttonEvent);
+
+            await channel.send({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setTitle('Event Handler')
+                    .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
+                    .addFields(
+                        {
+                            name: 'Info',
+                            value: 'Please describe your event in as much detail as possible including any permissions you need.',
+                            inline: true
+                        },
+                        {
+                            name: 'Approval',
+                            value: 'Hosting an event will require approval by a Moderator before it can begin.',
+                            inline: true
+                        }
+                    )
+                ],
+                components: [buttonRow]
+            });
         }
 
         break;

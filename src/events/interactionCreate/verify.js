@@ -65,7 +65,7 @@ module.exports = async (interaction) => {
         .setLabel('Deny')
         .setEmoji('👎')
         .setStyle(ButtonStyle.Primary)
-        .setCustomId('buttonVerifyGrant');
+        .setCustomId('buttonVerifyDeny');
 
     const buttonRow = new ActionRowBuilder().addComponents(buttonVerifyAccept, buttonVerifyDeny);
 
