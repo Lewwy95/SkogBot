@@ -17,8 +17,9 @@ module.exports = async (oldMember, newMember) => {
     
     if (86400000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
         const data = await fetch('https://opentdb.com/api.php?amount=1&difficulty=easy&type=multiple').then(res => res.json());
-        const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
-        const answer = data.results[0].correct_answer.replace(/&quot;/g, '"').replace(/&#039;/g, "'");
+        const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+        const correctAnswer = data.results[0].correct_answer.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+        const incorrectAnswers = data.results[0].incorrect_answers.toString().replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&').replace(/,/g, '\n- ');
 
         const triviaMessage = await channel.send({
             embeds: [new EmbedBuilder()
@@ -32,8 +33,8 @@ module.exports = async (oldMember, newMember) => {
                         value: question
                     },
                     {
-                        name: 'Answer',
-                        value: 'The answer will be revealed in **30 minutes** and must be an exact match.'
+                        name: 'Possible Answers',
+                        value: `- ${correctAnswer}\n- ${incorrectAnswers}`
                     }
                 )
             ]
@@ -48,7 +49,7 @@ module.exports = async (oldMember, newMember) => {
                 messages.forEach(message => {
                     const msg = message.content.toLowerCase();
 
-                    if (msg.includes(answer.toLowerCase()) && !correctMembers.includes(message.author.id) && !message.author.bot) {
+                    if (msg.includes(correctAnswer.toLowerCase()) && !correctMembers.includes(message.author.id) && !message.author.bot) {
                         correctMembers.push(message.author.id);
                         correctString += `\n<@${message.author.id}>`;
                     }
@@ -56,11 +57,11 @@ module.exports = async (oldMember, newMember) => {
             });
 
             if (correctMembers.length === 0 || correctMembers === undefined) {
-                correctString = 'No members had managed to answer this question correctly.';
+                correctString = 'No member had managed to answer this question correctly.';
             }
 
             triviaMessage.reply({
-                content: `The correct answer is **${answer}**!\n\n${correctString}`,
+                content: `The correct answer is **${correctAnswer}**!\n\n${correctString}`,
                 allowedMentions: { users: [] }
             });
         }, 1800000);
