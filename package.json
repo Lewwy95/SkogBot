@@ -1,6 +1,6 @@
 {
   "name": "skogbot",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "description": "skogbot is a custom discord bot written by lewwy.",
   "main": "./src/index.js",
   "scripts": {

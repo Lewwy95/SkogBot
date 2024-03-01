@@ -19,7 +19,15 @@ module.exports = async (oldMember, newMember) => {
         const data = await fetch('https://opentdb.com/api.php?amount=1&difficulty=easy&type=multiple').then(res => res.json());
         const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
         const correctAnswer = data.results[0].correct_answer.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
-        const incorrectAnswers = data.results[0].incorrect_answers.toString().replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&').replace(/,/g, '\n- ');
+        const incorrectAnswers = data.results[0].incorrect_answers.toString().replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
+        const possibleAnswers = [correctAnswer, incorrectAnswers];
+
+        for (let i = possibleAnswers.length - 1; i > 0; i--) {
+            let idx = Math.floor(Math.random() * (i + 1));
+            let temp = possibleAnswers[idx];
+            possibleAnswers[idx] = possibleAnswers[i];
+            possibleAnswers[i] = temp;
+        }
 
         const triviaMessage = await channel.send({
             embeds: [new EmbedBuilder()
@@ -34,7 +42,7 @@ module.exports = async (oldMember, newMember) => {
                     },
                     {
                         name: 'Possible Answers',
-                        value: `- ${correctAnswer}\n- ${incorrectAnswers}`
+                        value: `- ${possibleAnswers.toString().replace(/,/g, '\n- ')}`
                     }
                 )
             ]
