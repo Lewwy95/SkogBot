@@ -30,6 +30,38 @@ module.exports = async (message) => {
         return;
     }
 
+    switch (Math.trunc(message.content)) {
+        case 100: {
+            await message.pin();
+        }
+
+        break;
+
+        case 500: {
+            await message.pin();
+        }
+
+        break;
+
+        case 1000: {
+            await message.pin();
+        }
+
+        break;
+
+        case 5000: {
+            await message.pin();
+        }
+
+        break;
+
+        case 10000: {
+            await message.pin();
+        }
+
+        break;
+    }
+
     await query.updateOne({ 
         nextNumber: Math.trunc(message.content) +1,
         lastMember: message.author.username
