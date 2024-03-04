@@ -1,4 +1,5 @@
-const { EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { ButtonKit } = require('commandkit');
 const fetch = require('node-fetch');
 const dailyTriviaSchema = require('../../models/dailyTrivia');
 
@@ -16,7 +17,7 @@ module.exports = async (oldMember, newMember) => {
     }
     
     if (86400000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
-        const data = await fetch('https://opentdb.com/api.php?amount=1&difficulty=easy&type=multiple').then(res => res.json());
+        const data = await fetch('https://opentdb.com/api.php?amount=1&category=15&difficulty=medium&type=multiple').then(res => res.json());
         const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
         const correctAnswer = data.results[0].correct_answer.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
         const incorrectAnswers = data.results[0].incorrect_answers.toString().replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
@@ -28,6 +29,14 @@ module.exports = async (oldMember, newMember) => {
             possibleAnswers[idx] = possibleAnswers[i];
             possibleAnswers[i] = temp;
         }
+
+        const dailyTriviaSet = new ButtonKit()
+            .setLabel('Submit Answer')
+            .setEmoji('🤫')
+            .setStyle(ButtonStyle.Primary)
+            .setCustomId('buttonDailyTriviaSet');
+
+        const buttonRow = new ActionRowBuilder().addComponents(dailyTriviaSet);
 
         const triviaMessage = await channel.send({
             embeds: [new EmbedBuilder()
@@ -44,35 +53,42 @@ module.exports = async (oldMember, newMember) => {
                         name: 'Possible Answers',
                         value: `- ${possibleAnswers.toString().replace(/,/g, '\n- ')}`
                     }
-                )
-            ]
+                ),
+            ],
+            components: [buttonRow]
         });
 
         let correctMembers = [];
-        let correctString = `These are the members who answered correctly:`;
-        const messageAmount = await newMember.guild.members.cache.filter(member => !member.user.bot).size;
+        let correctString = `These are the members that answered correctly:`;
 
         setTimeout(async function() {
-            await channel.messages.fetch({ limit: messageAmount }).then(messages => {
-                messages.forEach(message => {
-                    const msg = message.content.toLowerCase();
+            const query = await dailyTriviaSchema.findOne({ guildId: newMember.guild.id });
 
-                    if (msg.includes(correctAnswer.toLowerCase()) && !correctMembers.includes(message.author.id) && !message.author.bot) {
-                        correctMembers.push(message.author.id);
-                        correctString += `\n<@${message.author.id}>`;
-                    }
-                });
+            if (!query) {
+                return;
+            }
+
+            query.answers.forEach(value => {
+                if (value.answer.toLowerCase().includes(correctAnswer.toLowerCase()) && !correctMembers.includes(value.memberId)) {
+                    correctMembers.push(value.memberId);
+                    correctString += `\n<@${value.memberId}>`;
+                }
             });
 
             if (correctMembers.length === 0 || correctMembers === undefined) {
                 correctString = 'No member had managed to answer this question correctly.';
             }
 
+            dailyTriviaSet.setDisabled(true);
+            triviaMessage.edit({ components: [buttonRow] });
+
             triviaMessage.reply({
                 content: `The correct answer is **${correctAnswer}**!\n\n${correctString}`,
                 allowedMentions: { users: [] }
             });
-        }, 1800000);
+
+            await query.updateOne({ answers: [] });
+        }, 900000); // 15 minutes
 
         await query.updateOne({ timestamp: Date.now() });
     }
