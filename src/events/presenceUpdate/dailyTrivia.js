@@ -47,11 +47,11 @@ module.exports = async (oldMember, newMember) => {
                 .addFields(
                     {
                         name: 'Question',
-                        value: question
+                        value: `${question}`
                     },
                     {
                         name: 'Possible Answers',
-                        value: `- ${possibleAnswers.toString().replace(/,/g, '\n- ')}`
+                        value: `${possibleAnswers.toString().replace(/,/g, ', ')}`
                     }
                 ),
             ],
@@ -59,7 +59,9 @@ module.exports = async (oldMember, newMember) => {
         });
 
         let correctMembers = [];
-        let correctString = `These are the members that answered correctly:`;
+        let incorrectMembers = [];
+        let correctString = '';
+        let incorrectString = '';
 
         setTimeout(async function() {
             const query = await dailyTriviaSchema.findOne({ guildId: newMember.guild.id });
@@ -73,18 +75,46 @@ module.exports = async (oldMember, newMember) => {
                     correctMembers.push(value.memberId);
                     correctString += `\n<@${value.memberId}>`;
                 }
+
+                if (!value.answer.toLowerCase().includes(correctAnswer.toLowerCase()) && !incorrectMembers.includes(value.memberId))
+                {
+                    incorrectMembers.push(value.memberId);
+                    incorrectString += `\n<@${value.memberId}> - "${value.answer}"`;
+                }
             });
 
             if (correctMembers.length === 0 || correctMembers === undefined) {
-                correctString = 'No member had managed to answer this question correctly.';
+                correctString = 'No member had answered this question correctly.';
+            }
+
+            if (incorrectMembers.length === 0 || incorrectMembers === undefined) {
+                incorrectString = 'No member had answered this question incorrectly.';
             }
 
             dailyTriviaSet.setDisabled(true);
             triviaMessage.edit({ components: [buttonRow] });
 
             triviaMessage.reply({
-                content: `The correct answer is **${correctAnswer}**!\n\n${correctString}`,
-                allowedMentions: { users: [] }
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setTitle('Daily Trivia')
+                    .setDescription(`Powered by Open Trivia API.`)
+                    .setThumbnail(newMember.client.user.displayAvatarURL({ dynamic: true }))
+                    .addFields(
+                        {
+                            name: 'Correct Answer',
+                            value: `${correctAnswer}`
+                        },
+                        {
+                            name: 'Winners',
+                            value: correctString
+                        },
+                        {
+                            name: 'Losers',
+                            value: incorrectString
+                        }
+                    ),
+                ]
             });
 
             await query.updateOne({ answers: [] });

@@ -16,6 +16,20 @@ module.exports = async (interaction) => {
         return;
     }
 
+    const membersAnswered = [];
+
+    query.answers.forEach(value => {
+        if (value.memberId === interaction.user.id) {
+            membersAnswered.push(interaction.user.id);
+        }
+    });
+
+    if (membersAnswered.includes(interaction.user.id)) {
+        await interaction.deferReply({ ephemeral: true });
+        interaction.followUp('You have alreay submitted an answer.');
+        return;
+    }
+
     const modalDailyTrivia = new ModalBuilder()
 		.setCustomId('modalDailyTrivia')
 		.setTitle('Daily Trivia Handler')
@@ -25,7 +39,7 @@ module.exports = async (interaction) => {
         .setLabel("Please submit your answer:")
         .setStyle(TextInputStyle.Short)
         .setMinLength(1)
-        .setMaxLength(100)
+        .setMaxLength(40)
 
     const modalRow = new ActionRowBuilder().addComponents(modalInputDailyTrivia);
     modalDailyTrivia.addComponents(modalRow);
