@@ -29,10 +29,6 @@ const dailyTriviaSchema = new Schema({
     timestamp: {
         type: Date,
         default: null
-    },
-    answers: {
-        type: Array,
-        default: null
     }
 }, { timestamps: true });
 

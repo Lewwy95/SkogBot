@@ -17,26 +17,23 @@ module.exports = async (oldMember, newMember) => {
     }
     
     if (86400000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
-        const data = await fetch('https://opentdb.com/api.php?amount=1&category=15&difficulty=medium&type=multiple').then(res => res.json());
+        const data = await fetch('https://opentdb.com/api.php?amount=1&difficulty=medium&type=boolean').then(res => res.json());
         const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
-        const correctAnswer = data.results[0].correct_answer.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
-        const incorrectAnswers = data.results[0].incorrect_answers.toString().replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
-        const possibleAnswers = [correctAnswer, incorrectAnswers];
+        const correctAnswer = data.results[0].correct_answer.toString();
 
-        for (let i = possibleAnswers.length - 1; i > 0; i--) {
-            let idx = Math.floor(Math.random() * (i + 1));
-            let temp = possibleAnswers[idx];
-            possibleAnswers[idx] = possibleAnswers[i];
-            possibleAnswers[i] = temp;
-        }
-
-        const dailyTriviaSet = new ButtonKit()
-            .setLabel('Submit Answer')
-            .setEmoji('🤫')
+        const dailyTriviaTrue = new ButtonKit()
+            .setLabel('True')
+            .setEmoji('👍')
             .setStyle(ButtonStyle.Primary)
-            .setCustomId('buttonDailyTriviaSet');
+            .setCustomId('buttonDailyTriviaTrue');
 
-        const buttonRow = new ActionRowBuilder().addComponents(dailyTriviaSet);
+        const dailyTriviaFalse = new ButtonKit()
+            .setLabel('False')
+            .setEmoji('👎')
+            .setStyle(ButtonStyle.Primary)
+            .setCustomId('buttonDailyTriviaFalse');
+
+        const buttonRow = new ActionRowBuilder().addComponents(dailyTriviaTrue, dailyTriviaFalse);
 
         const triviaMessage = await channel.send({
             embeds: [new EmbedBuilder()
@@ -44,44 +41,87 @@ module.exports = async (oldMember, newMember) => {
                 .setTitle('Daily Trivia')
                 .setDescription(`Powered by Open Trivia API.`)
                 .setThumbnail(newMember.client.user.displayAvatarURL({ dynamic: true }))
-                .addFields(
-                    {
-                        name: 'Question',
-                        value: `${question}`
-                    },
-                    {
-                        name: 'Possible Answers',
-                        value: `${possibleAnswers.toString().replace(/,/g, ', ')}`
-                    }
-                ),
+                .addFields({
+                    name: 'Question',
+                    value: `${question}`
+                }),
             ],
             components: [buttonRow]
         });
 
+        let trueMembers = [];
+        let falseMembers = [];
         let correctMembers = [];
         let incorrectMembers = [];
         let correctString = '';
         let incorrectString = '';
 
-        setTimeout(async function() {
-            const query = await dailyTriviaSchema.findOne({ guildId: newMember.guild.id });
+        dailyTriviaTrue
+            .onClick(
+                (buttonInteraction) => {
+                    if (trueMembers.includes(buttonInteraction.user.id) || falseMembers.includes(buttonInteraction.user.id)) {
+                        buttonInteraction.reply({
+                            content: 'You are only able to provide one answer.',
+                            ephemeral: true 
+                        });
+                        return;
+                    }
 
-            if (!query) {
-                return;
+                    trueMembers.push(buttonInteraction.user.id);
+
+                    buttonInteraction.reply({
+                        content: 'Thank you. Your answer has been submitted.',
+                        ephemeral: true 
+                    });
+                },
+                { message: triviaMessage },
+            )
+
+        dailyTriviaFalse
+            .onClick(
+                (buttonInteraction) => {
+                    if (falseMembers.includes(buttonInteraction.user.id) || trueMembers.includes(buttonInteraction.user.id)) {
+                        buttonInteraction.reply({
+                            content: 'You are only able to provide one answer.',
+                            ephemeral: true 
+                        });
+                        return;
+                    }
+
+                    falseMembers.push(buttonInteraction.user.id);
+
+                    buttonInteraction.reply({
+                        content: 'Thank you. Your answer has been submitted.',
+                        ephemeral: true 
+                    });
+                },
+                { message: triviaMessage },
+            )
+
+        setTimeout(async function() {
+            if (correctAnswer.toString() === 'True') {
+                trueMembers.forEach(value => {
+                    correctMembers.push(value);
+                    correctString += `\n<@${value}>`;
+                });
+
+                falseMembers.forEach(value => {
+                    incorrectMembers.push(value);
+                    incorrectString += `\n<@${value}>`;
+                });
             }
 
-            query.answers.forEach(value => {
-                if (value.answer.toLowerCase().includes(correctAnswer.toLowerCase()) && !correctMembers.includes(value.memberId)) {
-                    correctMembers.push(value.memberId);
-                    correctString += `\n<@${value.memberId}>`;
-                }
+            if (correctAnswer.toString() === 'False') {
+                falseMembers.forEach(value => {
+                    correctMembers.push(value);
+                    correctString += `\n<@${value}>`;
+                });
 
-                if (!value.answer.toLowerCase().includes(correctAnswer.toLowerCase()) && !incorrectMembers.includes(value.memberId))
-                {
-                    incorrectMembers.push(value.memberId);
-                    incorrectString += `\n<@${value.memberId}> - "${value.answer}"`;
-                }
-            });
+                trueMembers.forEach(value => {
+                    incorrectMembers.push(value);
+                    incorrectString += `\n<@${value}>`;
+                });
+            }
 
             if (correctMembers.length === 0 || correctMembers === undefined) {
                 correctString = 'No member had answered this question correctly.';
@@ -91,7 +131,8 @@ module.exports = async (oldMember, newMember) => {
                 incorrectString = 'No member had answered this question incorrectly.';
             }
 
-            dailyTriviaSet.setDisabled(true);
+            dailyTriviaTrue.setDisabled(true);
+            dailyTriviaFalse.setDisabled(true);
             triviaMessage.edit({ components: [buttonRow] });
 
             triviaMessage.reply({
@@ -116,8 +157,6 @@ module.exports = async (oldMember, newMember) => {
                     ),
                 ]
             });
-
-            await query.updateOne({ answers: [] });
         }, 900000); // 15 minutes
 
         await query.updateOne({ timestamp: Date.now() });
