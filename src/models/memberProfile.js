@@ -23,7 +23,7 @@ const memberProfileSchema = new Schema({
     },
     fruit: {
         type: Number,
-        default: 0
+        default: 1
     }
 }, { timestamps: true });
 
