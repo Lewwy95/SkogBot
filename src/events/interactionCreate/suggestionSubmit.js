@@ -90,7 +90,7 @@ module.exports = async (interaction) => {
             },
             { message: suggestMessage, time: 86400000, autoReset: true }, // 24 hours but resets on click
         )
-        .onEnd(() => {
+        .onEnd(async () => {
             buttonAgree.setDisabled(true);
             buttonDisagree.setDisabled(true);
 
@@ -101,6 +101,10 @@ module.exports = async (interaction) => {
                 content: `The vote for this suggestion has expired.`,
                 components: [buttonRow]
             });
+
+            if (buttonAgreeVotes > buttonDisagreeVotes) {
+                await giveFruit(interaction.guild.id, interaction.user.id, 30);
+            }
         });
 
     buttonDisagree
@@ -133,22 +137,8 @@ module.exports = async (interaction) => {
                     ephemeral: true 
                 });
             },
-            { message: suggestMessage, time: 86400000, autoReset: true }, // 24 hours but resets on click
+            { message: suggestMessage },
         )
-        .onEnd(() => {
-            buttonAgree.setDisabled(true);
-            buttonDisagree.setDisabled(true);
 
-            buttonAgree.setLabel(`${buttonAgreeVotes}`)
-            buttonDisagree.setLabel(`${buttonDisagreeVotes}`)
-
-            suggestMessage.edit({
-                content: `The vote for this suggestion has expired.`,
-                components: [buttonRow]
-            });
-        });
-
-    await giveFruit(interaction.guild.id, interaction.user.id, 10);
-
-    interaction.followUp(`Your suggestion has been submitted.\n\nYou have been given **10** fruit as a reward.`);
+    interaction.followUp(`Your suggestion has been submitted.\n\nIf it is approved you will be rewarded with **30** fruit.`);
 };
