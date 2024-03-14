@@ -1,4 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
+const { giveFruit } = require('../../functions/giveFruit');
 const birthdaySchema = require('../../models/birthday');
 
 module.exports = async (oldMember, newMember) => {
@@ -52,6 +53,7 @@ module.exports = async (oldMember, newMember) => {
             }
 
             await member.roles.add(birthdayRole.id);
+            await giveFruit(newMember.guild.id, member.id, 50);
 
             const birthdayMessage = await channel.send({
                 embeds: [new EmbedBuilder()
@@ -61,7 +63,7 @@ module.exports = async (oldMember, newMember) => {
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
                     .addFields({
                         name: 'Member',
-                        value: `Please wish <@${member.id}> a happy birthday.`
+                        value: `Please wish <@${member.id}> a happy birthday.\nThey have been gifted **50** fruit for their birthday!`
                     })
                 ],
                 allowedMentions: { users: [] }

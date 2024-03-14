@@ -1,10 +1,12 @@
 const { SlashCommandBuilder, PermissionFlagsBits, ChannelType, EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { ButtonKit } = require('commandkit');
+const { fruitLeaderboard } = require('../../functions/fruitLeaderboard');
 const birthdaySchema = require('../../models/birthday');
 const countingGameSchema = require('../../models/countingGame');
 const dailyFactSchema = require('../../models/dailyFact');
 const dailyTriviaSchema = require('../../models/dailyTrivia');
 const eventSchema = require('../../models/event');
+const fruitLeaderboardSchema = require('../../models/fruitLeaderboard');
 const memberCounterSchema = require('../../models/memberCounter');
 const openAISchema = require('../../models/openAI');
 const quoteSchema = require('../../models/quote');
@@ -29,6 +31,7 @@ const data = new SlashCommandBuilder()
                 { name: 'Daily Fact', value: 'Daily Fact' },
                 { name: 'Daily Trivia', value: 'Daily Trivia' },
                 { name: 'Event', value: 'Event' },
+                { name: 'Fruit Leaderboard', value: 'Fruit Leaderboard' },
                 { name: 'Member Counter', value: 'Member Counter' },
                 { name: 'Open-AI', value: 'Open-AI' },
                 { name: 'Quote', value: 'Quote' },
@@ -142,6 +145,37 @@ async function run({ interaction }) {
                     )
                 ],
                 components: [buttonRow]
+            });
+        }
+
+        break;
+
+        case 'Fruit Leaderboard': {
+            elementSchema = fruitLeaderboardSchema;
+
+            const leaderboard = await fruitLeaderboard(interaction.guild.id);
+
+            const buttonFruitLeaderboardRefresh = new ButtonKit()
+                .setLabel('Refresh')
+                .setEmoji('🔃')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('buttonFruitLeaderboardRefresh');
+
+            const buttonRow = new ActionRowBuilder().addComponents(buttonFruitLeaderboardRefresh);
+
+            await channel.send({
+                embeds: [new EmbedBuilder()
+                    .setColor('Purple')
+                    .setTitle('Fruit Leaderboard - Top 10')
+                    .setDescription('Who possesses the most fruit?')
+                    .setThumbnail(interaction.client.user.displayAvatarURL({ dynamic: true }))
+                    .addFields({
+                        name: 'Standings',
+                        value: leaderboard,
+                    })
+                ],
+                components: [buttonRow],
+                allowedMentions: { users: [] }
             });
         }
 

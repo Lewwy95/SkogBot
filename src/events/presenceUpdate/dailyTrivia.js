@@ -1,7 +1,8 @@
 const { EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { ButtonKit } = require('commandkit');
-const fetch = require('node-fetch');
+const { giveFruit } = require('../../functions/giveFruit');
 const dailyTriviaSchema = require('../../models/dailyTrivia');
+const fetch = require('node-fetch');
 
 module.exports = async (oldMember, newMember) => {
     const query = await dailyTriviaSchema.findOne({ guildId: newMember.guild.id });
@@ -70,7 +71,7 @@ module.exports = async (oldMember, newMember) => {
                     trueMembers.push(buttonInteraction.user.id);
 
                     buttonInteraction.reply({
-                        content: 'Thank you. Your answer has been submitted.',
+                        content: 'You selected **True** as your answer.',
                         ephemeral: true 
                     });
                 },
@@ -91,7 +92,7 @@ module.exports = async (oldMember, newMember) => {
                     falseMembers.push(buttonInteraction.user.id);
 
                     buttonInteraction.reply({
-                        content: 'Thank you. Your answer has been submitted.',
+                        content: 'You selected **False** as your answer.',
                         ephemeral: true 
                     });
                 },
@@ -100,9 +101,10 @@ module.exports = async (oldMember, newMember) => {
 
         setTimeout(async function() {
             if (correctAnswer.toString() === 'True') {
-                trueMembers.forEach(value => {
+                trueMembers.forEach(async (value) => {
                     correctMembers.push(value);
                     correctString += `\n<@${value}>`;
+                    await giveFruit(newMember.guild.id, value, 10);
                 });
 
                 falseMembers.forEach(value => {
@@ -112,9 +114,10 @@ module.exports = async (oldMember, newMember) => {
             }
 
             if (correctAnswer.toString() === 'False') {
-                falseMembers.forEach(value => {
+                falseMembers.forEach(async (value) => {
                     correctMembers.push(value);
                     correctString += `\n<@${value}>`;
+                    await giveFruit(newMember.guild.id, value, 10);
                 });
 
                 trueMembers.forEach(value => {
@@ -153,9 +156,14 @@ module.exports = async (oldMember, newMember) => {
                         {
                             name: 'Losers',
                             value: incorrectString
+                        },
+                        {
+                            name: 'Rewards',
+                            value: 'All winning members have been rewarded with **10** pieces of fruit.'
                         }
                     ),
-                ]
+                ],
+                allowedMentions: { users: [] }
             });
         }, 900000); // 15 minutes
 

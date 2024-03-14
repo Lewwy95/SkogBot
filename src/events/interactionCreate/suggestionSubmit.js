@@ -1,5 +1,6 @@
 const { EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { ButtonKit } = require('commandkit');
+const { giveFruit } = require('../../functions/giveFruit');
 const suggestionSchema = require('../../models/suggestion');
 
 module.exports = async (interaction) => {
@@ -147,5 +148,7 @@ module.exports = async (interaction) => {
             });
         });
 
-    interaction.followUp(`Your suggestion has been submitted.`);
+    await giveFruit(interaction.guild.id, interaction.user.id, 10);
+
+    interaction.followUp(`Your suggestion has been submitted.\n\nYou have been given **10** fruit as a reward.`);
 };

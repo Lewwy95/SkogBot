@@ -1,3 +1,4 @@
+const { giveFruit } = require('../../functions/giveFruit');
 const countingGameSchema = require('../../models/countingGame');
 
 module.exports = async (message) => {
@@ -66,4 +67,6 @@ module.exports = async (message) => {
         nextNumber: Math.trunc(message.content) +1,
         lastMember: message.author.username
     });
+
+    await giveFruit(message.guild.id, message.author.id, 1);
 };
