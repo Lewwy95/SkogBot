@@ -104,7 +104,7 @@ module.exports = async (oldMember, newMember) => {
                 trueMembers.forEach(async (value) => {
                     correctMembers.push(value);
                     correctString += `\n<@${value}>`;
-                    await giveFruit(newMember.guild.id, value, 10);
+                    await giveFruit(newMember.guild.id, value, 20);
                 });
 
                 falseMembers.forEach(value => {
@@ -117,7 +117,7 @@ module.exports = async (oldMember, newMember) => {
                 falseMembers.forEach(async (value) => {
                     correctMembers.push(value);
                     correctString += `\n<@${value}>`;
-                    await giveFruit(newMember.guild.id, value, 10);
+                    await giveFruit(newMember.guild.id, value, 20);
                 });
 
                 trueMembers.forEach(value => {
@@ -159,7 +159,7 @@ module.exports = async (oldMember, newMember) => {
                         },
                         {
                             name: 'Rewards',
-                            value: 'All winning members have been rewarded with **10** pieces of fruit.'
+                            value: 'All winning members have been rewarded with **20** pieces of fruit.'
                         }
                     ),
                 ],
