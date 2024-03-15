@@ -53,7 +53,6 @@ module.exports = async (interaction) => {
                 value: leaderboard,
             })
         ],
-        components: [buttonRow],
-        allowedMentions: { users: [] }
+        components: [buttonRow]
     });
 };

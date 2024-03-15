@@ -1,4 +1,5 @@
 const { giveFruit } = require('../../functions/giveFruit');
+const { takeFruit } = require('../../functions/takeFruit');
 const countingGameSchema = require('../../models/countingGame');
 
 module.exports = async (message) => {
@@ -17,17 +18,20 @@ module.exports = async (message) => {
     }
 
     if (isNaN(message.content)) {
-        message.delete();
+        await message.delete();
+        await takeFruit(message.guild.id, message.author.id, 1);
         return;
     }
 
     if (message.author.username === query.lastMember) {
-        message.delete();
+        await message.delete();
+        await takeFruit(message.guild.id, message.author.id, 1);
         return;
     }
 
     if (Math.trunc(message.content) !== query.nextNumber) {
-        message.delete();
+        await message.delete();
+        await takeFruit(message.guild.id, message.author.id, 1);
         return;
     }
 

@@ -36,10 +36,7 @@ module.exports = async (oldState, newState) => {
             ]
         });
 
-        channel.send({
-            content: `<@${newState.member.user.id}> is the owner of this channel.\n\nThey have extra permissions for this channel:\n- Manage Channel\n- Mute Members\n- Deafen Members\n- Move Members\n\nThis channel will be deleted once it becomes empty.`,
-            allowedMentions: { users: [] }
-        });
+        channel.send(`**${newState.member.user.username}** is the owner of this channel.\n\nThey have extra permissions for this channel:\n- Manage Channel\n- Mute Members\n- Deafen Members\n- Move Members\n\nThis channel will be deleted once it becomes empty.`);
 
         query.channels.push({ channelId: channel.id });
     

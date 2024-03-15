@@ -88,7 +88,7 @@ module.exports = async (interaction) => {
                     ephemeral: true 
                 });
             },
-            { message: suggestMessage, time: 86400000, autoReset: true }, // 24 hours but resets on click
+            { message: suggestMessage, time: 10800000, autoReset: true }, // 3 hours but resets on click
         )
         .onEnd(async () => {
             buttonAgree.setDisabled(true);

@@ -102,27 +102,37 @@ module.exports = async (oldMember, newMember) => {
         setTimeout(async function() {
             if (correctAnswer.toString() === 'True') {
                 trueMembers.forEach(async (value) => {
-                    correctMembers.push(value);
-                    correctString += `\n<@${value}>`;
+                    const member = newMember.guild.members.cache.find(member => member.id === value);
+
+                    correctMembers.push(member.user.username);
+                    correctString += `\n**${member.user.username}**`;
+
                     await giveFruit(newMember.guild.id, value, 20);
                 });
 
                 falseMembers.forEach(value => {
-                    incorrectMembers.push(value);
-                    incorrectString += `\n<@${value}>`;
+                    const member = newMember.guild.members.cache.find(member => member.id === value);
+
+                    incorrectMembers.push(member.user.username);
+                    incorrectString += `\n**${member.user.username}**`;
                 });
             }
 
             if (correctAnswer.toString() === 'False') {
                 falseMembers.forEach(async (value) => {
-                    correctMembers.push(value);
-                    correctString += `\n<@${value}>`;
+                    const member = newMember.guild.members.cache.find(member => member.id === value);
+
+                    correctMembers.push(member.user.username);
+                    correctString += `\n**${member.user.username}**`;
+
                     await giveFruit(newMember.guild.id, value, 20);
                 });
 
                 trueMembers.forEach(value => {
-                    incorrectMembers.push(value);
-                    incorrectString += `\n<@${value}>`;
+                    const member = newMember.guild.members.cache.find(member => member.id === value);
+
+                    incorrectMembers.push(member.user.username);
+                    incorrectString += `\n**${member.user.username}**`;
                 });
             }
 
@@ -162,8 +172,7 @@ module.exports = async (oldMember, newMember) => {
                             value: 'All winning members have been rewarded with **20** pieces of fruit.'
                         }
                     ),
-                ],
-                allowedMentions: { users: [] }
+                ]
             });
         }, 900000); // 15 minutes
 

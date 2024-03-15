@@ -23,7 +23,7 @@ function run({ interaction, client }) {
     client.emit('guildMemberAdd', member);
 
     interaction.reply({
-        content: `Simulated <@${member.id}> joining this guild.`,
+        content: `Simulated **${member.user.username}** joining this guild.`,
         ephemeral: true 
     });
 };

@@ -70,15 +70,14 @@ async function run({ interaction }) {
         embeds: [new EmbedBuilder()
             .setColor('Purple')
             .setAuthor({
-                name: `${interaction.user.displayName ? interaction.user.displayName : interaction.user.username}`,
+                name: interaction.user.username,
                 iconURL: interaction.user.displayAvatarURL({ dynamic: true })
             })
             .setTitle('Vote')
             .setDescription(`"${question}"`)
             .setThumbnail(interaction.user.displayAvatarURL({ dynamic: true }))
         ],
-        components: [buttonRow],
-        allowedMentions: { users: [] }
+        components: [buttonRow]
     });
 
     interaction.deleteReply();

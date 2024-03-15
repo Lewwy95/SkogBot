@@ -15,7 +15,7 @@ async function fruitLeaderboard(guildId) {
 
     query.forEach(async (value) => {
         standings.push({
-            memberId: value.memberId,
+            memberName: value.memberName,
             fruit: value.fruit
         });
     });
@@ -27,7 +27,7 @@ async function fruitLeaderboard(guildId) {
     let num = 1;
 
     output.forEach(async (value) => {
-        string += `**#${num}** <@${value.memberId}> - (${value.fruit})\n`;
+        string += `**#${num}** ${value.memberName} - (${value.fruit})\n`;
         num ++;
     });
 

@@ -63,10 +63,9 @@ module.exports = async (oldMember, newMember) => {
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
                     .addFields({
                         name: 'Member',
-                        value: `Please wish <@${member.id}> a happy birthday.\nThey have been gifted **50** fruit for their birthday!`
+                        value: `Please wish **${member.user.username}** a happy birthday.\nThey have been gifted **50** fruit for their birthday!`
                     })
-                ],
-                allowedMentions: { users: [] }
+                ]
             });
 
             birthdayMessage.react('🎉');

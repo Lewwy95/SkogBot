@@ -15,9 +15,8 @@ module.exports = async (member) => {
             .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
             .addFields({
                 name: 'Member',
-                value: `Please give <@${member.id}> a warm welcome.`
+                value: `Please give **${member.user.username}** a warm welcome.`
             })
-        ],
-        allowedMentions: { users: [] }
+        ]
     });
 };

@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { giveFruit } = require('../../functions/giveFruit');
 const quoteSchema = require('../../models/quote');
 
 const data = new SlashCommandBuilder()
@@ -59,20 +60,23 @@ async function run({ interaction }) {
         embeds: [new EmbedBuilder()
             .setColor('Purple')
             .setAuthor({
-                name: `${author.displayName ? author.displayName : author.username}`,
+                name: author.username,
                 iconURL: author.displayAvatarURL({ dynamic: true })
             })
             .setTitle('Quote')
             .setDescription(`"${quote}"`)
             .setThumbnail(author.displayAvatarURL({ dynamic: true }))
-            .setFooter({ text: `🏆 Submitted by ${interaction.user.displayName ? interaction.user.displayName : interaction.user.username}` })
-        ],
-        allowedMentions: { users: [] }
+            .setFooter({ text: `🏆 Submitted by ${interaction.user.username}` })
+        ]
     });
 
     await quoteMessage.pin();
+    await channel.bulkDelete(1, true); // Deletes the pin message
 
-    interaction.followUp(`Thank you for submitting this quote. You can view it in the <#${channel.id}> channel.`);
+    await giveFruit(interaction.guild.id, interaction.user.id, 10);
+    await giveFruit(interaction.guild.id, author.id, 10);
+
+    interaction.followUp(`Thank you for submitting this quote. You can view it in the <#${channel.id}> channel.\n\nYou and the quote author have been rewarded with **10** fruit each.`);
 };
 
 module.exports = { data, run };

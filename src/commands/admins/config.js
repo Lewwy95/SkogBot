@@ -223,7 +223,7 @@ async function run({ interaction }) {
                         },
                         {
                             name: 'Votes',
-                            value: 'A suggestion\'s vote will expire when **24 hours** have passed since the last vote was cast.',
+                            value: 'A suggestion\'s vote will expire when **3 hours** have passed since the last vote was cast.',
                             inline: true
                         }
                     )
