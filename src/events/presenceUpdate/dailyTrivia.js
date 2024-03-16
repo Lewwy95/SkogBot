@@ -19,7 +19,7 @@ module.exports = async (oldMember, newMember) => {
     }
     
     if (86400000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
-        const data = await fetch('https://opentdb.com/api.php?amount=1&category=15&difficulty=hard&type=boolean').then(res => res.json());
+        const data = await fetch('https://opentdb.com/api.php?amount=1&difficulty=hard&type=boolean').then(res => res.json());
         const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
         const correctAnswer = data.results[0].correct_answer.toString();
 
@@ -195,7 +195,10 @@ module.exports = async (oldMember, newMember) => {
                 const newStreak = currentStreak + 1;
 
                 await query.updateOne({ guildId: newMember.guild.id, memberId: member.user.id, triviaStreak: newStreak });
-                await giveFruit(newMember.guild.id, member.user.id, newStreak * 5);
+
+                if (newStreak !== 1) {
+                    await giveFruit(newMember.guild.id, member.user.id, newStreak * 5);
+                }
             });
 
             incorrectMembers.forEach(async (value) => {
