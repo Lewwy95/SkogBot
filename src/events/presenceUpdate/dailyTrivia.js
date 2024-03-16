@@ -2,6 +2,7 @@ const { EmbedBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const { ButtonKit } = require('commandkit');
 const { giveFruit } = require('../../functions/giveFruit');
 const dailyTriviaSchema = require('../../models/dailyTrivia');
+const memberProfileSchema = require('../../models/memberProfile');
 const fetch = require('node-fetch');
 
 module.exports = async (oldMember, newMember) => {
@@ -18,7 +19,7 @@ module.exports = async (oldMember, newMember) => {
     }
     
     if (86400000 - (Date.now() - query.timestamp) <= 0) { // 24 hours
-        const data = await fetch('https://opentdb.com/api.php?amount=1&difficulty=medium&type=boolean').then(res => res.json());
+        const data = await fetch('https://opentdb.com/api.php?amount=1&category=15&difficulty=hard&type=boolean').then(res => res.json());
         const question = data.results[0].question.replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/&amp;/g, '&');
         const correctAnswer = data.results[0].correct_answer.toString();
 
@@ -105,7 +106,7 @@ module.exports = async (oldMember, newMember) => {
                     const member = newMember.guild.members.cache.find(member => member.id === value);
 
                     correctMembers.push(member.user.username);
-                    correctString += `\n**${member.user.username}**`;
+                    correctString += `\n${member.user.username}`;
 
                     await giveFruit(newMember.guild.id, value, 20);
                 });
@@ -114,7 +115,7 @@ module.exports = async (oldMember, newMember) => {
                     const member = newMember.guild.members.cache.find(member => member.id === value);
 
                     incorrectMembers.push(member.user.username);
-                    incorrectString += `\n**${member.user.username}**`;
+                    incorrectString += `\n${member.user.username}`;
                 });
             }
 
@@ -123,7 +124,7 @@ module.exports = async (oldMember, newMember) => {
                     const member = newMember.guild.members.cache.find(member => member.id === value);
 
                     correctMembers.push(member.user.username);
-                    correctString += `\n**${member.user.username}**`;
+                    correctString += `\n${member.user.username}`;
 
                     await giveFruit(newMember.guild.id, value, 20);
                 });
@@ -132,7 +133,7 @@ module.exports = async (oldMember, newMember) => {
                     const member = newMember.guild.members.cache.find(member => member.id === value);
 
                     incorrectMembers.push(member.user.username);
-                    incorrectString += `\n**${member.user.username}**`;
+                    incorrectString += `\n${member.user.username}`;
                 });
             }
 
@@ -169,10 +170,48 @@ module.exports = async (oldMember, newMember) => {
                         },
                         {
                             name: 'Rewards',
-                            value: 'All winning members have been rewarded with **20** pieces of fruit.'
+                            value: 'All winning members have been rewarded with **20** pieces of fruit.',
+                            inline: true
+                        },
+                        {
+                            name: 'Streaks',
+                            value: 'All members that are on a streak have been rewarded with extra pieces of fruit.',
+                            inline: true
                         }
                     ),
                 ]
+            });
+
+            correctMembers.forEach(async (value) => {
+                const member = newMember.guild.members.cache.find(member => member.user.username === value);
+
+                const query = await memberProfileSchema.findOne({ guildId: newMember.guild.id, memberId: member.user.id });
+
+                if (!query) {
+                    return;
+                }
+
+                const currentStreak = query.triviaStreak;
+                const newStreak = currentStreak + 1;
+
+                await query.updateOne({ guildId: newMember.guild.id, memberId: member.user.id, triviaStreak: newStreak });
+                await giveFruit(newMember.guild.id, member.user.id, newStreak * 5);
+            });
+
+            incorrectMembers.forEach(async (value) => {
+                const member = newMember.guild.members.cache.find(member => member.user.username === value);
+
+                const query = await memberProfileSchema.findOne({ guildId: newMember.guild.id, memberId: member.user.id });
+
+                if (!query) {
+                    return;
+                }
+
+                if (!query.triviaStreak || query.triviaStreak <= 0) {
+                    return;
+                }
+
+                await query.updateOne({ guildId: newMember.guild.id, memberId: member.user.id, triviaStreak: 0 });
             });
         }, 900000); // 15 minutes
 

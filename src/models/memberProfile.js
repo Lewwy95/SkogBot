@@ -24,6 +24,10 @@ const memberProfileSchema = new Schema({
     fruit: {
         type: Number,
         default: 1
+    },
+    triviaStreak: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true });
 
