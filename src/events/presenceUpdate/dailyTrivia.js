@@ -106,7 +106,7 @@ module.exports = async (oldMember, newMember) => {
                     const member = newMember.guild.members.cache.find(member => member.id === value);
 
                     correctMembers.push(member.user.username);
-                    correctString += `\n${member.user.username}`;
+                    correctString += `\n- ${member.user.username}`;
 
                     await giveFruit(newMember.guild.id, value, 20);
                 });
@@ -115,7 +115,7 @@ module.exports = async (oldMember, newMember) => {
                     const member = newMember.guild.members.cache.find(member => member.id === value);
 
                     incorrectMembers.push(member.user.username);
-                    incorrectString += `\n${member.user.username}`;
+                    incorrectString += `\n- ${member.user.username}`;
                 });
             }
 
@@ -124,7 +124,7 @@ module.exports = async (oldMember, newMember) => {
                     const member = newMember.guild.members.cache.find(member => member.id === value);
 
                     correctMembers.push(member.user.username);
-                    correctString += `\n${member.user.username}`;
+                    correctString += `\n- ${member.user.username}`;
 
                     await giveFruit(newMember.guild.id, value, 20);
                 });
@@ -133,7 +133,7 @@ module.exports = async (oldMember, newMember) => {
                     const member = newMember.guild.members.cache.find(member => member.id === value);
 
                     incorrectMembers.push(member.user.username);
-                    incorrectString += `\n${member.user.username}`;
+                    incorrectString += `\n- ${member.user.username}`;
                 });
             }
 
