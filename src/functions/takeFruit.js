@@ -19,13 +19,13 @@ async function takeFruit(guildId, memberId, amount) {
         return;
     }
 
-    const storedAmount = query.fruit;
+    const storedAmount = parseInt(query.fruit);
 
     if (storedAmount <= 0) {
         return;
     }
 
-    const newAmount = storedAmount - amount;
+    const newAmount = storedAmount - parseInt(amount);
 
     await query.updateOne({ fruit: newAmount });
 };

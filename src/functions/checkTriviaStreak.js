@@ -1,15 +1,11 @@
 const memberProfileSchema = require('../models/memberProfile');
 
-async function giveFruit(guildId, memberId, amount) {
+async function checkTriviaStreak(guildId, memberId) {
     if (guildId === null || guildId === undefined) {
         return;
     }
 
     if (memberId === null || memberId === undefined) {
-        return;
-    }
-
-    if (amount === null || amount === undefined || isNaN(amount) || amount <= 0) {
         return;
     }
 
@@ -19,10 +15,13 @@ async function giveFruit(guildId, memberId, amount) {
         return;
     }
 
-    const storedAmount = parseInt(query.fruit);
-    const newAmount = storedAmount + parseInt(amount);
+    const storedStreak = parseInt(query.triviaStreak);
 
-    await query.updateOne({ fruit: newAmount });
+    if (storedStreak <= 0) {
+        return;
+    }
+
+    return storedStreak;
 };
 
-module.exports = { giveFruit };
+module.exports = { checkTriviaStreak };
