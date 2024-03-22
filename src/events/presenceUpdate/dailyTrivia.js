@@ -216,7 +216,7 @@ module.exports = async (oldMember, newMember) => {
 
                 await query.updateOne({ guildId: newMember.guild.id, memberId: member.user.id, triviaStreak: 0 });
             });
-        }, 900000); // 15 minutes
+        }, 1200000); // 20 minutes
 
         await query.updateOne({ timestamp: Date.now() });
     }
