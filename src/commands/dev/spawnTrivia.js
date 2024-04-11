@@ -16,6 +16,6 @@ module.exports = {
     },
 
     options: {
-        devOnly: true
+        userPermissions: ['Administrator']
     }
 };
