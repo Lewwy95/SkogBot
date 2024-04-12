@@ -1,6 +1,6 @@
 {
   "name": "skogbot",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "skogbot is a custom bot written by lewwy.",
   "main": "./src/index.js",
   "scripts": {

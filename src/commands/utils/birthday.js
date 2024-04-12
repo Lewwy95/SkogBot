@@ -73,9 +73,6 @@ module.exports = {
             break;
 
             case 'check': {
-                const todayDate = new Date().toDateString().split(' ');
-                const todayDay = todayDate[2];
-                const todayMonth = todayDate[1];
                 let user;
                 let birthdayString = '';
 
@@ -86,11 +83,7 @@ module.exports = {
                         return;
                     }
 
-                    const storedDate = value.birthday.toDateString().split(' ');
-                    const storedDay = storedDate[2];
-                    const storedMonth = storedDate[1];
-
-                    if (storedDay <= todayDay && storedMonth >= todayMonth) {
+                    if (value.birthday < Date.now()) {
                         return;
                     }
 
