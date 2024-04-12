@@ -241,7 +241,7 @@ async function trivia(client, stage) {
                 files: [attachment]
             });
 
-            const collector = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 10000 }); // 15 Minutes (900000ms)
+            const collector = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 900000 }); // 15 Minutes (900000ms)
 
             let usersTrue = [];
             let usersFalse = [];
