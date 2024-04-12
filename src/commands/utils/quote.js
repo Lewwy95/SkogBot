@@ -136,16 +136,7 @@ module.exports = {
                 }
 
                 interaction.reply({
-                    embeds: [new EmbedBuilder()
-                        .setColor('Purple')
-                        .setTitle('😂 View Quotes')
-                        .setDescription(`Displaying all quotes by ${author.displayName}.`)
-                        .setThumbnail(author.displayAvatarURL({ dynamic: true }))
-                        .addFields({
-                            name: 'Result',
-                            value: quoteString
-                        })
-                    ],
+                    content: `Quotes by ${author.displayName}:\n\n${quoteString}`,
                     ephemeral: true
                 });
             }
