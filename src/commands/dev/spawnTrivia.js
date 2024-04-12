@@ -7,7 +7,7 @@ module.exports = {
     },
  
     run: ({ interaction, client }) => {
-        trivia(client, 2);
+        trivia(client, 1);
 
         interaction.reply({
             content: 'I have spawned an instance of daily trivia.',
