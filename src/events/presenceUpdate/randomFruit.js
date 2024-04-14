@@ -2,6 +2,9 @@ const { ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder,
 const { giveFruit } = require('../../functions/giveFruit');
 
 module.exports = async (oldMember, newMember) => {
+    // We'll come back to this soon
+    return;
+
     const chance = Math.floor(Math.random() * 20 + 1);
 
     if (chance < 20) {
