@@ -52,6 +52,24 @@ module.exports = {
                     return;
                 }
 
+                let birthdayExists;
+
+                query.birthdays.every(function(value) {
+                    user = interaction.guild.members.cache.find(member => member.id === value.userId);
+
+                    if (user) {
+                        birthdayExists = true;
+                    }
+                });
+
+                if (birthdayExists) {
+                    interaction.reply({
+                        content: 'You have already added your birthday.',
+                        ephemeral: true
+                    });
+                    return;
+                }
+
                 const split = date.split('/');
                 const birthdayDay = split[0];
                 const birthdayMonth = split[1];

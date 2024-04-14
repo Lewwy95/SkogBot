@@ -3,7 +3,7 @@ const { dailyFact } = require('../../functions/dailyFact');
 const { trivia } = require('../../functions/trivia');
 
 module.exports = (client) => {
-    schedule.scheduleJob({ hour: 7, minute: 0 }, function() {
+    schedule.scheduleJob({ hour: 7, minute: 30 }, function() {
         dailyFact(client);
     });
 
