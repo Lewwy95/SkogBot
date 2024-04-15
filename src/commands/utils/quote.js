@@ -101,7 +101,7 @@ module.exports = {
                             name: author.displayName,
                             iconURL: author.displayAvatarURL({ dynamic: true })
                         })
-                        .setTitle('😂 Add Quote')
+                        .setTitle('🗨️ Add Quote')
                         .setDescription(`"${quote}"`)
                         .setThumbnail(author.displayAvatarURL({ dynamic: true }))
                         .setFooter({ text: `🏆 Submitted by ${interaction.user.displayName}` })

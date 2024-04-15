@@ -8,10 +8,11 @@ async function fruitEvent(client) {
         return;
     }
 
-    const channel = await client.channels.cache.filter(c => c.type === ChannelType.GuildText).random();
+    let channel = await client.channels.cache.filter(c => c.type === ChannelType.GuildText).random();
+    channel = channel.guild.systemChannel;
 
     if (!channel) {
-        console.log('fruitEvent.js: No channel could be found in guild. Skipping.');
+        console.log('fruitEvent.js: No system channel found in guild. Skipping.');
         return;
     }
 
