@@ -86,10 +86,16 @@ async function triviaLeaderboard(client) {
                 .setTitle(`${message.embeds[0].title}`)
                 .setDescription(`${message.embeds[0].description}`)
                 .setThumbnail(`attachment://${attachment.name}`)
-                .addFields({
-                    name: message.embeds[0].data.fields[0].name,
-                    value: string
-                })
+                .addFields(
+                    {
+                        name: message.embeds[0].data.fields[0].name,
+                        value: string
+                    },
+                    {
+                        name: 'Last Refresh',
+                        value: `<t:${Math.floor(Date.now() / 1000)}:R>`
+                    }
+                )
             ],
             components: [buttonRow],
             files: [attachment]

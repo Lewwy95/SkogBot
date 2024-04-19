@@ -16,8 +16,10 @@ async function giveFruit(guildId, userId, targetId, amount) {
         return;
     }
 
+    let query;
+
     if (userId) {
-        const query = await profileSchema.findOne({ guildId: guildId, userId: userId });
+        query = await profileSchema.findOne({ guildId: guildId, userId: userId });
 
         if (!query) {
             console.log('giveFruit.js: No user profile found.');

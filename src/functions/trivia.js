@@ -1,5 +1,7 @@
 const { StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ActionRowBuilder, ComponentType, ButtonBuilder, ButtonStyle, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const { giveFruit } = require('../functions/giveFruit');
+const { fruitLeaderboard } = require('../functions/fruitLeaderboard');
+const { triviaLeaderboard } = require('../functions/triviaLeaderboard');
 const fetch = require('node-fetch');
 const redis = require('../functions/redis');
 const profileSchema = require('../schemas/profiles');
@@ -173,7 +175,7 @@ async function trivia(client, stage) {
                     const message = await channel.messages.fetch(cache.messageId);
                     message.delete();
                 } catch (err) {
-                    console.log('trivia.js: Category message missing in guild. Skipping.')
+                    console.log('trivia.js: Category message missing in guild. Skipping.');
                 }
             } else {
                 console.log('trivia.js: No Redis cache available. Using default configuration.');
@@ -404,6 +406,9 @@ async function trivia(client, stage) {
 
                     await query.updateOne({ triviaStreak: 0 });
                 });
+
+                fruitLeaderboard(message.client);
+                triviaLeaderboard(message.client);
             });
         }
 
