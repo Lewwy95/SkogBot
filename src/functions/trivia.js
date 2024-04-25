@@ -187,8 +187,8 @@ async function trivia(client, stage) {
             const attachment = new AttachmentBuilder('src/images/triviaImage.png', { name: 'triviaImage.png' });
             let participants = ' ';
 
-            if (!data.results[0]) {
-                console.log('trivia.js: API request timed out. Skipping.');
+            if (!data) {
+                channel.send('Daily Trivia API is currently offline. Keep an eye out for it later.');
                 return;
             }
 
