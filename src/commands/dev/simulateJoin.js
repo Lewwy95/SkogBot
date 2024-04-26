@@ -1,8 +1,10 @@
+const { PermissionFlagsBits } = require('discord.js');
+
 module.exports = {
-    data: {
-        name: 'simulate-join',
-        description: 'Simulate yourself joining the guild for the first time.',
-    },
+    data: new SlashCommandBuilder()
+        .setName('simulate-join')
+        .setDescription('Simulate yourself joining the guild for the first time.')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
  
     run: ({ interaction, client }) => {
         client.emit('guildMemberAdd', interaction.member);
@@ -11,9 +13,5 @@ module.exports = {
             content: 'I have simulated you joining the guild for the first time.',
             ephemeral: true
         });
-    },
-
-    options: {
-        userPermissions: ['Administrator']
     }
 };

@@ -1,9 +1,10 @@
-const { SlashCommandBuilder, ChannelType } = require('discord.js');
+const { SlashCommandBuilder, ChannelType, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('bulk-delete')
         .setDescription('Delete messages from a text channel in bulk.')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
         .addNumberOption((option) =>
             option
                 .setName('amount')
@@ -33,9 +34,5 @@ module.exports = {
             content: `You have deleted ${amount} messages from the <#${channel.id}> channel.`,
             ephemeral: true
         });
-    },
-
-    options: {
-        userPermissions: ['ManageMessages']
-    },
+    }
 };
