@@ -17,16 +17,16 @@ module.exports = {
             return;
         }
 
-        channel.members.forEach((member) => {
+        channel.members.forEach(async (member) => {
             if (member.user.id === interaction.user.id) {
                 return;
             }
 
             try {
                 if (!member.voice.serverDeaf) {
-                    member.voice.setDeaf(true);
+                    await member.voice.setDeaf(true);
                 } else {
-                    member.voice.setDeaf(false);
+                    await member.voice.setDeaf(false);
                 }
             } catch {
                 console.log('deafenAll.js: Error occurred when changing deafen status of a user. Skipping.');

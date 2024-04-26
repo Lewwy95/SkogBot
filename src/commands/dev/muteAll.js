@@ -17,16 +17,16 @@ module.exports = {
             return;
         }
 
-        channel.members.forEach((member) => {
+        channel.members.forEach(async (member) => {
             if (member.user.id === interaction.user.id) {
                 return;
             }
 
             try {
                 if (!member.voice.serverMute) {
-                    member.voice.setMute(true);
+                    await member.voice.setMute(true);
                 } else {
-                    member.voice.setMute(false);
+                    await member.voice.setMute(false);
                 }
             } catch {
                 console.log('muteAll.js: Error occurred when changing mute status of a user. Skipping.');
