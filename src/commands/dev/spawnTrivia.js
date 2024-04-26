@@ -1,4 +1,4 @@
-const { PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { trivia } = require('../../functions/trivia');
 
 module.exports = {
