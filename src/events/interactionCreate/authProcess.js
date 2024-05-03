@@ -10,7 +10,7 @@ module.exports = async (interaction) => {
         const query = await redis.get(interaction.message.id);
         const cache = await JSON.parse(query);
         const user = await interaction.guild.members.cache.get(cache.userId);
-        const role = await interaction.guild.roles.cache.find((role) => role.name.includes('Verified'));
+        const cocChannel = await interaction.guild.channels.cache.find((channel) => channel.name.includes('conduct'));
 
         if (!user) {
             interaction.reply({
@@ -20,9 +20,9 @@ module.exports = async (interaction) => {
             return;
         }
 
-        if (!role) {
+        if (!cocChannel) {
             interaction.reply({
-                content: 'The authorised role does not exist.',
+                content: 'The Code of Conduct channel does not exist.',
                 ephemeral: true
             });
             return;
@@ -37,7 +37,12 @@ module.exports = async (interaction) => {
         }
 
         if (interaction.customId === 'authApprove') {
-            await user.roles.add(role);
+            cocChannel.permissionOverwrites.edit(user, {
+                'ViewChannel': true,
+                'SendMessages': false,
+                'AddReactions': false
+            });
+
             interaction.channel.send(`${user.displayName} was granted authorisation <t:${Math.floor((Date.now() - 5000) / 1000)}:R> by ${interaction.user.displayName}.`);
 
             const channel = await interaction.guild.channels.cache.find((channel) => channel.name.includes('security'));
