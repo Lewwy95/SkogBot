@@ -77,14 +77,6 @@ module.exports = {
                     });
                     return;
                 }
-            
-                if (quote.includes('-')) {
-                    interaction.reply({
-                        content: 'Please do not use hyphens. These are added automatically for you when specifying the author.',
-                        ephemeral: true
-                    });
-                    return;
-                }
 
                 query.quotes.push({ 
                     userId: author.id,
