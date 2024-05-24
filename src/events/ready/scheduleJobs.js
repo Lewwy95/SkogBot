@@ -16,8 +16,8 @@ module.exports = (client) => {
         trivia(client, 2);
     });
 
-    const randomHour = Math.floor(Math.random() * (22 - 9) + 9); // Between 9 and 10
+    /*const randomHour = Math.floor(Math.random() * (22 - 9) + 9); // Between 9 and 10
     schedule.scheduleJob({ hour: randomHour, minute: 0 }, function() {
         fruitEvent(client);
-    });
+    });*/
 };
