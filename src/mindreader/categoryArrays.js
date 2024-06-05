@@ -13,8 +13,8 @@ countryA = [
     "Australia",
     "Austria",
     "Azerbaijan"
-]
-module.exports = countryA;
+];
+
 countryB = [
     "Bahamas",
     "Bahrain",
@@ -33,8 +33,8 @@ countryB = [
     "Bulgaria",
     "Burkina Faso",
     "Burundi"
-]
-module.exports = countryB;
+];
+
 countryC = [
     "Cabo Verde",
     "Cambodia",
@@ -52,16 +52,16 @@ countryC = [
     "Cuba",
     "Cyprus",
     "Czech Republic"
-]
-module.exports = countryC;
+];
+
 countryD = [
     "Democratic Republic of Congo",
     "Denmark",
     "Djibouti",
     "Dominica",
     "Dominican Republic"
-]
-module.exports = countryD;
+];
+
 countryE = [
     "East Timor",
     "Ecuador",
@@ -73,15 +73,15 @@ countryE = [
     "Estonia",
     "Eswatini",
     "Ethiopia"
-]
-module.exports = countryE;
+];
+
 countryF = [
     "Federated States of Micronesia",
     "Fiji",
     "Finland",
     "France"
-]
-module.exports = countryF;
+];
+
 countryG = [
     "Gabon",
     "Gambia",
@@ -94,14 +94,14 @@ countryG = [
     "Guinea",
     "Guinea-Bissau",
     "Guyana"
-]
-module.exports = countryG;
+];
+
 countryH = [
     "Haiti",
     "Honduras",
     "Hungary"
-]
-module.exports = countryH;
+];
+
 countryI = [
     "Iceland",
     "India",
@@ -111,14 +111,14 @@ countryI = [
     "Ireland",
     "Israel",
     "Italy"
-]
-module.exports = countryI;
+];
+
 countryJ = [
     "Jamaica",
     "Japan",
     "Jordan"
-]
-module.exports = countryJ;
+];
+
 countryK = [
     "Kazakhstan",
     "Kenya",
@@ -126,8 +126,8 @@ countryK = [
     "Kosovo",
     "Kuwait",
     "Kyrgyzstan"
-]
-module.exports = countryK;
+];
+
 countryL = [
     "Laos",
     "Latvia",
@@ -138,8 +138,8 @@ countryL = [
     "Liechtenstein",
     "Lithuania",
     "Luxembourg"
-]
-module.exports = countryL;
+];
+
 countryM = [
     "Madagascar",
     "Malawi",
@@ -158,8 +158,8 @@ countryM = [
     "Morocco",
     "Mozambique",
     "Myanmar"
-]
-module.exports = countryM;
+];
+
 countryN = [
     "Namibia",
     "Nauru",
@@ -173,8 +173,8 @@ countryN = [
     "North Macedonia",
     "Northern Ireland",
     "Norway"
-]
-module.exports = countryN;
+];
+
 countryP = [
     "Pakistan",
     "Palau",
@@ -185,15 +185,15 @@ countryP = [
     "Philippines",
     "Poland",
     "Portugal"
-]
-module.exports = countryP;
+];
+
 countryR = [
     "Republic of Congo",
     "Romania",
     "Russia",
     "Rwanda"
-]
-module.exports = countryR;
+];
+
 countryS = [
     "Saint Kitts and Nevis",
     "Saint Lucia",
@@ -222,8 +222,8 @@ countryS = [
     "Sweden",
     "Switzerland",
     "Syria"
-]
-module.exports = countryS;
+];
+
 countryT = [
     "Taiwan",
     "Tajikistan",
@@ -236,8 +236,8 @@ countryT = [
     "Turkey",
     "Turkmenistan",
     "Tuvalu"
-]
-module.exports = countryT;
+];
+
 countryU = [
     "Uganda",
     "Ukraine",
@@ -246,20 +246,20 @@ countryU = [
     "United States",
     "Uruguay",
     "Uzbekistan"
-]
-module.exports = countryU;
+];
+
 countryV = [
     "Vanautu",
     "Vatican City",
     "Venezuela",
     "Vietnam"
-]
-module.exports = countryV;
+];
+
 countryZ = [
     "Zambia",
     "Zimbabwe"
-]
-module.exports = countryZ;
+];
+
 //Misc category arrays - 12/21. (Other Categories/Country Categories) Please update first number if adding/removing a category below this point. Thank you!
 //Planets of the Solar System
 planets = [
@@ -271,8 +271,8 @@ planets = [
     "Saturn",
     "Uranus",
     "Neptune",
-]
-console.exports = planets;
+];
+
 //Playable Races in Bethesda's Elder Scrolls Franchise
 elderScrollsRaces = [
     "Altmer",
@@ -285,8 +285,8 @@ elderScrollsRaces = [
     "Orsimer",
     "Nord",
     "Imperial"
-]
-console.exports = elderScrollsRaces;
+];
+
 //Games that have won The Game Award for Game of the Year
 gameAward = [
     "Dragon Age: Inquisition",
@@ -298,8 +298,8 @@ gameAward = [
     "It Takes Two",
     "Elden Ring",
     "Baldur's Gate 3"
-]
-console.exports = gameAward;
+];
+
 //Simpsons Characters with over 1000 lines
 simpsons = [
     "Homer Simpson",
@@ -318,8 +318,8 @@ simpsons = [
     "Lenny Leonard",
     "Apu Nahasapeemapetilon",
     "Waylon Smithers"
-]
-console.exports = simpsons;
+];
+
 //Football teams that have won the UEFA Cup/ Europa League - by number of times each team has won
 //Thrice
 uefaThrice = [
@@ -327,8 +327,8 @@ uefaThrice = [
     "Liverpool",
     "Juventus",
     "Atlético"
-]
-console.exports = uefaThrice;
+];
+
 //Twice
 uefaTwice = [
     "Mönchengladbach",
@@ -340,8 +340,8 @@ uefaTwice = [
     "Porto",
     "Chelsea",
     "Eintracht Frankfurt"
-]
-console.exports = uefaTwice;
+];
+
 //Once
 uefaOnce = [
     "Anderlecht",
@@ -360,8 +360,8 @@ uefaOnce = [
     "Shakhtar",
     "Villareal",
     "Atalanta"
-]
-console.exports = uefaOnce;
+];
+
 //Top 20 Best Movies of All Time as reviewed by Rotten Tomatoes
 bestMovies = [
     "L.A. Confidential",
@@ -383,8 +383,8 @@ bestMovies = [
     "Up",
     "The Third Man",
     "Spotlight"
-]
-console.exports = bestMovies;
+];
+
 //10 Supernatural Characters with the Highest Episode Count (I'm happy to change this to another show - just chose this as example because I like it)
 spnCharacters = [
     "Sam Winchester",
@@ -397,8 +397,8 @@ spnCharacters = [
     "Jack Kline",
     "Rowena Macleod",
     "Arthur Ketch"
-]
-console.exports = spnCharacters;
+];
+
 //Artists who have sold over 40 million copies of an album
 fortymilArtists = [
     "Michael Jackson",
@@ -410,8 +410,8 @@ fortymilArtists = [
     "Shania Twain",
     "Fleetwood Mac",
     "Bee Gees"
-]
-console.exports = fortymilArtists;
+];
+
 //10 richest people of all time
 richPeople = [
     "Genghis Khan",
@@ -424,8 +424,8 @@ richPeople = [
     "Emperor Shenzong", //song shenzong
     "Augustus Caesar",
     "Mansa Musa"
-]
-console.exports = richPeople;
+];
+
 //Regular milk chocolate M&M colours
 mandmColours = [
     "Red",
@@ -434,5 +434,44 @@ mandmColours = [
     "Blue",
     "Green",
     "Brown"
-]
-console.exports = mandmColours;
+];
+
+// Export all arrays
+module.exports = { 
+    // Countries
+    countryA,
+    countryB,
+    countryC,
+    countryD,
+    countryE,
+    countryF,
+    countryG,
+    countryH,
+    countryI,
+    countryJ,
+    countryK,
+    countryL,
+    countryM,
+    countryN,
+    countryP,
+    countryR,
+    countryS,
+    countryT,
+    countryU,
+    countryV,
+    countryZ,
+
+    // Misc
+    planets,
+    elderScrollsRaces,
+    gameAward,
+    simpsons,
+    uefaThrice,
+    uefaTwice,
+    uefaOnce,
+    bestMovies,
+    spnCharacters,
+    fortymilArtists,
+    richPeople,
+    mandmColours
+};
