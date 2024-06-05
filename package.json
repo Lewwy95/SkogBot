@@ -11,10 +11,6 @@
   "keywords": [],
   "author": "lewwy95",
   "license": "",
-  "engines": {
-    "node": "20.9.0",
-    "npm": "9.8.0"
-  },
   "dependencies": {
     "commandkit": "^0.1.10",
     "cross-env": "^7.0.3",
