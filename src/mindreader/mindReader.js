@@ -16,7 +16,7 @@ async function mindReader(client) {
     //const answers = [categoryArrays.richPeople, categoryArrays.countryA];
     //const possAnswers = answers[Math.floor(Math.random()*answers.length)];
 
-    const questions = [{mainquestion: 'of the 10 richest people in history', answers: categoryArrays.richPeople}, 
+    const questions = [ 
         {mainquestion: 'country beginning with A', answers: categoryArrays.countryA},
         {mainquestion: 'country beginning with B', answers: categoryArrays.countryB},
         {mainquestion: 'country beginning with C', answers: categoryArrays.countryC},
@@ -38,6 +38,7 @@ async function mindReader(client) {
         {mainquestion: 'country beginning with U', answers: categoryArrays.countryU},
         {mainquestion: 'country beginning with V', answers: categoryArrays.countryV},
         {mainquestion: 'country beginning with Z', answers: categoryArrays.countryZ},
+        {mainquestion: 'of the 10 richest people in history', answers: categoryArrays.richPeople},
         {mainquestion: 'typical colours of a plain milk chocolate M&M', answers: categoryArrays.mandmColours},
         {mainquestion: 'artist who has sold over 40 million copies of an album', answers: categoryArrays.fortymilArtists},
         {mainquestion: 'of the 10 Supernatural characters with the most episodes', answers: categoryArrays.spnCharacters},
