@@ -77,7 +77,7 @@ module.exports = {
 
                 query.birthdays.push({ 
                     userId: interaction.user.id,
-                    birthday: new Date(`${birthdayYear}-${birthdayMonth}-${birthdayDay}T00:00:00.0000`)
+                    birthday: new Date(`${birthdayYear}-${birthdayMonth}-${birthdayDay}T08:00:00.0000`)
                 });
 
                 await query.save();
