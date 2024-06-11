@@ -1,6 +1,6 @@
 ## About
 
-SkogBot is a custom bot written by Lewwy.
+SkogBot is a custom bot written by Lewwy and Satchettin.
 
 ## Requirements
 
