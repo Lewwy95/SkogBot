@@ -2,14 +2,14 @@ const { Schema, model } = require('mongoose');
 
 // Create a new shop schema
 const shopSchema = new Schema({
-    guildId: { // The guild id of the shop
+    guildId: { // The guild id where the shop is located
         type: String,
         required: true
     },
-    items: { // The items in the shop
+    items: { // Items that the shop sells on its own
         type: Array,
         default: [
-            { name: 'Sword', price: 100, quantity: 10, multiple: false } // Default item
+            { name: 'Sword', price: 50, quantity: 10, allowMultiple: false, userName: 'Shop Keeper' } // Default item
         ]
     }
 }, { timestamps: true }); // Add timestamps to the schema
