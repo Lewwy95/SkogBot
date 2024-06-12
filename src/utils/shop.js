@@ -2,43 +2,45 @@ const shopSchema = require('../models/shop');
 const accountSchema = require('../models/accounts');
 
 // Buy an item from the shop
-async function buyItem(guildId, member, itemName) {
-    if (!guildId) { // Check if the guild id was provided
-        console.log('utils/shop.js: Guild id object was not provided.');
-        return;
-    }
-
-    if (!member) { // Check if the member was provided
-        console.log('utils/shop.js: Member object was not provided.');
+async function buyItem(interaction, itemName) {
+    if (!interaction) { // Check if the interaction object was provided
+        console.error('Interaction object was not provided.');
         return;
     }
 
     if (!itemName) { // Check if the item name was provided
-        console.log('utils/shop.js: Item name object was not provided.');
+        console.error('Item name object was not provided.');
         return;
     }
 
-    var query = await shopSchema.findOne({ guildId: guildId }); // Fetch existing database entries
+    var query = await shopSchema.findOne({ guildId: interaction.guild.id }); // Fetch existing database entries
 
     if (!query) { // Check if any shop entries exist
-        await shopSchema.create({ // Create a default entry in the database if none exist
-            guildId: guildId
-        });
-
-        query = await shopSchema.findOne({ guildId: guildId }); // Reassign the query variable to the newly created entry
+        await shopSchema.create({ guildId: interaction.guild.id }); // Create a default entry in the database if none exist
+        query = await shopSchema.findOne({ guildId: interaction.guild.id }); // Reassign the query variable to the newly created entry
     }
 
     for (const value of query.items) { // Loop through all of the shop items and check if the item exists
         if (value.name === itemName) {
-            var query = await accountSchema.findOne({ guildId: guildId, userId: member.user.id }); // Fetch existing account for the user
+            var query = await accountSchema.findOne({ guildId: interaction.guild.id, userId: interaction.user.id }); // Fetch existing account for the user
 
             if (!query) { // Check if the user account exists
-                console.log(`utils/shop.js: User account for <${member.user.displayName}> not found.`);
+                interaction.reply({ content: 'You do not have an account.', ephemeral: true });
                 return;
             }
 
             if (query.fruit < value.price) { // Check if the user has enough fruit to buy the item
-                console.log(`utils/shop.js: User <${member.user.displayName}> does not have enough fruit to buy item <${itemName}>.`);
+                interaction.reply({ content: 'You do not have enough fruit.', ephemeral: true });
+                return;
+            }
+
+            if (value.quantity <= 0) { // Check if the item is in stock
+                interaction.reply({ content: 'That item is out of stock.', ephemeral: true });
+                return;
+            }
+
+            if (!value.multiple && query.inventory.includes(value.name)) { // Check if the item can only be bought once and if the user already has it
+                interaction.reply({ content: 'You already own this item.', ephemeral: true });
                 return;
             }
 
@@ -47,18 +49,45 @@ async function buyItem(guildId, member, itemName) {
 
             inventory.push(value.name); // Add the item to the user's inventory
 
-            await accountSchema.findOneAndUpdate({ guildId: guildId, userId: member.user.id }, { // Update the user's account to the database
+            await accountSchema.findOneAndUpdate({ guildId: interaction.guild.id, userId: interaction.user.id }, { // Update the user's account to the database
                 fruit: newFruit,
                 inventory: inventory
             });
 
-            console.log(`utils/shop.js: User <${member.user.displayName}> purchased item <${itemName}> successfully.`);
-            break;
-        } else {
-            console.log(`utils/shop.js: Item <${itemName}> not found in the shop.`); // Log an error if the item does not exist
-            return;
+            value.quantity--; // Decrease the item quantity
+            await shopSchema.findOneAndUpdate({ guildId: interaction.guild.id }, { $set: { "items.$[elem].quantity": value.quantity } }, { arrayFilters: [{ "elem.name": itemName }] }); // Update the item quantity in the database
+
+            interaction.reply({ content: `You bought item ${itemName} for ${value.price} fruit.`, ephemeral: true });
+
+            return; // Exit the function as the user has successfully bought the item
         }
     }
+
+    interaction.reply({ content: 'The shop does not sell that item.', ephemeral: true }); // Send a message to the user if the item does not exist
+    return;
 };
 
-module.exports = buyItem; // Export the function so it can be used in other files
+// View shop items
+async function viewItems(interaction) {
+    if (!interaction) { // Check if the interaction object was provided
+        console.error('Interaction object was not provided.');
+        return;
+    }
+
+    var query = await shopSchema.findOne({ guildId: interaction.guild.id }); // Fetch existing database entries
+
+    if (!query) { // Check if any shop entries exist
+        await shopSchema.create({ guildId: interaction.guild.id }); // Create a default entry in the database if none exist
+        query = await shopSchema.findOne({ guildId: interaction.guild.id }); // Reassign the query variable to the newly created entry
+    }
+
+    var data = []; // Create an empty array to store the shop data
+
+    for (const value of query.items) { // Loop through all of the shop items
+        data.push({ itemName: value.name, itemPrice: value.price, itemQuantity: value.quantity }); // Add to the array
+    }
+
+    return data; // Return the shop data
+};
+
+module.exports = { buyItem, viewItems }; // Export the functions so they can be used in other files

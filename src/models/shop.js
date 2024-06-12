@@ -9,7 +9,7 @@ const shopSchema = new Schema({
     items: { // The items in the shop
         type: Array,
         default: [
-            { name: 'Sword', price: 100, quantity: 10 } // Default item
+            { name: 'Sword', price: 100, quantity: 10, multiple: false } // Default item
         ]
     }
 }, { timestamps: true }); // Add timestamps to the schema
