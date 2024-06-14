@@ -27,7 +27,9 @@ Lewwy
 
 // Imports
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, EmbedBuilder } = require('discord.js'); // Allows us to use Modals and Buttons
+const { ComponentType } = require('discord.js');
 const categoryArrays = require('./categoryArrays');
+const { ModalSubmitInteraction } = require('discord.js')
 
 // Create this game as a function so we can use the game in any file that we want
 // We pass the client as an object here so we can get Discord text channels from it and so on
@@ -39,7 +41,7 @@ async function mindReader(client) {
     }
 
     // Search for and store a text channel with the name "mind-reader" in it
-    const channel = await client.channels.cache.find((channel) => channel.name.includes('mind-reader'));
+    const channel = await client.channels.cache.find((channel) => channel.name.includes('mindreader'));
 
     // Check if the channel variable is valid
     if (!channel) {
@@ -47,12 +49,8 @@ async function mindReader(client) {
         return;
     }
 
-    //const answers = [categoryArrays.richPeople, categoryArrays.countryA];
-    //const possAnswers = answers[Math.floor(Math.random()*answers.length)];
-
     // All possible questions and answers
-    const questions = [
-        { mainquestion: 'about one of the 10 richest people in history', answers: categoryArrays.richPeople }, 
+    const questions = [ 
         { mainquestion: 'of a country beginning with the letter A', answers: categoryArrays.countryA },
         { mainquestion: 'of a country beginning with the letter B', answers: categoryArrays.countryB },
         { mainquestion: 'of a country beginning with the letter C', answers: categoryArrays.countryC },
@@ -74,6 +72,7 @@ async function mindReader(client) {
         { mainquestion: 'of a country beginning with the letter U', answers: categoryArrays.countryU },
         { mainquestion: 'of a country beginning with the letter V', answers: categoryArrays.countryV },
         { mainquestion: 'of a country beginning with the letter Z', answers: categoryArrays.countryZ },
+        { mainquestion: 'about one of the 10 richest people in history', answers: categoryArrays.richPeople },
         { mainquestion: 'of typical colours of a plain milk chocolate M&M', answers: categoryArrays.mandmColours },
         { mainquestion: 'of an artist who has sold over 40 million copies of an album', answers: categoryArrays.fortymilArtists },
         { mainquestion: 'of one of the 10 Supernatural characters with the most episodes', answers: categoryArrays.spnCharacters },
@@ -92,8 +91,8 @@ async function mindReader(client) {
     const skogAnswer = question.answers[Math.floor(Math.random() * question.answers.length)];
 
     // DEBUG
-    console.log('Name any', question.mainquestion);
-    console.log('Skogs answer:', skogAnswer);
+    //console.log('Name any', question.mainquestion);
+    //console.log('Skogs answer:', skogAnswer);
 
     // Create a Button so users can interact with the game
     const mindReaderButton = new ButtonBuilder()
@@ -107,21 +106,12 @@ async function mindReader(client) {
 	    .addComponents(mindReaderButton);
 
     // Create a Modal so users can interact with the game
-    const mindReaderModal = new ModalBuilder()
-		.setCustomId('mindReaderModal')
-		.setTitle('Mind Reader');
 
     // Create the input element of the Modal so users can type and submit an answer
-    const mindReaderModalInput = new TextInputBuilder()
-        .setCustomId('mindReaderModalInput')
-        .setLabel('Please specify...') // The label is the prompt the user sees for this input
-        .setStyle(TextInputStyle.Short); // Short means only a single line of text
 
     // Convert the input element of the Modal into a row to attach to a message we will send later
-    const mindReaderModalRow = new ActionRowBuilder().addComponents(mindReaderModalInput);
 
     // Add the Modal row to the Modal itself
-    mindReaderModal.addComponents(mindReaderModalRow);
 
     // Create and send a message to the game's channel
     const message = await channel.send({
@@ -133,17 +123,42 @@ async function mindReader(client) {
             .addFields(
                 {
                     name: 'Category',
-                    value: `I am thinking ${question.mainquestion}.`
+                    value: `Can you think ${question.mainquestion}?`
                 },
                 {
                     name: 'Details',
-                    value: 'Use the button below to provide the answer you think that I have.'
+                    value: 'Use the button below to provide your answer. If your answer is the same as mine, you lose!'
                 }
             )
         ],
         components: [mindReaderButtonRow],
         //files: [attachment] // We can attach a fancy image here later
     });
+
+    const collector = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 900000 }); // 15 Minutes (900000ms)
+
+    interaction = ComponentType.Button;
+    
+    async ({ interaction }) => {
+        const mindReaderModal = new ModalBuilder()
+		    .setCustomId('mindReaderModal')
+		    .setTitle('Mind Reader');
+
+        const mindReaderModalInput = new TextInputBuilder()
+            .setCustomId('mindReaderModalInput')
+            .setLabel('Please specify...') // The label is the prompt the user sees for this input
+            .setStyle(TextInputStyle.Short); // Short means only a single line of text
+
+        const mindReaderModalRow = new ActionRowBuilder().addComponents(mindReaderModalInput);
+
+        mindReaderModal.addComponents(mindReaderModalRow);
+
+        await interaction.showModal(mindReaderModal)
+    };
+
+    //collector.on('end', collected => {
+        //console.log('Collected ${collected.size} interactions.');
+    //});
 };
 
 // Export this as a function so we can use the game in any file that we want.
