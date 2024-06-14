@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { buyItem, sellItem, viewItems } = require('../../utils/shop');
 
 const data = new SlashCommandBuilder()
@@ -64,6 +64,7 @@ async function run({ interaction }) {
         case 'buy': {
             const itemName = interaction.options.getString('name'); // Fetch the item name from the user's input 
             await buyItem(interaction, itemName); // Buy the item using our imported function
+
             break;
         }
 
@@ -74,6 +75,7 @@ async function run({ interaction }) {
 
             const itemData = { name: itemName, price: itemPrice, quantity: itemQuantity }; // Bundle all of the variables into an object
             await sellItem(interaction, itemData); // Sell the item using our imported function
+
             break;
         }
 
@@ -86,7 +88,22 @@ async function run({ interaction }) {
             }
 
             const itemsList = data.map(item => `Name: ${item.itemName}\nPrice: ${item.itemPrice}\nQuantity: ${item.itemQuantity <= 0 ? 'Out of Stock' : item.itemQuantity}\nSeller: ${item.itemUserName}`).join('\n\n'); // Create a list of items to display to the user
-            interaction.reply({ content: itemsList, ephemeral: true }); // Send the list to the user
+            
+            interaction.reply({ // Send the list to the user
+                embeds: [new EmbedBuilder()
+                    .setColor('Pink')
+                    .setTitle('🛒 Shop')
+                    .setDescription('Check out what\'s for sale today.')
+                    //.setThumbnail(`attachment://${attachment.name}`)
+                    .addFields({
+                        name: 'Listings',
+                        value: itemsList
+                    })
+                ],
+                ephemeral: true,
+                //files: [attachment]
+            });
+
             break;
         }
     }
