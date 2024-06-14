@@ -112,7 +112,7 @@ async function buyItem(interaction, itemData) {
         if (existingItemIndex !== -1) { // If the item already exists in the inventory
             inventory[existingItemIndex].quantity += itemData.quantity; // Increase the quantity of the existing item
         } else { // If the item does not exist in the inventory
-            inventory.push({ name: cheapestItem.name, quantity: itemData.quantity }); // Add the item with the quantity to the inventory
+            inventory.push({ name: cheapestItem.name, quantity: itemData.quantity, type: cheapestItem.type }); // Add the item with the quantity to the inventory
         }
 
         await accountSchema.findOneAndUpdate({ guildId: interaction.guild.id, userId: interaction.user.id }, { // Update the user's account to the database
@@ -168,7 +168,7 @@ async function sellItem(interaction, itemData) {
         shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }); // Reassign the shopQuery variable to the newly created entry
     }
 
-    shopQuery.items.push({ name: itemData.name, price: itemData.price, quantity: itemData.quantity, allowMultiple: false, username: interaction.user.displayName }); // Add the item to the shop
+    shopQuery.items.push({ name: itemData.name, price: itemData.price, quantity: itemData.quantity, allowMultiple: false, username: interaction.user.displayName, type: itemData.type }); // Add the item to the shop
     await shopQuery.save(); // Save the updated shop data to the database
 
     const inventory = accountQuery.inventory; // Fetch the user's inventory
@@ -196,12 +196,12 @@ async function viewItems(interaction) {
     var data = []; // Create an empty array to store the shop data
 
     for (const value of shopQuery.items) { // Loop through all of the shop items
-        data.push({ itemName: value.name, itemPrice: value.price, itemQuantity: value.quantity, itemusername: value.username }); // Add the data to the array
+        data.push({ itemName: value.name, itemPrice: value.price, itemQuantity: value.quantity, itemUsername: value.username, itemType: value.type }); // Add the data to the array
     }
 
     const embedFields = data.map(item => ({ // Create an array of embed fields for each item
         name: item.itemName,
-        value: `Price: ${item.itemPrice}\nQuantity: ${item.itemQuantity <= 0 ? 'Out of Stock' : item.itemQuantity}\nSeller: ${item.itemusername}`
+        value: `Price: ${item.itemPrice}\nType: ${item.itemType}\nQuantity: ${item.itemQuantity <= 0 ? 'Out of Stock' : item.itemQuantity}\nSeller: ${item.itemUsername}`
     }));
 
     const attachment = new AttachmentBuilder('src/images/shop.png', { name: 'shop.png' }); // Get the shop image

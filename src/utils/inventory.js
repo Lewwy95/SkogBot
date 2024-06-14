@@ -1,19 +1,6 @@
 const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
 const accountSchema = require('../models/accounts');
 
-// Check the type of an item
-async function getItemType(itemName) {
-    if (!itemName) { // Check if the item name was provided
-        console.error('Item name object was not provided.');
-        return;
-    }
-
-    switch (itemName) { // Check the type of the item
-        case 'Sword': return 'weapon';
-        default: return 'unknown';
-    }
-};
-
 // Use an item based on its type
 async function useItem(interaction, itemName) {
     if (!interaction || !interaction.guild || !interaction.user) { // Check if the interaction object was provided and is fully valid
@@ -41,15 +28,13 @@ async function useItem(interaction, itemName) {
         return;
     }
 
-    const itemType = await getItemType(item.name); // Fetch the type of the item
-
-    if (itemType === 'unknown') { // Check if the item type is valid
+    if (!item.type) { // Check if the item type is valid
         interaction.reply({ content: `The type of ${item.name} is unknown and therefore it can't be used.`, ephemeral: true });
         return;
     }
 
-    switch (itemType) { // Check the type of the item
-        case 'weapon': {
+    switch (item.type) { // Check the type of the item
+        case 'Weapon': {
             interaction.reply({ content: `Your ${item.name} is a weapon so it goes swoosh and it kills you.`, ephemeral: true });
             break;
         }
@@ -94,4 +79,4 @@ async function viewItems(interaction) {
     });
 };
 
-module.exports = { getItemType, useItem, viewItems }; // Export the functions so they can be used in other files
+module.exports = { useItem, viewItems }; // Export the functions so they can be used in other files
