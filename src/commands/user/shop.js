@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const { buyItem, sellItem, viewItems } = require('../../utils/shop');
 
 const data = new SlashCommandBuilder()
@@ -16,6 +16,14 @@ const data = new SlashCommandBuilder()
                     .setMinLength(3)
                     .setMaxLength(240)
             )
+            .addNumberOption((option) =>
+                option
+                    .setName('quantity')
+                    .setDescription('The quantity of the item you want to buy.')
+                    .setRequired(true)
+                    .setMinValue(1)
+                    .setMaxValue(1000)
+            )
     )
     .addSubcommand((subcommand) =>
         subcommand
@@ -31,16 +39,16 @@ const data = new SlashCommandBuilder()
             )
             .addNumberOption((option) =>
                 option
-                    .setName('price')
-                    .setDescription('The price at which you want to sell the item.')
+                    .setName('quantity')
+                    .setDescription('The quantity of the item you want to sell.')
                     .setRequired(true)
                     .setMinValue(1)
                     .setMaxValue(1000)
             )
             .addNumberOption((option) =>
                 option
-                    .setName('quantity')
-                    .setDescription('The quantity of the item you want to sell.')
+                    .setName('price')
+                    .setDescription('The price at which you want to sell the item.')
                     .setRequired(true)
                     .setMinValue(1)
                     .setMaxValue(1000)
@@ -63,48 +71,25 @@ async function run({ interaction }) {
     switch (subcommand) { // Check which subcommand was used
         case 'buy': {
             const itemName = interaction.options.getString('name'); // Fetch the item name from the user's input 
-            await buyItem(interaction, itemName); // Buy the item using our imported function
+            const itemQuantity = interaction.options.getNumber('quantity'); // Fetch the item quantity from the user's input
+            const itemData = { name: itemName, quantity: itemQuantity }; // Bundle all of the variables into an object
 
+            await buyItem(interaction, itemData); // Buy the item using our imported function
             break;
         }
 
         case 'sell': {
             const itemName = interaction.options.getString('name'); // Fetch the item name from the user's input
-            const itemPrice = interaction.options.getNumber('price'); // Fetch the item price from the user's input
             const itemQuantity = interaction.options.getNumber('quantity'); // Fetch the item quantity from the user's input
-
+            const itemPrice = interaction.options.getNumber('price'); // Fetch the item price from the user's input
             const itemData = { name: itemName, price: itemPrice, quantity: itemQuantity }; // Bundle all of the variables into an object
-            await sellItem(interaction, itemData); // Sell the item using our imported function
 
+            await sellItem(interaction, itemData); // Sell the item using our imported function
             break;
         }
 
         case 'view': {
-            const data = await viewItems(interaction); // View the shop items using our imported function
-
-            if (!data) { // Check if there are any items in the shop
-                interaction.reply({ content: 'There are no items in the shop.', ephemeral: true });
-                return;
-            }
-
-            const itemsList = data.map(item => `Name: ${item.itemName}\nPrice: ${item.itemPrice}\nQuantity: ${item.itemQuantity <= 0 ? 'Out of Stock' : item.itemQuantity}\nSeller: ${item.itemUserName}`).join('\n\n'); // Create a list of items to display to the user
-            
-            interaction.reply({ // Send the list to the user
-                embeds: [new EmbedBuilder()
-                    .setColor('Pink')
-                    .setTitle('🛒 Shop')
-                    .setDescription('Check out what\'s for sale today.')
-                    //.setThumbnail(`attachment://${attachment.name}`)
-                    .addFields({
-                        name: 'Listings',
-                        value: itemsList
-                    })
-                ],
-                ephemeral: true,
-                //files: [attachment]
-            });
-
-            break;
+            await viewItems(interaction); // View the shop items using our imported function
         }
     }
 };

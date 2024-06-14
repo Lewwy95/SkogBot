@@ -1,7 +1,27 @@
-const data = {
-    name: 'inventory',
-    description: 'Manage your inventory.'
-};
+const { SlashCommandBuilder } = require('discord.js');
+const { useItem, viewItems } = require('../../utils/inventory');
+
+const data = new SlashCommandBuilder()
+    .setName('inventory')
+    .setDescription('Manage your inventory.')
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName('use')
+            .setDescription('Use an item from your inventory.')
+            .addStringOption((option) =>
+                option
+                    .setName('name')
+                    .setDescription('The name of the item that you would like to use.')
+                    .setRequired(true)
+                    .setMinLength(3)
+                    .setMaxLength(240)
+            )
+    )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName('view')
+            .setDescription('View the contents of your inventory.')
+    );
 
 /**
  * 
@@ -9,29 +29,20 @@ const data = {
  */
  
 async function run({ interaction }) {
-    const query = await accountSchema.findOne({ guildId: interaction.guild.id, userId: interaction.user.id }); // Fetch existing account for the user
+    const subcommand = interaction.options.getSubcommand(); // Fetch the subcommand from the user
 
-    if (!query) { // Check if the user account exists
-        interaction.reply({ content: 'You do not have an account.', ephemeral: true });
-        return;
+    switch (subcommand) { // Check which subcommand was used
+        case 'use': {
+            const itemName = interaction.options.getString('name'); // Fetch the item name from the user's input 
+            await useItem(interaction, itemName); // Buy the item using our imported function
+            break;
+        }
+
+        case 'view': {
+            await viewItems(interaction); // View the user's inventory using our imported function
+            break;
+        }
     }
-
-    const inventory = await query.inventory.map(value => `Name: ${value.name}`).join('\n\n'); // Create a list of items to display to the user
-
-    interaction.reply({ // Send the inventory to the user
-        embeds: [new EmbedBuilder()
-            .setColor('Pink')
-            .setTitle('🎒 Inventory')
-            .setDescription('Check out what\'s in your inventory.')
-            //.setThumbnail(`attachment://${attachment.name}`)
-            .addFields({
-                name: 'Contents',
-                value: inventory
-            })
-        ],
-        ephemeral: true,
-        //files: [attachment]
-    });
 };
 
 module.exports = { data, run };

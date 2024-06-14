@@ -6,11 +6,16 @@ const shopSchema = new Schema({
         type: String,
         required: true
     },
-    items: { // Items that the shop sells on its own
+    items: { // Items that the shop sells
         type: Array,
-        default: [
-            { name: 'Sword', price: 50, quantity: 10, allowMultiple: false, userName: 'Shop Keeper' } // Default item
-        ]
+        default: [{ // Default item
+            name: 'Sword', 
+            price: 50, 
+            quantity: 10, 
+            allowMultiple: false,
+            username: 'Shop',
+            type: 'weapon',
+        }]
     }
 }, { timestamps: true }); // Add timestamps to the schema
 
