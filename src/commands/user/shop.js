@@ -69,10 +69,11 @@ async function run({ interaction }) {
 
         case 'sell': {
             const itemName = interaction.options.getString('name'); // Fetch the item name from the user's input
-            const price = interaction.options.getNumber('price'); // Fetch the item price from the user's input
-            const quantity = interaction.options.getNumber('quantity'); // Fetch the item quantity from the user's input
+            const itemPrice = interaction.options.getNumber('price'); // Fetch the item price from the user's input
+            const itemQuantity = interaction.options.getNumber('quantity'); // Fetch the item quantity from the user's input
 
-            await sellItem(interaction, itemName, price, quantity); // Sell the item using our imported function
+            const itemData = { name: itemName, price: itemPrice, quantity: itemQuantity }; // Bundle all of the variables into an object
+            await sellItem(interaction, itemData); // Sell the item using our imported function
             break;
         }
 
