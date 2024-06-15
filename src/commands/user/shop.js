@@ -58,6 +58,13 @@ const data = new SlashCommandBuilder()
         subcommand
             .setName('view')
             .setDescription('View the items that are available in the shop.')
+            .addNumberOption((option) =>
+                option
+                    .setName('items-per-page')
+                    .setDescription('The number of items to display per page.')
+                    .setMinValue(1)
+                    .setMaxValue(10)
+            )
     );
 
 /**
@@ -89,7 +96,8 @@ async function run({ interaction }) {
         }
 
         case 'view': {
-            await viewItems(interaction); // View the shop items using our imported function
+            const itemsPerPage = interaction.options.getNumber('items-per-page') || 3; // Fetch the items per page from the user's input
+            await viewItems(interaction, itemsPerPage); // View the shop items using our imported function
         }
     }
 };

@@ -1,4 +1,4 @@
-const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const { EmbedBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } = require('discord.js');
 const shopSchema = require('../models/shop');
 const accountSchema = require('../models/accounts');
 
@@ -59,7 +59,14 @@ async function buyItem(interaction, itemData) {
             }
         }
 
-        if (!cheapestItem.multiple && accountQuery.inventory.includes(cheapestItem.name)) { // Check if the item can only be bought once and if the user already has it
+        if (itemData.quantity > 1 && !cheapestItem.allowMultiple) { // Check if the item can only be bought once and if the user is trying to buy more than one
+            console.log(`${itemData.quantity} + ${cheapestItem}`);
+            interaction.reply({ content: `You can't buy multiples of a ${itemData.name}.`, ephemeral: true });
+            return;
+        }
+
+        const existingItem = accountQuery.inventory.find(item => item.name === cheapestItem.name); // Find the existing item in the user's inventory
+        if (!cheapestItem.allowMultiple && existingItem && existingItem.quantity >= itemData.quantity) { // Check if the item can only be bought once and if the user already has enough quantity
             interaction.reply({ content: `You already own a ${itemData.name}.`, ephemeral: true });
             return;
         }
@@ -112,7 +119,7 @@ async function buyItem(interaction, itemData) {
         if (existingItemIndex !== -1) { // If the item already exists in the inventory
             inventory[existingItemIndex].quantity += itemData.quantity; // Increase the quantity of the existing item
         } else { // If the item does not exist in the inventory
-            inventory.push({ name: cheapestItem.name, quantity: itemData.quantity, type: cheapestItem.type }); // Add the item with the quantity to the inventory
+            inventory.push({ name: cheapestItem.name, quantity: itemData.quantity, allowMultiple: cheapestItem.allowMultiple, type: cheapestItem.type }); // Add the item with the quantity to the inventory
         }
 
         await accountSchema.findOneAndUpdate({ guildId: interaction.guild.id, userId: interaction.user.id }, { // Update the user's account to the database
@@ -144,81 +151,134 @@ async function sellItem(interaction, itemData) {
         return;
     }
     
-    var accountQuery = await accountSchema.findOne({ guildId: interaction.guild.id, userId: interaction.user.id }); // Fetch existing account for the user
+    const accountQuery = await accountSchema.findOne({ guildId: interaction.guild.id, userId: interaction.user.id }); // Fetch existing account for the user
 
     if (!accountQuery) { // Check if the user account exists
         interaction.reply({ content: 'You don\'t have an account. Appear online to create one.', ephemeral: true });
         return;
     }
 
-    if (!accountQuery.inventory.find(item => item.name === itemData.name)) { // Check if the user owns the item
+    const inventory = accountQuery.inventory; // Fetch the user's inventory
+    const item = inventory.find(item => item.name === itemData.name); // Find the item in the user's inventory
+
+    if (!item) { // Check if the user owns the item
         interaction.reply({ content: `You don't own a ${itemData.name}.`, ephemeral: true });
         return;
     }
 
-    if (accountQuery.inventory.filter(item => item.name === itemData.name).length < itemData.quantity) { // Check if the user has fewer items than the quantity they are trying to sell
+    const itemQuantity = inventory.filter(value => value.name === itemData.name).reduce((total, item) => total + item.quantity, 0); // Count the quantity of the item in the user's inventory
+
+    if (itemQuantity < itemData.quantity) { // Check if the user has enough quantity of the item
         interaction.reply({ content: `You don't have ${itemData.quantity} of a ${itemData.name}.`, ephemeral: true });
         return;
     }
 
-    var shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }); // Fetch existing shop data
-
-    if (!shopQuery) { // Check if any shop entries exist
-        await shopSchema.create({ guildId: interaction.guild.id }); // Create a default entry in the database if none exist
-        shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }); // Reassign the shopQuery variable to the newly created entry
-    }
-
-    shopQuery.items.push({ name: itemData.name, price: itemData.price, quantity: itemData.quantity, allowMultiple: false, username: interaction.user.displayName, type: itemData.type }); // Add the item to the shop
+    const shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }) || await shopSchema.create({ guildId: interaction.guild.id }); // Fetch existing database entries or create a default entry if none exist
+    shopQuery.items.push({ name: itemData.name, price: itemData.price, quantity: itemData.quantity, allowMultiple: item.allowMultiple, username: interaction.user.displayName, type: item.type }); // Add the item to the shop
     await shopQuery.save(); // Save the updated shop data to the database
 
-    const inventory = accountQuery.inventory; // Fetch the user's inventory
     inventory.splice(accountQuery.inventory.indexOf(itemData.name), itemData.quantity); // Remove the item from the user's inventory
-    await accountSchema.findOneAndUpdate({ guildId: interaction.guild.id, userId: interaction.user.id }, { inventory: inventory }); // Update the user's account to the database
+    await accountSchema.findOneAndUpdate({ guildId: interaction.guild.id, userId: interaction.user.id }, { inventory }); // Update the user's account to the database
 
-    interaction.reply({ content: `You added ${itemData.quantity} ${itemData.name} to the shop for ${itemData.price} fruit.`, ephemeral: true });
+    interaction.reply({ content: `You added ${itemData.quantity} ${itemData.name} to the shop for ${itemData.price} fruit.`, ephemeral: true }); // Send a message to the user letting them know that the item has been added to the shop
     return;
 };
 
 // View shop items
-async function viewItems(interaction) {
+async function viewItems(interaction, itemsPerPage) {
     if (!interaction || !interaction.guild) { // Check if the interaction object was provided and is fully valid
         console.error('Interaction object was not provided or is not fully valid.');
         return;
     }
 
-    var shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }); // Fetch existing database entries
-
-    if (!shopQuery) { // Check if any shop entries exist
-        await shopSchema.create({ guildId: interaction.guild.id }); // Create a default entry in the database if none exist
-        shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }); // Reassign the query variable to the newly created entry
+    if (!itemsPerPage) { // Check if the items per page was provided
+        console.error('Items Per Page object was not provided or is not fully valid.');
+        return;
     }
 
-    var data = []; // Create an empty array to store the shop data
+    const shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }) || await shopSchema.create({ guildId: interaction.guild.id }); // Fetch existing database entries or create a default entry if none exist
 
-    for (const value of shopQuery.items) { // Loop through all of the shop items
-        data.push({ itemName: value.name, itemPrice: value.price, itemQuantity: value.quantity, itemUsername: value.username, itemType: value.type }); // Add the data to the array
-    }
+    const totalPages = Math.ceil(shopQuery.items.length / itemsPerPage); // Calculate the total number of pages
+    let currentPage = 1; // Set the current page to 1
+    let startIndex = (currentPage - 1) * itemsPerPage; // Calculate the start index
+    let endIndex = startIndex + itemsPerPage; // Calculate the end index
 
-    const embedFields = data.map(item => ({ // Create an array of embed fields for each item
-        name: item.itemName,
-        value: `Price: ${item.itemPrice}\nType: ${item.itemType}\nQuantity: ${item.itemQuantity <= 0 ? 'Out of Stock' : item.itemQuantity}\nSeller: ${item.itemUsername}`
+    const embedFields = shopQuery.items.slice(startIndex, endIndex).map(item => ({ // Create an array of embed fields for the shop items
+        name: item.name,
+        value: `Price: ${item.price} fruit\nType: ${item.type}\nQuantity: ${item.quantity}\nSeller: ${item.username}`
     }));
 
-    const attachment = new AttachmentBuilder('src/images/shop.png', { name: 'shop.png' }); // Get the shop image
+    const attachment = new AttachmentBuilder('src/images/shop.png', { name: 'shop.png' }); // Create an attachment for the shop image
 
-    interaction.reply({ // Send the list to the user
-        embeds: [new EmbedBuilder()
-            .setColor('Purple')
-            .setTitle('🛒 Shop')
-            .setDescription('Check out what\'s for sale today.')
-            .setThumbnail(`attachment://${attachment.name}`)
-            .addFields(embedFields)
-        ],
-        ephemeral: true,
-        files: [attachment]
+    const showPreviousButton = new ButtonBuilder() // Create a button to show the previous page of items
+        .setCustomId('showPrevious')
+        .setStyle(ButtonStyle.Primary) // Blue
+        .setLabel('Show Previous')
+        .setDisabled(currentPage === 1);
+
+    const showNextButton = new ButtonBuilder() // Create a button to show the next page of items
+        .setCustomId('showNext')
+        .setStyle(ButtonStyle.Primary) // Blue
+        .setLabel('Show More')
+        .setDisabled(totalPages === currentPage);
+
+    const buttonRow = new ActionRowBuilder() // Create a button row for the buttons
+        .addComponents(showPreviousButton, showNextButton);
+
+    const embed = new EmbedBuilder() // Create an embed for the shop
+        .setColor('Purple')
+        .setTitle('🛒 Shop')
+        .setDescription('Check out what\'s for sale today.')
+        .setThumbnail(`attachment://${attachment.name}`)
+        .addFields(embedFields)
+        .setFooter({ text: `Page ${currentPage}/${totalPages}` });
+
+    const message = await interaction.reply({ // Create a message object to send to the user with the buttons
+        embeds: [embed],
+        files: [attachment],
+        components: [buttonRow],
+        ephemeral: true
     });
 
-    return;
+    const collector = message.createMessageComponentCollector({ ComponentType: ComponentType.Button }); // Create a collector for the buttons
+
+    collector.on('collect', async (interaction) => { // Listen for the button interaction
+        await interaction.deferReply(); // Defer the reply so we can simulate a loading state
+
+        if (interaction.customId === 'showNext') { // Check if the show next button was clicked
+            currentPage++; // Increment the current page
+        } else if (interaction.customId === 'showPrevious') { // Check if the show previous button was clicked
+            currentPage--; // Decrement the current page
+        }
+
+        startIndex = (currentPage - 1) * itemsPerPage; // Calculate the new start index
+        endIndex = startIndex + itemsPerPage; // Calculate the new end index
+
+        const embedFields = shopQuery.items.slice(startIndex, endIndex).map(item => ({ // Create an array of embed fields for the shop items on the new page
+            name: item.name,
+            value: `Price: ${item.price} fruit\nType: ${item.type}\nQuantity: ${item.quantity}\nSeller: ${item.username}`
+        }));
+
+        embed.setFields(embedFields); // Update the original embed with the new fields
+        embed.setFooter({ text: `Page ${currentPage}/${totalPages}` }); // Update the original embed with the new footer
+
+        await message.edit({ embeds: [embed] }); // Update the original message with the updated embed
+
+        if (currentPage >= totalPages) { // Check if the current page is the last page
+            showNextButton.setDisabled(true); // Disable the show more button
+        } else {
+            showNextButton.setDisabled(false); // Enable the show more button
+        }
+
+        if (currentPage <= 1) { // Check if the current page is the first page
+            showPreviousButton.setDisabled(true); // Disable the show previous button
+        } else {
+            showPreviousButton.setDisabled(false); // Enable the show previous button
+        }
+
+        await message.edit({ components: [buttonRow] }); // Update the original message
+        await interaction.deleteReply(); // Delete the user's next reply to simulate that the loading state has finished
+    });
 };
 
 module.exports = { buyItem, sellItem, viewItems }; // Export the functions so they can be used in other files
