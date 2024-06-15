@@ -60,7 +60,6 @@ async function buyItem(interaction, itemData) {
         }
 
         if (itemData.quantity > 1 && !cheapestItem.allowMultiple) { // Check if the item can only be bought once and if the user is trying to buy more than one
-            console.log(`${itemData.quantity} + ${cheapestItem}`);
             interaction.reply({ content: `You can't buy multiples of a ${itemData.name}.`, ephemeral: true });
             return;
         }
@@ -174,7 +173,8 @@ async function sellItem(interaction, itemData) {
     }
 
     const shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }) || await shopSchema.create({ guildId: interaction.guild.id }); // Fetch existing database entries or create a default entry if none exist
-    shopQuery.items.push({ name: itemData.name, price: itemData.price, quantity: itemData.quantity, allowMultiple: item.allowMultiple, username: interaction.user.displayName, type: item.type }); // Add the item to the shop
+    const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // Calculate the expiration date (24 hours from point of sale)
+    shopQuery.items.push({ name: itemData.name, price: itemData.price, quantity: itemData.quantity, allowMultiple: item.allowMultiple, username: interaction.user.displayName, type: item.type, expiresAt: expirationDate }); // Add the item to the shop
     await shopQuery.save(); // Save the updated shop data to the database
 
     inventory.splice(accountQuery.inventory.indexOf(itemData.name), itemData.quantity); // Remove the item from the user's inventory
@@ -197,6 +197,34 @@ async function viewItems(interaction, itemsPerPage) {
     }
 
     const shopQuery = await shopSchema.findOne({ guildId: interaction.guild.id }) || await shopSchema.create({ guildId: interaction.guild.id }); // Fetch existing database entries or create a default entry if none exist
+    const expiredItems = shopQuery.items.filter(item => item.expiresAt && item.expiresAt.getTime() <= Date.now()); // Filter out expired items
+    
+    if (expiredItems.length > 0) { // Check if there are any expired items
+        for (const expiredItem of expiredItems) { // Loop through all of the expired items
+            const seller = await interaction.guild.members.fetch({ query: expiredItem.username, limit: 1 }); // Find the seller from the server's member list using their username
+
+            if (seller) { // Check if the seller exists
+                const sellerId = seller.first().id; // Fetch the seller's user id
+                const sellerQuery = await accountSchema.findOne({ guildId: interaction.guild.id, userId: sellerId }); // Fetch existing account for the user associated with the item
+
+                if (sellerQuery) { // Check if the seller account exists
+                    const inventory = sellerQuery.inventory; // Fetch the seller's inventory
+                    inventory.push({ name: expiredItem.name, quantity: expiredItem.quantity, allowMultiple: expiredItem.allowMultiple, type: expiredItem.type }); // Add the expired item to the seller's inventory
+                    await accountSchema.findOneAndUpdate({ guildId: interaction.guild.id, userId: sellerId }, { inventory: inventory }); // Update the seller's account in the database
+
+                    try { // Check if the seller can receive private messages
+                        const sellerUser = await interaction.client.users.fetch(sellerId); // Fetch the seller's user object
+                        await sellerUser.send(`${itemData.name}(${itemData.quantity}) for ${cheapestItem.price * itemData.quantity} fruit has now expired.\nThese item(s) have been returned to you.`); // Send a message to the seller letting them know that their item has expired
+                    } catch {
+                        console.log(`User ${sellerQuery.username} is not DMable.`);
+                    }
+                }
+            }
+        }
+
+        shopQuery.items = shopQuery.items.filter(item => !expiredItems.includes(item)); // Remove expired items from the shop
+        await shopQuery.save(); // Save the updated shop data to the database
+    }
 
     const totalPages = Math.ceil(shopQuery.items.length / itemsPerPage); // Calculate the total number of pages
     let currentPage = 1; // Set the current page to 1
@@ -205,7 +233,7 @@ async function viewItems(interaction, itemsPerPage) {
 
     const embedFields = shopQuery.items.slice(startIndex, endIndex).map(item => ({ // Create an array of embed fields for the shop items
         name: item.name,
-        value: `Price: ${item.price} fruit\nType: ${item.type}\nQuantity: ${item.quantity}\nSeller: ${item.username}`
+        value: `Fruit: ${item.price}\nQuantity: ${item.quantity}\nSeller: ${item.username}\nExpires: ${item.expiresAt ? `<t:${Math.floor(item.expiresAt.getTime() / 1000)}:R>` : 'Never'}`
     }));
 
     const attachment = new AttachmentBuilder('src/images/shop.png', { name: 'shop.png' }); // Create an attachment for the shop image
@@ -219,7 +247,7 @@ async function viewItems(interaction, itemsPerPage) {
     const showNextButton = new ButtonBuilder() // Create a button to show the next page of items
         .setCustomId('showNext')
         .setStyle(ButtonStyle.Primary) // Blue
-        .setLabel('Show More')
+        .setLabel('Show Next')
         .setDisabled(totalPages === currentPage);
 
     const buttonRow = new ActionRowBuilder() // Create a button row for the buttons
@@ -243,7 +271,7 @@ async function viewItems(interaction, itemsPerPage) {
     const collector = message.createMessageComponentCollector({ ComponentType: ComponentType.Button }); // Create a collector for the buttons
 
     collector.on('collect', async (interaction) => { // Listen for the button interaction
-        await interaction.deferReply(); // Defer the reply so we can simulate a loading state
+        await interaction.deferReply({ ephemeral: true }); // Defer the reply so we can simulate a loading state
 
         if (interaction.customId === 'showNext') { // Check if the show next button was clicked
             currentPage++; // Increment the current page
@@ -256,7 +284,7 @@ async function viewItems(interaction, itemsPerPage) {
 
         const embedFields = shopQuery.items.slice(startIndex, endIndex).map(item => ({ // Create an array of embed fields for the shop items on the new page
             name: item.name,
-            value: `Price: ${item.price} fruit\nType: ${item.type}\nQuantity: ${item.quantity}\nSeller: ${item.username}`
+            value: `Fruit: ${item.price}\nQuantity: ${item.quantity}\nSeller: ${item.username}\nExpires: ${item.expiresAt ? `<t:${Math.floor(item.expiresAt.getTime() / 1000)}:R>` : 'Never'}`
         }));
 
         embed.setFields(embedFields); // Update the original embed with the new fields

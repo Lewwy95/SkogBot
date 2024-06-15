@@ -14,7 +14,8 @@ const shopSchema = new Schema({
             quantity: 10, 
             allowMultiple: false,
             username: 'Shop',
-            type: 'Weapon'
+            type: 'Weapon',
+            expiresAt: null
         }]
     }
 }, { timestamps: true }); // Add timestamps to the schema
