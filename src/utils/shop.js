@@ -214,7 +214,7 @@ async function viewItems(interaction, itemsPerPage) {
 
                     try { // Check if the seller can receive private messages
                         const sellerUser = await interaction.client.users.fetch(sellerId); // Fetch the seller's user object
-                        await sellerUser.send(`${itemData.name}(${itemData.quantity}) for ${cheapestItem.price * itemData.quantity} fruit has now expired.\nThese item(s) have been returned to you.`); // Send a message to the seller letting them know that their item has expired
+                        await sellerUser.send(`Your listing in the ${interaction.guild.name} shop has expired. All contents have been returned to you.\n- ${expiredItem.quantity}x ${expiredItem.name} - ${expiredItem.price * expiredItem.quantity} Fruit`); // Send a message to the seller letting them know that their item has expired
                     } catch {
                         console.log(`User ${sellerQuery.username} is not DMable.`);
                     }
@@ -269,7 +269,7 @@ async function viewItems(interaction, itemsPerPage) {
     });
 
     const collector = message.createMessageComponentCollector({ ComponentType: ComponentType.Button }); // Create a collector for the buttons
-
+    
     collector.on('collect', async (interaction) => { // Listen for the button interaction
         await interaction.deferReply({ ephemeral: true }); // Defer the reply so we can simulate a loading state
 
