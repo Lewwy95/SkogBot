@@ -31,9 +31,9 @@ async function trivia(client, stage) {
 			        new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Books')
 				        .setValue('10 Entertainment: Books'),
-			        new StringSelectMenuOptionBuilder()
+			        /*new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Film')
-				        .setValue('11 Entertainment: Film'),
+				        .setValue('11 Entertainment: Film'),*/
                     new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Music')
 				        .setValue('12 Entertainment: Music'),
@@ -43,9 +43,9 @@ async function trivia(client, stage) {
                     new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Television')
 				        .setValue('14 Entertainment: Television'),
-                    new StringSelectMenuOptionBuilder()
+                    /*new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Video Games')
-				        .setValue('15 Entertainment: Video Games'),
+				        .setValue('15 Entertainment: Video Games'),*/
                     new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Board Games')
 				        .setValue('16 Entertainment: Board Games'),
@@ -91,9 +91,9 @@ async function trivia(client, stage) {
                     new StringSelectMenuOptionBuilder()
 				        .setLabel('Science: Gadgets')
 				        .setValue('30 Science: Gadgets'),
-                    new StringSelectMenuOptionBuilder()
+                    /*new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Japanese Anime & Manga')
-				        .setValue('31 Entertainment: Japanese Anime & Manga'),
+				        .setValue('31 Entertainment: Japanese Anime & Manga'),*/
                     new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Cartoon & Animations')
 				        .setValue('32 Entertainment: Cartoon & Animations')
