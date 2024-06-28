@@ -46,9 +46,9 @@ async function trivia(client, stage) {
                     /*new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Video Games')
 				        .setValue('15 Entertainment: Video Games'),*/
-                    new StringSelectMenuOptionBuilder()
+                    /*new StringSelectMenuOptionBuilder()
 				        .setLabel('Entertainment: Board Games')
-				        .setValue('16 Entertainment: Board Games'),
+				        .setValue('16 Entertainment: Board Games'),*/
                     new StringSelectMenuOptionBuilder()
 				        .setLabel('Science & Nature')
 				        .setValue('17 Science & Nature'),
