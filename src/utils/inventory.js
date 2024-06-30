@@ -35,18 +35,18 @@ async function useItem(interaction, itemName) {
 
     switch (item.type) { // Check the type of the item
         case 'Weapon': { // If the item is a weapon
-            const swingWeaponButton = new ButtonBuilder() // Create a button to swing the weapon
-                .setCustomId('swingWeapon')
-                .setStyle(ButtonStyle.Danger) // Red
-                .setLabel('Swing')
+            const attackMonsterButton = new ButtonBuilder() // Create a button to attack a daily monster
+                .setCustomId('attackMonster')
+                .setStyle(ButtonStyle.Primary) // Blue
+                .setLabel('Attack Monster')
 
-            const destroyWeaponButton = new ButtonBuilder() // Create a button to destroy the weapon
-                .setCustomId('destroyWeapon')
+            const discardWeaponButton = new ButtonBuilder() // Create a button to discard the weapon
+                .setCustomId('discardWeapon')
                 .setStyle(ButtonStyle.Danger) // Red
-                .setLabel('Destroy (Permanent)')
+                .setLabel('Discard (Permanent)')
 
             const buttonRow = new ActionRowBuilder() // Create a button row for the buttons
-                .addComponents(swingWeaponButton, destroyWeaponButton);
+                .addComponents(attackMonsterButton, discardWeaponButton);
 
             const embed = new EmbedBuilder() // Create an embed for the shop
                 .setColor('Purple')
@@ -65,32 +65,43 @@ async function useItem(interaction, itemName) {
                 await interaction.deferReply({ ephemeral: true }); // Defer the reply so we can simulate a loading state
 
                 switch (interaction.customId) { // Check which button was clicked
-                    case 'swingWeapon': { // If the user wants to swing the weapon
-                        const members = Array.from(interaction.guild.members.cache.values()); // Get an array of all members in the guild
-                        const randomMember = members[Math.floor(Math.random() * members.length)]; // Select a random member from the array
-                        const impressions = ['impressed', 'unimpressed', 'confused']; // Define the possible impressions
-                        const randomImpression = impressions[Math.floor(Math.random() * impressions.length)]; // Select a random impression
-
-                        var observeMessage = ''; // Define the message to show the result of the swing
-
-                        if (randomMember.user.id === interaction.user.id) { // If the random member is the user
-                            observeMessage = `You swing your ${itemName} and you hit yourself with it.\nYou look ${randomImpression}.`; // If the user hits themselves
-                        } else if (randomMember.user.bot) { // If the random member is a bot
-                            observeMessage = `You swing your ${itemName} and hit me!\nI am seriously ${randomImpression}.`; // If the user hits the bot
-                        } else { // If the random member is another user
-                            observeMessage = `You swing your ${itemName} and ${randomMember.user.displayName} takes notice.\nThey look ${randomImpression}.`; // Create the message to show the result of the swing
-                        }
-
-                        embed.setDescription(observeMessage); // Update the embed to show the result of the swing
-                        await message.edit({ embeds: [embed] }); // Update the original message with the updated embed
-                        break;
-                    }
-
-                    case 'destroyWeapon': { // If the user wants to destroy the weapon {
+                    case 'attackMonster': { // If the user wants to attack a daily monster
                         const accountQuery = await accountSchema.findOne({ guildId: interaction.guild.id, userId: interaction.user.id }); // Fetch existing account for the user
 
                         if (!accountQuery) { // Check if the user account exists
-                            interaction.reply({ content: 'You don\'t have an account. Appear online to create one.', ephemeral: true });
+                            interaction.followUp({ content: 'You don\'t have an account. Appear online to create one.', ephemeral: true });
+                            return;
+                        }
+
+                        const lastAttack = new Date(accountQuery.daily); // Fetch the last time the user attacked a monster
+                        const currentTime = Date.now(); // Get the current timestamp
+                        const oneDay = 24 * 60 * 60 * 1000; // One day in milliseconds
+                        
+                        if (lastAttack && currentTime - lastAttack < oneDay) { // Check if the user has already attacked a monster within the last 24 hours
+                            interaction.followUp({ content: 'You have recently attacked a monster. Please try again later.', ephemeral: true });
+                            return;
+                        }
+
+                        accountQuery.daily = currentTime; // Update the last attack time to the current time
+                        await accountQuery.save(); // Save the updated account with the new monster data
+
+                        const success = Math.random() < 0.5; // 50% chance of success
+
+                        if (success) { // If the attack is successful
+                            embed.setDescription(`You swing your ${itemName} with all of its might and destroy the monster.\nYou are now completely exhausted.`); 
+                        } else { // If the attack is unsuccessful
+                            embed.setDescription(`You swing your ${itemName} but miss the monster.\nYou are now completely exhausted.`);
+                        }
+
+                        await message.edit({ embeds: [embed], components: [buttonRow] }); // Update the original message
+                        break;
+                    }
+
+                    case 'discardWeapon': { // If the user wants to discard the weapon
+                        const accountQuery = await accountSchema.findOne({ guildId: interaction.guild.id, userId: interaction.user.id }); // Fetch existing account for the user
+
+                        if (!accountQuery) { // Check if the user account exists
+                            interaction.followUp({ content: 'You don\'t have an account. Appear online to create one.', ephemeral: true });
                             return;
                         }
 
@@ -98,14 +109,14 @@ async function useItem(interaction, itemName) {
                         const itemIndex = inventory.findIndex(item => item.name === itemName); // Find the index of the item in the inventory array
 
                         if (itemIndex === -1) { // If the item is not found in the inventory
-                            interaction.reply({ content: `You don\'t own a ${itemName}.`, ephemeral: true });
+                            interaction.followUp({ content: `You don\'t own a ${itemName}.`, ephemeral: true });
                             return;
                         }
 
                         inventory.splice(itemIndex, 1); // Remove the item from the inventory array
                         await accountQuery.save(); // Save the updated account with the removed item
 
-                        embed.setDescription(`You swing your ${itemName} with all its might and it breaks.\nYou no longer own this weapon.`); // Update the embed to show that the weapon was used
+                        embed.setDescription(`You throw your ${itemName} away and it shatters as it hits the ground.`); // Update the embed to show that the weapon was used
 
                         const buttons = buttonRow.components; // Get all the buttons in the button row
                         buttons.forEach(button => button.setDisabled(true)); // Disable all the buttons
@@ -121,12 +132,12 @@ async function useItem(interaction, itemName) {
         }
 
         case 'Consumable': { // If the item is a consumable
-            interaction.reply({ content: `Your ${item.name} is a consumable.`, ephemeral: true });
+            interaction.followUp({ content: `Your ${item.name} is a consumable.`, ephemeral: true });
             break;
         }
 
         case 'Token': { // If the item is a token
-            interaction.reply({ content: `Your ${item.name} is a token.`, ephemeral: true });
+            interaction.followUp({ content: `Your ${item.name} is a token.`, ephemeral: true });
             break;
         }
     }
@@ -158,7 +169,7 @@ async function viewItems(interaction) {
         embeds: [new EmbedBuilder()
             .setColor('Purple')
             .setTitle('🧺 Inventory')
-            .setDescription('Check out what\'s in your inventory.')
+            .setDescription('Check what\'s in your inventory.')
             .setThumbnail(`attachment://${attachment.name}`)
             .addFields({
                 name: 'Contents',

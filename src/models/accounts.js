@@ -21,6 +21,10 @@ const accountSchema = new Schema({
     inventory: { // The inventory of the account
         type: Array,
         default: []
+    },
+    daily: { // The daily timestamp of the account
+        type: Date,
+        default: null
     }
 }, { timestamps: true }); // Add timestamps to the schema
 
