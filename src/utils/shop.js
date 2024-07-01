@@ -41,6 +41,11 @@ async function buyItem(interaction, itemData) {
             return;
         }
 
+        if (itemData.quantity > 1 && !cheapestItem.allowMultiple) { // Check if the item can only be bought once and if the user is trying to buy more than one
+            interaction.reply({ content: `You can't buy multiples of a ${itemData.name}.`, ephemeral: true });
+            return;
+        }
+
         if (accountQuery.fruit < cheapestItem.price * itemData.quantity) { // Check if the user has enough fruit to buy the item
             const requiredFruit = cheapestItem.price * itemData.quantity - accountQuery.fruit; // Calculate the required amount of fruit the user needs
             interaction.reply({ content: `You don't have enough fruit to buy ${itemData.quantity} of item ${itemData.name}. You need ${requiredFruit} more fruit.`, ephemeral: true });
@@ -57,11 +62,6 @@ async function buyItem(interaction, itemData) {
                 interaction.reply({ content: `${itemData.name} is out of stock.`, ephemeral: true });
                 return; // Exit the function as there are no more items of this type that are available
             }
-        }
-
-        if (itemData.quantity > 1 && !cheapestItem.allowMultiple) { // Check if the item can only be bought once and if the user is trying to buy more than one
-            interaction.reply({ content: `You can't buy multiples of a ${itemData.name}.`, ephemeral: true });
-            return;
         }
 
         const existingItem = accountQuery.inventory.find(item => item.name === cheapestItem.name); // Find the existing item in the user's inventory
@@ -233,7 +233,7 @@ async function viewItems(interaction, itemsPerPage) {
 
     const embedFields = shopQuery.items.slice(startIndex, endIndex).map(item => ({ // Create an array of embed fields for the shop items
         name: item.name,
-        value: `Fruit: ${item.price}\nQuantity: ${item.quantity}\nSeller: ${item.username}\nExpires: ${item.expiresAt ? `<t:${Math.floor(item.expiresAt.getTime() / 1000)}:R>` : 'Never'}`
+        value: `Fruit: ${item.price ? item.price : 'Free'}\nQuantity: ${item.quantity ? item.quantity : 'Out Of Stock'}\nSeller: ${item.username}\nExpires: ${item.expiresAt ? `<t:${Math.floor(item.expiresAt.getTime() / 1000)}:R>` : 'Never'}`
     }));
 
     const attachment = new AttachmentBuilder('src/images/shop.png', { name: 'shop.png' }); // Create an attachment for the shop image
@@ -309,4 +309,24 @@ async function viewItems(interaction, itemsPerPage) {
     });
 };
 
-module.exports = { buyItem, sellItem, viewItems }; // Export the functions so they can be used in other files
+// Restock items
+async function restockItems(interaction) {
+    if (!interaction || !interaction.guild) { // Check if the interaction object was provided and is fully valid
+        console.error('Interaction object was not provided or is not fully valid.');
+        return;
+    }
+
+    const minQuantity = 5; // Set the minimum quantity of items that can be restocked
+    const maxQuantity = 15; // Set the maximum quantity of items that can be restocked
+    const randomQuantity = Math.floor(Math.random() * (maxQuantity - minQuantity + 1)) + minQuantity; // Generate a random quantity of items to restock
+
+    await shopSchema.findOneAndUpdate( // Update the shop's stock
+        { guildId: interaction.guild.id },
+        { $set: { 'items.$[item].quantity': randomQuantity } }, // Set the quantity of the items to the random quantity
+        { arrayFilters: [{ 'item.username': 'Shop' }], new: true, upsert: true } // Replenish the stock of items that are being sold by the shop
+    ) || await shopSchema.create({ guildId: interaction.guild.id }); // Create a default entry if none exist
+
+    interaction.reply({ content: 'I have replenished the shop\'s stock.', ephemeral: true });
+};
+
+module.exports = { buyItem, sellItem, viewItems, restockItems }; // Export the functions so they can be used in other files

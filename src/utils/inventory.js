@@ -78,8 +78,10 @@ async function useItem(interaction, itemName) {
                         const oneDay = 24 * 60 * 60 * 1000; // One day in milliseconds
                         
                         if (lastAttack && currentTime - lastAttack < oneDay) { // Check if the user has already attacked a monster within the last 24 hours
-                            interaction.followUp({ content: 'You have recently attacked a monster. Please try again later.', ephemeral: true });
-                            return;
+                            const timeRemaining = oneDay - (currentTime - lastAttack); // Calculate the time remaining until the user can attack again
+                            embed.setDescription(`You are exhausted.\nYou may attack again <t:${Math.floor((currentTime + timeRemaining) / 1000)}:R>.`); // Update the embed to show the time remaining
+                            await message.edit({ embeds: [embed], components: [buttonRow] }); // Update the original message
+                            break;
                         }
 
                         accountQuery.daily = currentTime; // Update the last attack time to the current time
@@ -88,9 +90,13 @@ async function useItem(interaction, itemName) {
                         const success = Math.random() < 0.5; // 50% chance of success
 
                         if (success) { // If the attack is successful
-                            embed.setDescription(`You swing your ${itemName} with all of its might and destroy the monster.\nYou are now completely exhausted.`); 
+                            const fruitAmount = Math.floor(Math.random() * (100 - 50 + 1)) + 50; // Generate a random fruit amount between 50 and 100
+                            accountQuery.fruit += fruitAmount; // Add the fruit amount to the user's fruit
+                            await accountQuery.save(); // Save the updated account with the new fruit amount
+
+                            embed.setDescription(`You use your ${itemName} and destroy the monster.\nYou are now exhausted.\nA pouch containing ${fruitAmount} fruit is found on the monster's corpse.`);
                         } else { // If the attack is unsuccessful
-                            embed.setDescription(`You swing your ${itemName} but miss the monster.\nYou are now completely exhausted.`);
+                            embed.setDescription(`You use your ${itemName} but miss the monster.\nYou are now exhausted.`);
                         }
 
                         await message.edit({ embeds: [embed], components: [buttonRow] }); // Update the original message
@@ -116,7 +122,7 @@ async function useItem(interaction, itemName) {
                         inventory.splice(itemIndex, 1); // Remove the item from the inventory array
                         await accountQuery.save(); // Save the updated account with the removed item
 
-                        embed.setDescription(`You throw your ${itemName} away and it shatters as it hits the ground.`); // Update the embed to show that the weapon was used
+                        embed.setDescription(`You throw your ${itemName} away from you with a great deal of force.\nIt has been destroyed.`); // Update the embed to show that the weapon was used
 
                         const buttons = buttonRow.components; // Get all the buttons in the button row
                         buttons.forEach(button => button.setDisabled(true)); // Disable all the buttons
@@ -169,7 +175,7 @@ async function viewItems(interaction) {
         embeds: [new EmbedBuilder()
             .setColor('Purple')
             .setTitle('🧺 Inventory')
-            .setDescription('Check what\'s in your inventory.')
+            .setDescription('Check out what\'s in your inventory.')
             .setThumbnail(`attachment://${attachment.name}`)
             .addFields({
                 name: 'Contents',

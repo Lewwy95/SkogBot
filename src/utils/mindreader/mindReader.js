@@ -16,39 +16,39 @@ async function mindReader(client) {
     }
 
     const questions = [ // All possible questions and answers
-        { mainquestion: 'of a country beginning with the letter A', answers: categoryArrays.countryA },
-        { mainquestion: 'of a country beginning with the letter B', answers: categoryArrays.countryB },
-        { mainquestion: 'of a country beginning with the letter C', answers: categoryArrays.countryC },
-        { mainquestion: 'of a country beginning with the letter D', answers: categoryArrays.countryD },
-        { mainquestion: 'of a country beginning with the letter E', answers: categoryArrays.countryE },
-        { mainquestion: 'of a country beginning with the letter F', answers: categoryArrays.countryF },
-        { mainquestion: 'of a country beginning with the letter G', answers: categoryArrays.countryG },
-        { mainquestion: 'of a country beginning with the letter H', answers: categoryArrays.countryH },
-        { mainquestion: 'of a country beginning with the letter I', answers: categoryArrays.countryI },
-        { mainquestion: 'of a country beginning with the letter J', answers: categoryArrays.countryJ },
-        { mainquestion: 'of a country beginning with the letter K', answers: categoryArrays.countryK },
-        { mainquestion: 'of a country beginning with the letter L', answers: categoryArrays.countryL },
-        { mainquestion: 'of a country beginning with the letter M', answers: categoryArrays.countryM },
-        { mainquestion: 'of a country beginning with the letter N', answers: categoryArrays.countryN },
-        { mainquestion: 'of a country beginning with the letter P', answers: categoryArrays.countryP },
-        { mainquestion: 'of a country beginning with the letter R', answers: categoryArrays.countryR },
-        { mainquestion: 'of a country beginning with the letter S', answers: categoryArrays.countryS },
-        { mainquestion: 'of a country beginning with the letter T', answers: categoryArrays.countryT },
-        { mainquestion: 'of a country beginning with the letter U', answers: categoryArrays.countryU },
-        { mainquestion: 'of a country beginning with the letter V', answers: categoryArrays.countryV },
-        { mainquestion: 'of a country beginning with the letter Z', answers: categoryArrays.countryZ },
-        { mainquestion: 'about one of the 10 richest people in history', answers: categoryArrays.richPeople },
-        { mainquestion: 'about one of the typical colours of a plain milk chocolate M&M', answers: categoryArrays.mandmColours },
-        { mainquestion: 'of an artist who has sold over 40 million copies of an album', answers: categoryArrays.fortymilArtists },
-        { mainquestion: 'of one of the 10 Supernatural characters with the most episodes', answers: categoryArrays.spnCharacters },
-        { mainquestion: 'of one of the 20 best movies of all time as reviewed by Rotten Tomatoes', answers: categoryArrays.bestMovies },
-        { mainquestion: 'of a team that has won the UEFA cup once', answers: categoryArrays.uefaOnce },
-        { mainquestion: 'of a team that has won the UEFA cup twice', answers: categoryArrays.uefaTwice },
-        { mainquestion: 'of a team that has won the UEFA cup three times', answers: categoryArrays.uefaThrice },
-        { mainquestion: 'of a Simpsons character with over 10,000 lines', answers: categoryArrays.simpsons },
-        { mainquestion: 'of a game that has won The Game of the Year award from the Game Awards', answers: categoryArrays.gameAward },
-        { mainquestion: 'of a playable Elder Scrolls race', answers: categoryArrays.elderScrollsRaces },
-        { mainquestion: 'of a planet in our Solar System', answers: categoryArrays.planets }
+        { questions: 'of a country beginning with the letter A', answers: categoryArrays.countryA },
+        { questions: 'of a country beginning with the letter B', answers: categoryArrays.countryB },
+        { questions: 'of a country beginning with the letter C', answers: categoryArrays.countryC },
+        { questions: 'of a country beginning with the letter D', answers: categoryArrays.countryD },
+        { questions: 'of a country beginning with the letter E', answers: categoryArrays.countryE },
+        { questions: 'of a country beginning with the letter F', answers: categoryArrays.countryF },
+        { questions: 'of a country beginning with the letter G', answers: categoryArrays.countryG },
+        { questions: 'of a country beginning with the letter H', answers: categoryArrays.countryH },
+        { questions: 'of a country beginning with the letter I', answers: categoryArrays.countryI },
+        { questions: 'of a country beginning with the letter J', answers: categoryArrays.countryJ },
+        { questions: 'of a country beginning with the letter K', answers: categoryArrays.countryK },
+        { questions: 'of a country beginning with the letter L', answers: categoryArrays.countryL },
+        { questions: 'of a country beginning with the letter M', answers: categoryArrays.countryM },
+        { questions: 'of a country beginning with the letter N', answers: categoryArrays.countryN },
+        { questions: 'of a country beginning with the letter P', answers: categoryArrays.countryP },
+        { questions: 'of a country beginning with the letter R', answers: categoryArrays.countryR },
+        { questions: 'of a country beginning with the letter S', answers: categoryArrays.countryS },
+        { questions: 'of a country beginning with the letter T', answers: categoryArrays.countryT },
+        { questions: 'of a country beginning with the letter U', answers: categoryArrays.countryU },
+        { questions: 'of a country beginning with the letter V', answers: categoryArrays.countryV },
+        { questions: 'of a country beginning with the letter Z', answers: categoryArrays.countryZ },
+        { questions: 'about one of the 10 richest people in history', answers: categoryArrays.richPeople },
+        { questions: 'about one of the typical colours of a plain milk chocolate M&M', answers: categoryArrays.mandmColours },
+        { questions: 'of an artist who has sold over 40 million copies of an album', answers: categoryArrays.fortymilArtists },
+        { questions: 'of one of the 10 Supernatural characters with the most episodes', answers: categoryArrays.spnCharacters },
+        { questions: 'of one of the 20 best movies of all time as reviewed by Rotten Tomatoes', answers: categoryArrays.bestMovies },
+        { questions: 'of a team that has won the UEFA cup once', answers: categoryArrays.uefaOnce },
+        { questions: 'of a team that has won the UEFA cup twice', answers: categoryArrays.uefaTwice },
+        { questions: 'of a team that has won the UEFA cup three times', answers: categoryArrays.uefaThrice },
+        { questions: 'of a Simpsons character with over 10,000 lines', answers: categoryArrays.simpsons },
+        { questions: 'of a game that has won The Game of the Year award from the Game Awards', answers: categoryArrays.gameAward },
+        { questions: 'of a playable Elder Scrolls race', answers: categoryArrays.elderScrollsRaces },
+        { questions: 'of a planet in our Solar System', answers: categoryArrays.planets }
     ];
     
     const question = questions[Math.floor(Math.random() * questions.length)]; // Select a random question
@@ -71,7 +71,7 @@ async function mindReader(client) {
             .addFields(
                 {
                     name: 'Category',
-                    value: `Can you think ${question.mainquestion}?`
+                    value: `Can you think ${question.questions}?`
                 },
                 {
                     name: 'Details',
@@ -113,9 +113,9 @@ async function mindReader(client) {
             const userAnswer = userSubmitted.fields.components[0].components[0].value; // Get the user's answer
     
             if (!botAnswer.toLowerCase().includes(userAnswer.toLowerCase())) { // Check if the user's answer is not the same as the bot's answer
-                winners.push(interaction.user.id); // Add the winner's user ID to the array
+                winners.push({ id: interaction.user.id, answer: userAnswer }); // Add the winner's user ID and their answer to the array
             } else {
-                losers.push(interaction.user.id); // Add the loser's user ID to the array
+                losers.push({ id: interaction.user.id, answer: userAnswer }); // Add the loser's user ID and their answer to the array
             }
 
             submitters.push(interaction.user.id); // Add the user's ID to the array
@@ -126,14 +126,14 @@ async function mindReader(client) {
     collector.on('end', async () => { // The end of the game when the collector times out
         var winnersData = []; // Array to store the winners' data
         for (const winner of winners) { // Loop through the winners array
-            const user = await client.users.fetch(winner); // Fetch the user by their ID
-            winnersData.push({ id: winner, name: user.displayName }); // Store the user's ID and display name
+            const user = await client.users.fetch(winner.id); // Fetch the user by their ID
+            winnersData.push({ id: winner.id, name: user.displayName, answer: winner.answer }); // Store the user's ID and display name
         }
 
         var losersData = []; // Array to store the losers' data
         for (const loser of losers) { // Loop through the losers array
-            const user = await client.users.fetch(loser); // Fetch the user by their ID
-            losersData.push({ id: loser, name: user.displayName }); // Store the user's ID and display name
+            const user = await client.users.fetch(loser.id); // Fetch the user by their ID
+            losersData.push({ id: loser.id, name: user.displayName, answer: loser.answer }); // Store the user's ID and display name
         }
 
         await message.delete(); // Delete the original message
@@ -146,7 +146,7 @@ async function mindReader(client) {
                 .addFields(
                     {
                         name: 'Category',
-                        value: `Can you think ${question.mainquestion}?`
+                        value: `Can you think ${question.questions}?`
                     },
                     {
                         name: 'Answer',
@@ -154,11 +154,11 @@ async function mindReader(client) {
                     },
                     {
                         name: 'Winners',
-                        value: winnersData.map(winner => `${winner.name}`).join('\n') || 'No winners!'
+                        value: winnersData.map(winner => `${winner.name} - ${winner.answer}`).join('\n') || 'No users won this game.'
                     },
                     {
                         name: 'Losers',
-                        value: losersData.map(loser => `${loser.name}`).join('\n') || 'No losers!'
+                        value: losersData.map(loser => `${loser.name} - ${loser.answer}`).join('\n') || 'No users lost this game.'
                     }
                 )
             ]
