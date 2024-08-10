@@ -64,7 +64,7 @@ const selections = [
 
 module.exports = async (client) => {
     // Check if there is a games channel - if there isn't then we can stop here.
-    const channel = client.channels.cache.find(channel => channel.name.includes('game'));
+    const channel = client.channels.cache.find(channel => channel.name.includes('daily') && channel.name.includes('game'));
     if (!channel) {
         return;
     }
@@ -279,13 +279,13 @@ module.exports = async (client) => {
             },
             {
                 name: 'Participants',
-                value: `**${participants.length}** users participated in this game.`,
+                value: `${participants.length} users participated in this game.`,
                 inline: true
             })
             .setFooter({ text: '🤖 Assisted by OpenAI' })
             .setTimestamp();
 
         // Finally, we send the finishing embed to the games channel!
-        channel.send({ embeds: [embed], files: [attachment] });
+        channel.send({ content: '@here', embeds: [embed], files: [attachment] });
     });
 };

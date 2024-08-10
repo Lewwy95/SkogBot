@@ -19,6 +19,7 @@ This project supports multiple .env files by using cross-env. You will need to c
 
 ```.rel.env
 TOKEN=
+DATABASE=
 REDIS=
 OPENAI=
 ```
