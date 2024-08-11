@@ -237,6 +237,7 @@ module.exports = async (client) => {
 
     // Here we send the embed to the games channel!
     const message = await channel.send({
+        content: '@here',
         embeds: [embed],
         components: [buttonRow],
         files: [attachment]
@@ -382,6 +383,6 @@ module.exports = async (client) => {
             .setTimestamp();
 
         // Finally, we send the finishing embed to the games channel!
-        channel.send({ content: '@here', embeds: [embed], files: [attachment] });
+        channel.send({ embeds: [embed], files: [attachment] });
     });
 };
