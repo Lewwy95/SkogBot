@@ -1,10 +1,9 @@
-const { EmbedBuilder, AttachmentBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, inlineCode } = require('discord.js');
+const { EmbedBuilder, AttachmentBuilder, ButtonStyle, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle  } = require('discord.js');
 const { ButtonKit } = require('commandkit');
 const redis = require('../config/redis');
 
 // Here we define the selections that will be sent to the games channel - feel free to add or amend!
 // Thanks to Satchettin for these (and the game of course).
-
 countryE = [
     'East Timor',
     'Ecuador',
