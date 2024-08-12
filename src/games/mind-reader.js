@@ -4,58 +4,6 @@ const redis = require('../config/redis');
 
 // Here we define the selections that will be sent to the games channel - feel free to add or amend!
 // Thanks to Satchettin for these (and the game of course).
-countryA = [
-    'Afghanistan',
-    'Albania',
-    'Algeria',
-    'Andorra',
-    'Angola',
-    'Antigua and Barbuda',
-    'Argentina',
-    'Armenia',
-    'Australia',
-    'Austria',
-    'Azerbaijan'
-];
-
-countryB = [
-    'Bahamas',
-    'Bahrain',
-    'Bangladesh',
-    'Barbados',
-    'Belarus',
-    'Belgium',
-    'Belize',
-    'Benin',
-    'Bhutan',
-    'Bolivia',
-    'Bosnia and Herzegovina',
-    'Botswana',
-    'Brazil',
-    'Brunei',
-    'Bulgaria',
-    'Burkina Faso',
-    'Burundi'
-];
-
-countryC = [
-    'Cabo Verde',
-    'Cambodia',
-    'Cameroon',
-    'Canada',
-    'Central African Republic',
-    'Chad',
-    'Chile',
-    'China',
-    'Columbia',
-    'Comoros',
-    'Costa Rica',
-    'Cote dIvoire',
-    'Croatia',
-    'Cuba',
-    'Cyprus',
-    'Czech Republic'
-];
 
 countryE = [
     'East Timor',
@@ -70,20 +18,6 @@ countryE = [
     'Ethiopia'
 ];
 
-countryG = [
-    'Gabon',
-    'Gambia',
-    'Georgia',
-    'Germany',
-    'Ghana',
-    'Greece',
-    'Grenada',
-    'Guatemala',
-    'Guinea',
-    'Guinea Bissau',
-    'Guyana'
-];
-
 countryI = [
     'Iceland',
     'India',
@@ -93,15 +27,6 @@ countryI = [
     'Ireland',
     'Israel',
     'Italy'
-];
-
-countryK = [
-    'Kazakhstan',
-    'Kenya',
-    'Kiribati',
-    'Kosovo',
-    'Kuwait',
-    'Kyrgyzstan'
 ];
 
 countryL = [
@@ -114,97 +39,6 @@ countryL = [
     'Liechtenstein',
     'Lithuania',
     'Luxembourg'
-];
-
-countryM = [
-    'Madagascar',
-    'Malawi',
-    'Malaysia',
-    'Maldives',
-    'Mali',
-    'Malta',
-    'Marshall Islands',
-    'Mauritania',
-    'Mauritius',
-    'Mexico',
-    'Moldova',
-    'Monaco',
-    'Mongolia',
-    'Montenegro',
-    'Morocco',
-    'Mozambique',
-    'Myanmar'
-];
-
-countryN = [
-    'Namibia',
-    'Nauru',
-    'Nepal',
-    'Netherlands',
-    'New Zealand',
-    'Nicaragua',
-    'Niger',
-    'Nigeria',
-    'North Korea',
-    'North Macedonia',
-    'Northern Ireland',
-    'Norway'
-];
-
-countryP = [
-    'Pakistan',
-    'Palau',
-    'Panama',
-    'Papua New Guinea',
-    'Paraguay',
-    'Peru',
-    'Philippines',
-    'Poland',
-    'Portugal'
-];
-
-countryS = [
-    'Saint Kitts and Nevis',
-    'Saint Lucia',
-    'Saint Vincent and the Grenadines',
-    'Samoa',
-    'San Marino',
-    'Sao Tome and Principe',
-    'Saudi Arabia',
-    'Scotland',
-    'Senegal',
-    'Serbia',
-    'Seychelles',
-    'Sierra Leone',
-    'Singapore',
-    'Slovakia',
-    'Slovenia',
-    'Solomon Islands',
-    'Somalia',
-    'South Africa',
-    'South Korea',
-    'South Sudan',
-    'Spain',
-    'Sri Lanka',
-    'Sudan',
-    'Suriname',
-    'Sweden',
-    'Switzerland',
-    'Syria'
-];
-
-countryT = [
-    'Taiwan',
-    'Tajikistan',
-    'Tanzania',
-    'Thailand',
-    'Togo',
-    'Tonga',
-    'Trinidad and Tobago',
-    'Tunisia',
-    'Turkey',
-    'Turkmenistan',
-    'Tuvalu'
 ];
 
 countryU = [
@@ -362,7 +196,7 @@ richPeople = [
     'Genghis Khan',
     'Bill Gates',
     'Alan Rufus',
-    'John Rockefeller',
+    'Rockefeller',
     'Andrew Carnegie',
     'Joseph Stalin',
     'Akbar I',
@@ -464,6 +298,30 @@ friendsCharacters = [
     'Ross'
 ];
 
+greatLakes = [
+    'Superior',
+    'Michigan',
+    'Huron',
+    'Erie',
+    'Ontario'
+];
+
+newYorkBoroughs = [
+    'Manhattan',
+    'Brooklyn',
+    'Queens',
+    'Bronx',
+    'Staten Island'
+];
+
+olympicRings = [
+    'Blue',
+    'Yellow',
+    'Black',
+    'Green',
+    'Red'
+]
+
 module.exports = async (client) => {
     // Check if there is a games channel - if there isn't then we can stop here.
     const channel = client.channels.cache.find(channel => channel.name.includes('daily') && channel.name.includes('game'));
@@ -473,19 +331,9 @@ module.exports = async (client) => {
     
     // Pick a random selection from the game arrays.
     const selections = [
-        { question: 'of a country beginning with the letter A', answers: countryA },
-        { question: 'of a country beginning with the letter B', answers: countryB },
-        { question: 'of a country beginning with the letter C', answers: countryC },
         { question: 'of a country beginning with the letter E', answers: countryE },
-        { question: 'of a country beginning with the letter G', answers: countryG },
         { question: 'of a country beginning with the letter I', answers: countryI },
-        { question: 'of a country beginning with the letter K', answers: countryK },
         { question: 'of a country beginning with the letter L', answers: countryL },
-        { question: 'of a country beginning with the letter M', answers: countryM },
-        { question: 'of a country beginning with the letter N', answers: countryN },
-        { question: 'of a country beginning with the letter P', answers: countryP },
-        { question: 'of a country beginning with the letter S', answers: countryS },
-        { question: 'of a country beginning with the letter T', answers: countryT },
         { question: 'of a country beginning with the letter U', answers: countryU },
         { question: 'of one of the 10 richest people in history', answer: richPeople },
         { question: 'of one of the typical colours of a plain milk chocolate M&M', answer: mandmColours },
@@ -506,7 +354,10 @@ module.exports = async (client) => {
         { question: 'of a book that has sold over 100 million copies', answer: bestsellerBook },
         { question: 'of one of the 5 most popular supermarkets in the UK', answer: popSupermarket },
         { question: 'of any protagonist of a released Grand Theft Auto game', answer: gtaProtagonist },
-        { question: 'of any of the main characters from the series Friends', answer: friendsCharacters }
+        { question: 'of any of the main characters from the series Friends', answer: friendsCharacters },
+        { question: 'one of the five Great Lakes of North America?', answer: greatLakes},
+        { question: 'one of the five official boroughs of New York City?', answer: newYorkBoroughs},
+        { question: 'one of the five colours of the Olympic rings?', answer: olympicRings}
     ];
     
     // Pick a random element from the selections array.
