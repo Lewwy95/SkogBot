@@ -26,7 +26,7 @@ const topics = [
 
 module.exports = async (c) => {
     // Schedule the daily topics event to run every day.
-    schedule.scheduleJob({ hour: 8, minute: 0 }, async function() {
+    schedule.scheduleJob({ hour: 18, minute: 0 }, async function() {
         // Check if there is a daily topics channel - if there isn't then we can stop here.
         const channel = c.channels.cache.find(channel => channel.name.includes('topic'));
         if (!channel) {
