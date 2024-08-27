@@ -13,11 +13,11 @@ const selections = [
     { question: 'be able to control fire or water', answerOne: 'Fire', answerTwo: 'Water' },
     { question: 'be able to teleport anywhere or be able to read minds', answerOne: 'Teleport', answerTwo: 'Read Minds' },
     { question: 'be able to control time or space', answerOne: 'Time', answerTwo: 'Space' },
-    { question: 'have spaghetti for hair that you can eat or sweat maple syrup every time you feel nervous', answerOne: 'Spaghetti', answerTwo: 'Maple Syrup'},
-    { question: 'have to speak in rhymes every time you talk or only be able to communicate through interpretive dance', answerOne: 'Rhymes', answerTwo: 'Interpretive Dance'},
-    { question: 'be able to taste colours or see sounds', answerOne: 'Taste Colours', answerTwo: 'See Sounds'},
-    { question: 'have to sleep hanging upside down like a bat or sleep standing up like a horse', answerOne: 'Bat', answerTwo: 'Horse'},
-    { question: 'always have to wear a clown nose or always wear oversized clown shoes', answerOne: 'Clown Nose', answerTwo: 'Clown Shoes'}
+    { question: 'have spaghetti for hair that you can eat or sweat maple syrup every time you feel nervous', answerOne: 'Spaghetti', answerTwo: 'Maple Syrup' },
+    { question: 'have to speak in rhymes every time you talk or only be able to communicate through interpretive dance', answerOne: 'Rhymes', answerTwo: 'Interpretive Dance' },
+    { question: 'be able to taste colours or see sounds', answerOne: 'Taste Colours', answerTwo: 'See Sounds' },
+    { question: 'have to sleep hanging upside down like a bat or sleep standing up like a horse', answerOne: 'Bat', answerTwo: 'Horse' },
+    { question: 'always have to wear a clown nose or always wear oversized clown shoes', answerOne: 'Clown Nose', answerTwo: 'Clown Shoes' }
 ];
 
 module.exports = async (client) => {
@@ -210,7 +210,7 @@ module.exports = async (client) => {
             },
             {
                 name: 'Conclusion',
-                value: `The most popular choice was ${mostSelectedAnswer ? `${mostSelectedAnswer}!\nThis choice was picked ${winners.length} time(s).` : 'neither.\nBoth answers were equally selected (or none at all).'}`
+                value: `The most popular choice was **${mostSelectedAnswer ? `${mostSelectedAnswer}**!\nThis choice was picked ${winners.length} time(s).` : 'neither.\nBoth answers were equally selected (or none at all).'}`
             },
             {
                 name: 'Participants',

@@ -319,7 +319,7 @@ olympicRings = [
     'Black',
     'Green',
     'Red'
-]
+];
 
 module.exports = async (client) => {
     // Check if there is a games channel - if there isn't then we can stop here.
@@ -330,30 +330,30 @@ module.exports = async (client) => {
     
     // Pick a random selection from the game arrays.
     const selections = [
-        { question: 'of a country beginning with the letter E', answers: countryE },
-        { question: 'of a country beginning with the letter I', answers: countryI },
-        { question: 'of a country beginning with the letter L', answers: countryL },
-        { question: 'of a country beginning with the letter U', answers: countryU },
-        { question: 'of one of the 10 richest people in history', answer: richPeople },
-        { question: 'of one of the typical colours of a plain milk chocolate M&M', answer: mandmColours },
-        { question: 'of an artist who has sold over 40 million copies of an album', answer: fortymilArtists },
-        { question: 'of one of the 10 Supernatural characters with the most episodes', answer: spnCharacters },
-        { question: 'of one of the 20 best movies of all time as reviewed by Rotten Tomatoes', answer: bestMovies },
-        { question: 'of a team that has won the UEFA Europa League cup once', answer: uefaOnce },
-        { question: 'of a team that has won the UEFA Europa League cup twice', answer: uefaTwice },
-        { question: 'of a team that has won the UEFA Europa League cup three times', answer: uefaThrice },
-        { question: 'of a Simpsons character with over 10,000 lines', answer: simpsons },
-        { question: 'of a game that has won The Game of the Year award from the Game Awards', answer: gameAward },
-        { question: 'of a playable Elder Scrolls race', answer: elderScrollsRaces },
-        { question: 'of a planet in our Solar System', answer: planets },
-        { question: 'of a season of the year', answer: seasons },
-        { question: 'of a month of the year', answer: months },
-        { question: 'of one of the 8 canon lightsaber colours', answer: lightsaber },
-        { question: 'of a companion in Baldur\'s Gate 3 who is playable in act 1', answer: baldGatePals },
-        { question: 'of a book that has sold over 100 million copies', answer: bestsellerBook },
-        { question: 'of one of the 5 most popular supermarkets in the UK', answer: popSupermarket },
-        { question: 'of any protagonist of a released Grand Theft Auto game', answer: gtaProtagonist },
-        { question: 'of any of the main characters from the series Friends', answer: friendsCharacters },
+        { question: 'a country beginning with the letter E', answers: countryE },
+        { question: 'a country beginning with the letter I', answers: countryI },
+        { question: 'a country beginning with the letter L', answers: countryL },
+        { question: 'a country beginning with the letter U', answers: countryU },
+        { question: 'one of the 10 richest people in history', answer: richPeople },
+        { question: 'one of the typical colours of a plain milk chocolate M&M', answer: mandmColours },
+        { question: 'an artist who has sold over 40 million copies of an album', answer: fortymilArtists },
+        { question: 'one of the 10 Supernatural characters with the most episodes', answer: spnCharacters },
+        { question: 'one of the 20 best movies of all time as reviewed by Rotten Tomatoes', answer: bestMovies },
+        { question: 'a team that has won the UEFA Europa League cup once', answer: uefaOnce },
+        { question: 'a team that has won the UEFA Europa League cup twice', answer: uefaTwice },
+        { question: 'a team that has won the UEFA Europa League cup three times', answer: uefaThrice },
+        { question: 'a Simpsons character with over 10,000 lines', answer: simpsons },
+        { question: 'a game that has won The Game of the Year award from the Game Awards', answer: gameAward },
+        { question: 'a playable Elder Scrolls race', answer: elderScrollsRaces },
+        { question: 'a planet in our Solar System', answer: planets },
+        { question: 'a season of the year', answer: seasons },
+        { question: 'a month of the year', answer: months },
+        { question: 'one of the 8 canon lightsaber colours', answer: lightsaber },
+        { question: 'a companion in Baldur\'s Gate 3 who is playable in act 1', answer: baldGatePals },
+        { question: 'a book that has sold over 100 million copies', answer: bestsellerBook },
+        { question: 'one of the 5 most popular supermarkets in the UK', answer: popSupermarket },
+        { question: 'any protagonist of a released Grand Theft Auto game', answer: gtaProtagonist },
+        { question: 'any of the main characters from the series Friends', answer: friendsCharacters },
         { question: 'one of the five Great Lakes of North America?', answer: greatLakes},
         { question: 'one of the five official boroughs of New York City?', answer: newYorkBoroughs},
         { question: 'one of the five colours of the Olympic rings?', answer: olympicRings}
@@ -492,6 +492,9 @@ module.exports = async (client) => {
             // Get the user's answer and remove any punctuation.
             const userAnswer = modalInteraction.fields.components[0].components[0].value;
             const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '');
+
+            // Log the user's answer to the console.
+            console.log(`🚨 Mind Reader: ${buttonInteraction.user.displayName} answered ${sanitisedUserAnswer}`);
         
             // Check if the user's answer is the same as the selection's answer.
             // If it is then we can add the user to the losers array (otherwise we add them to the winners array).
@@ -592,5 +595,10 @@ module.exports = async (client) => {
 
         // Finally, we send the finishing embed to the games channel!
         channel.send({ embeds: [embed], files: [attachment] });
+
+        // Log the winners, losers and cheaters to the console.
+        console.log(`🚨 Mind Reader winners:`, winners);
+        console.log(`🚨 Mind Reader losers:`, losers)
+        console.log(`🚨 Mind Reader cheaters:`, cheaters);
     });
 };
