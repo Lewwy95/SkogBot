@@ -408,7 +408,7 @@ module.exports = async (client) => {
         .setThumbnail(`attachment://${attachment.name}`)
         .addFields({
             name: 'Question',
-            value: `Can you think ${selection.question}?`
+            value: `Can you think of ${selection.question}?`
         },
         {
             name: 'Participants',
@@ -506,7 +506,7 @@ module.exports = async (client) => {
 
             // Check if the user's answer is part of the possible answers.
             // If it isn't then we can add the user to the cheaters array and remove them from the winners array.
-            const validAnswer = question.answer.some(answer => sanitisedUserAnswer.toLowerCase().includes(answer.toLowerCase()));
+            const validAnswer = question.answer.some(answer => answer.toLowerCase().includes(sanitisedUserAnswer.toLowerCase()));
             if (!validAnswer) {
                 cheaters.push({ id: buttonInteraction.user.id, answer: userAnswer });
                 winners.pop();
