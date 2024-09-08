@@ -382,7 +382,7 @@ module.exports = async (client) => {
 
     // If there are no selections left to send then we can stop here.
     if (selection.question === undefined) {
-        console.error('❌ There are no questions left for mind reader.');
+        channel.send({ content: 'Today\'s game was Mind Reader but there are no more questions left. Please try again tomorrow!' });
         return;
     }
 
@@ -489,9 +489,9 @@ module.exports = async (client) => {
                 return;
             }
 
-            // Get the user's answer and remove any punctuation.
+            // Get the user's answer and remove any punctuation and articles.
             const userAnswer = modalInteraction.fields.components[0].components[0].value;
-            const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '');
+            const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '').replace(/^(a|an|the)\s+/i, '');
 
             // Log the user's answer to the console.
             console.log(`🚨 Mind Reader: ${buttonInteraction.user.displayName} answered ${sanitisedUserAnswer}`);

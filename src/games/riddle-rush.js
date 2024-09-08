@@ -48,7 +48,7 @@ module.exports = async (client) => {
 
     // If there are no selections left to send then we can stop here.
     if (selection === undefined) {
-        console.error('❌ There are no riddles left for riddle rush.');
+        channel.send({ content: 'Today\'s game was Riddle Rush but there are no more questions left. Please try again tomorrow!' });
         return;
     }
 
@@ -154,9 +154,9 @@ module.exports = async (client) => {
                 return;
             }
 
-            // Get the user's answer and remove any punctuation.
+            // Get the user's answer and remove any punctuation and articles.
             const userAnswer = modalInteraction.fields.components[0].components[0].value;
-            const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '');
+            const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '').replace(/^(a|an|the)\s+/i, '');
         
             // Check if the user's answer is the same as the selection's answer.
             // If it is then we can add the user to the winners array (otherwise we add them to the losers array).

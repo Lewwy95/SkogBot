@@ -47,7 +47,7 @@ module.exports = async (client) => {
 
     // If there are no selections left to send then we can stop here.
     if (selection === undefined) {
-        console.error('❌ There are no questions left for would you rather.');
+        channel.send({ content: 'Today\'s game was Would You Rather but there are no more questions left. Please try again tomorrow!' });
         return;
     }
 

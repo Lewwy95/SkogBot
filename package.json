@@ -1,6 +1,6 @@
 {
   "name": "skogbot",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "a custom discord bot.",
   "main": "./src/index.js",
   "scripts": {
@@ -10,11 +10,11 @@
   "dependencies": {
     "commandkit": "^0.1.10",
     "cross-env": "^7.0.3",
-    "discord.js": "^14.15.3",
+    "discord.js": "^14.16.1",
     "dotenv": "^16.4.5",
     "ioredis": "^5.4.1",
-    "mongoose": "^8.5.2",
+    "mongoose": "^8.6.1",
     "node-schedule": "^2.1.1",
-    "openai": "^4.55.4"
+    "openai": "^4.58.1"
   }
 }
