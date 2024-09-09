@@ -12,4 +12,4 @@ module.exports = async (c) => {
         const selectedGame = games[Math.floor(Math.random() * games.length)];
         selectedGame(c);
     });
-    };
+};
