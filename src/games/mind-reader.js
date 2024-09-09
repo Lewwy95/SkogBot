@@ -321,6 +321,21 @@ olympicRings = [
     'Red'
 ];
 
+periodicTable = [
+    'Hydrogen',
+    'Helium',
+    'Lithium',
+    'Beryllium',
+    'Boron'
+];
+
+cardSuits = [
+    'Hearts',
+    'Diamonds',
+    'Clubs',
+    'Spades'
+];
+
 module.exports = async (client) => {
     // Check if there is a games channel - if there isn't then we can stop here.
     const channel = client.channels.cache.find(channel => channel.name.includes('daily') && channel.name.includes('game'));
@@ -354,9 +369,11 @@ module.exports = async (client) => {
         { question: 'one of the 5 most popular supermarkets in the UK', answer: popSupermarket },
         { question: 'any protagonist of a released Grand Theft Auto game', answer: gtaProtagonist },
         { question: 'any of the main characters from the series Friends', answer: friendsCharacters },
-        { question: 'one of the five Great Lakes of North America?', answer: greatLakes},
-        { question: 'one of the five official boroughs of New York City?', answer: newYorkBoroughs},
-        { question: 'one of the five colours of the Olympic rings?', answer: olympicRings}
+        { question: 'one of the five Great Lakes of North America?', answer: greatLakes },
+        { question: 'one of the five official boroughs of New York City?', answer: newYorkBoroughs },
+        { question: 'one of the five colours of the Olympic rings?', answer: olympicRings },
+        { question: 'one of the first five elements on the periodic table?', answer: periodicTable },
+        { question: 'one of the four suits in a standard deck of playing cards?', answer: cardSuits }
     ];
     
     // Pick a random element from the selections array.
@@ -491,14 +508,14 @@ module.exports = async (client) => {
 
             // Get the user's answer and remove any punctuation and articles.
             const userAnswer = modalInteraction.fields.components[0].components[0].value;
-            const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '').replace(/^(a|an|the)\s+/i, '');
+            const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '');
 
             // Log the user's answer to the console.
             console.log(`🚨 Mind Reader: ${buttonInteraction.user.displayName} answered ${sanitisedUserAnswer}`);
         
             // Check if the user's answer is the same as the selection's answer.
             // If it is then we can add the user to the losers array (otherwise we add them to the winners array).
-            if (selection.botAnswer.toLowerCase().includes(sanitisedUserAnswer.toLowerCase())) {
+            if (sanitisedUserAnswer.toLowerCase().includes(selection.botAnswer.toLowerCase())) {
                 losers.push({ id: buttonInteraction.user.id, answer: userAnswer });
             } else {
                 winners.push({ id: buttonInteraction.user.id, answer: userAnswer });

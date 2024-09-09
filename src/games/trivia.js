@@ -206,11 +206,11 @@ module.exports = async (client) => {
 
             // Get the user's answer and remove any punctuation and articles.
             const userAnswer = modalInteraction.fields.components[0].components[0].value;
-            const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '').replace(/^(a|an|the)\s+/i, '');
+            const sanitisedUserAnswer = userAnswer.replace(/[^\w\s]/g, '');
         
             // Check if the user's answer is the same as the selection's answer.
             // If it is then we can add the user to the winners array (otherwise we add them to the losers array).
-            if (selection.answer.toLowerCase().includes(sanitisedUserAnswer.toLowerCase())) {
+            if (sanitisedUserAnswer.toLowerCase().includes(selection.answer.toLowerCase())) {
                 winners.push({ id: buttonInteraction.user.id, answer: userAnswer });
             } else {
                 losers.push({ id: buttonInteraction.user.id, answer: userAnswer });
