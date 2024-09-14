@@ -4,9 +4,8 @@
 const { RoleSelectMenuBuilder, ActionRowBuilder, AttachmentBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = (channel) => {
-    // Check if there is a roles channel - if there isn't then we can stop here.
-    const roleChannel = channel.client.channels.cache.find(channel => channel.name.includes('role'));
-    if (!roleChannel) {
+    // Check if the channel is a role channel - if it isn't then we can stop here.
+    if (!channel.name.includes('role')) {
         return;
     }
 
@@ -33,7 +32,7 @@ module.exports = (channel) => {
         });
 
     // Here we send the embed to the channel!
-    roleChannel.send({
+    channel.send({
         embeds: [embed],
         components: [selectMenuRow],
         files: [attachment]

@@ -440,9 +440,16 @@ module.exports = async (client) => {
         .setFooter({ text: '⭐ Created by Satchettin' })
         .setTimestamp();
 
+    // Find the "games" role in the guild - if the role doesn't exist then we can stop here.
+    const role = channel.guild.roles.cache.find(role => role.name.toLowerCase().includes('games'));
+    if (!role) {
+        console.error('❌ Daily Games role missing.');
+        return;
+    }
+
     // Here we send the embed to the games channel!
     const message = await channel.send({
-        content: '@here',
+        content: `<@&${role.id}>`,
         embeds: [embed],
         components: [buttonRow],
         files: [attachment]
