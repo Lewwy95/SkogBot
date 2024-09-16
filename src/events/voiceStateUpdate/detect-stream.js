@@ -81,7 +81,7 @@ module.exports = async (oldVoiceState, newVoiceState) => {
 
         // Remove the timer from the map after announcing it to the channel.
         timers.delete(newVoiceState.id);
-    }, 300000); // 300000 = 5 minutes.
+    }, 600000); // 600000 = 10 minutes.
 
     // Store the timer in the map.
     timers.set(newVoiceState.id, timer);
