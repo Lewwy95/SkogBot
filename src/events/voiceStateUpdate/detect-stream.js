@@ -51,6 +51,14 @@ module.exports = async (oldVoiceState, newVoiceState) => {
             return;
         }
 
+        // Check if a message already exists for this user.
+        const messages = await channel.messages.fetch({ limit: 100 });
+        const userMessages = messages.filter(msg => msg.embeds.length > 0 && msg.embeds[0].description.includes(newVoiceState.member.user.displayName));
+        if (userMessages.size > 0) {
+            timers.delete(newVoiceState.id);
+            return;
+        }
+
         // Find the "Live" role in the guild - if the role doesn't exist then we can stop here.
         // We also delete the timer from the map as we don't need it anymore.
         const role = newVoiceState.guild.roles.cache.find(role => role.name.toLowerCase().includes('live'));
@@ -68,8 +76,14 @@ module.exports = async (oldVoiceState, newVoiceState) => {
             .setDescription(`${newVoiceState.member.user.displayName} has started a live stream!`)
             .setThumbnail(`attachment://${attachment.name}`)
             .addFields({
+                name: 'Details',
+                value: `${newVoiceState.member.presence.activities[0].name ? newVoiceState.member.presence.activities[0].name : 'No details available.'}`,
+                inline: true
+            },
+            {
                 name: 'Channel',
-                value: `<#${newVoiceState.channel.id}>`
+                value: `<#${newVoiceState.channel.id}>`,
+                inline: true
             });
 
         // Here we send the embed to the channel!
