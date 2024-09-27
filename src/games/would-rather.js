@@ -220,7 +220,7 @@ module.exports = async (client) => {
             },
             {
                 name: 'Conclusion',
-                value: `The most popular choice was **${mostSelectedAnswer ? `${mostSelectedAnswer}**!\nThis choice was picked ${winners.length} time(s).` : 'neither.\nBoth answers were equally selected (or none at all).'}`
+                value: `The most popular choice was **${mostSelectedAnswer ? `${mostSelectedAnswer}**!\nThis choice was picked ${winners.length} time(s).` : 'neither**.\nBoth answers were equally selected (or none at all).'}`
             },
             {
                 name: 'Participants',
