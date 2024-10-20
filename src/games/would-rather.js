@@ -18,9 +18,9 @@ const selections = [
     { question: 'be able to taste colours or see sounds', answerOne: 'Taste Colours', answerTwo: 'See Sounds' },
     { question: 'have to sleep hanging upside down like a bat or sleep standing up like a horse', answerOne: 'Bat', answerTwo: 'Horse' },
     { question: 'always have to wear a clown nose or always wear oversized clown shoes', answerOne: 'Clown Nose', answerTwo: 'Clown Shoes' },
-    { question: 'have to wear wet socks for the rest of your life or only be able to communicate by whispering through a kazoo?', answerOne: 'Wet Socks', answerTwo: 'Kazoo' },
-    { question: 'have to fight a chicken every time you get into a car or have a random song play loudly from nowhere every time you blink?', answerOne: 'Chicken', answerTwo: 'Song' },
-    { question: 'always feel like theres a tiny pebble in your shoe or have an uncontrollable urge to meow loudly every time someone asks you a question?', answerOne: 'Pebble', answerTwo: 'Meow' }
+    { question: 'have to wear wet socks for the rest of your life or only be able to communicate by whispering through a kazoo', answerOne: 'Wet Socks', answerTwo: 'Kazoo' },
+    { question: 'have to fight a chicken every time you get into a car or have a random song play loudly from nowhere every time you blink', answerOne: 'Chicken', answerTwo: 'Song' },
+    { question: 'always feel like theres a tiny pebble in your shoe or have an uncontrollable urge to meow loudly every time someone asks you a question', answerOne: 'Pebble', answerTwo: 'Meow' }
 ];
 
 module.exports = async (client) => {
