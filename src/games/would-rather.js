@@ -40,8 +40,6 @@ const selections = [
     { question: 'have the ability to fly or the ability to be invisible', answerOne: 'Fly', answerTwo: 'Invisible' }
 ];
 
-selections.push(...newSelections);
-
 module.exports = async (client) => {
     // Check if there is a games channel - if there isn't then we can stop here.
     const channel = client.channels.cache.find(channel => channel.name.includes('daily') && channel.name.includes('game'));
