@@ -27,8 +27,8 @@ function selectWeightedGame(games, weights) {
 };
 
 module.exports = async (c) => {
-    // Schedule a game to be played every day at midday.
-    schedule.scheduleJob({ hour: 12, minute: 0 }, function() {
+    // Schedule a game to be played every day.
+    schedule.scheduleJob({ hour: 13, minute: 0 }, function() {
         const games = [mindReader, mysteryWord, riddleRush, trivia, wouldRather];
         const selectedGame = selectWeightedGame(games, gameWeights);
         selectedGame.play(c);

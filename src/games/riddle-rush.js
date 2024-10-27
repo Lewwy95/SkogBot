@@ -18,7 +18,23 @@ const selections = [
     { riddle: 'I am not alive, but I can grow; I don\'t have lungs, but I need air; I don\'t have a mouth, but water kills me. What am I?', answer: 'Fire' },
     { riddle: 'I am full of holes but can still hold water. What am I?', answer: 'Sponge' },
     { riddle: 'I am always in front of you but you cannot see me. What am I?', answer: 'Future' },
-    { riddle: 'I am an odd number. Take away one letter and I become even. What number am I?', answer: 'Seven' }
+    { riddle: 'I am an odd number. Take away one letter and I become even. What number am I?', answer: 'Seven' },
+    { riddle: 'What comes once in a minute, twice in a moment, but never in a thousand years?', answer: 'The letter M' },
+    { riddle: 'I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?', answer: 'An echo' },
+    { riddle: 'I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?', answer: 'A map' },
+    { riddle: 'The more you take, the more you leave behind. What am I?', answer: 'Footsteps' },
+    { riddle: 'I am not alive, but I can die. What am I?', answer: 'A battery' },
+    { riddle: 'What can travel around the world while staying in a corner?', answer: 'A stamp' },
+    { riddle: 'What has many teeth, but cannot bite?', answer: 'A comb' },
+    { riddle: 'What is so fragile that saying its name breaks it?', answer: 'Silence' },
+    { riddle: 'What can fill a room but takes up no space?', answer: 'Light' },
+    { riddle: 'What has one eye, but can’t see?', answer: 'A needle' },
+    { riddle: 'What gets wetter as it dries?', answer: 'A towel' },
+    { riddle: 'What has a head, a tail, is silver, but has no body?', answer: 'A coin' },
+    { riddle: 'What can you catch, but not throw?', answer: 'A cold' },
+    { riddle: 'What has an end but no beginning, a home but no family, and a space without room?', answer: 'A keyboard' },
+    { riddle: 'What has a bark, but no bite?', answer: 'A tree' },
+    { riddle: 'What can run but never walks, has a mouth but never talks, has a head but never weeps, has a bed but never sleeps?', answer: 'A river' }
 ];
 
 module.exports = async (client) => {

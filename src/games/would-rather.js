@@ -20,8 +20,27 @@ const selections = [
     { question: 'always have to wear a clown nose or always wear oversized clown shoes', answerOne: 'Clown Nose', answerTwo: 'Clown Shoes' },
     { question: 'have to wear wet socks for the rest of your life or only be able to communicate by whispering through a kazoo', answerOne: 'Wet Socks', answerTwo: 'Kazoo' },
     { question: 'have to fight a chicken every time you get into a car or have a random song play loudly from nowhere every time you blink', answerOne: 'Chicken', answerTwo: 'Song' },
-    { question: 'always feel like theres a tiny pebble in your shoe or have an uncontrollable urge to meow loudly every time someone asks you a question', answerOne: 'Pebble', answerTwo: 'Meow' }
+    { question: 'always feel like theres a tiny pebble in your shoe or have an uncontrollable urge to meow loudly every time someone asks you a question', answerOne: 'Pebble', answerTwo: 'Meow' },
+    { question: 'have the ability to see 10 minutes into the future or 150 years into the future', answerOne: '10 Minutes', answerTwo: '150 Years' },
+    { question: 'always have a full phone battery or always have a full tank of gas', answerOne: 'Phone Battery', answerTwo: 'Tank of Gas' },
+    { question: 'be able to speak to animals or be fluent in all human languages', answerOne: 'Speak to Animals', answerTwo: 'Fluent in Languages' },
+    { question: 'have a time machine or a teleporter', answerOne: 'Time Machine', answerTwo: 'Teleporter' },
+    { question: 'be invisible or be able to fly', answerOne: 'Invisible', answerTwo: 'Fly' },
+    { question: 'live without music or live without television', answerOne: 'Without Music', answerTwo: 'Without Television' },
+    { question: 'be able to control the weather or be able to talk to animals', answerOne: 'Control Weather', answerTwo: 'Talk to Animals' },
+    { question: 'have a photographic memory or be able to forget anything at will', answerOne: 'Photographic Memory', answerTwo: 'Forget at Will' },
+    { question: 'always know when someone is lying or always get away with lying', answerOne: 'Know Lies', answerTwo: 'Get Away with Lies' },
+    { question: 'have unlimited international first-class tickets or never have to pay for food at restaurants', answerOne: 'Unlimited Tickets', answerTwo: 'Free Food' },
+    { question: 'be able to control fire or be able to control water', answerOne: 'Control Fire', answerTwo: 'Control Water' },
+    { question: 'be able to teleport anywhere or be able to read minds', answerOne: 'Teleport', answerTwo: 'Read Minds' },
+    { question: 'have the ability to see 10 minutes into the future or 10 years into the future', answerOne: '10 Minutes', answerTwo: '10 Years' },
+    { question: 'have an unlimited supply of your favorite food or an unlimited supply of your favorite drink', answerOne: 'Favorite Food', answerTwo: 'Favorite Drink' },
+    { question: 'be able to talk to animals or be able to speak all foreign languages', answerOne: 'Talk to Animals', answerTwo: 'Speak All Languages' },
+    { question: 'have the ability to control time or the ability to control space', answerOne: 'Control Time', answerTwo: 'Control Space' },
+    { question: 'have the ability to fly or the ability to be invisible', answerOne: 'Fly', answerTwo: 'Invisible' }
 ];
+
+selections.push(...newSelections);
 
 module.exports = async (client) => {
     // Check if there is a games channel - if there isn't then we can stop here.
