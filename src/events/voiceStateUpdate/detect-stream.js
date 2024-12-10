@@ -61,12 +61,15 @@ module.exports = async (oldVoiceState, newVoiceState) => {
 
         // Find the "Live" role in the guild - if the role doesn't exist then we can stop here.
         // We also delete the timer from the map as we don't need it anymore.
+        // Disable for now!
+        /*
         const role = newVoiceState.guild.roles.cache.find(role => role.name.toLowerCase().includes('live'));
         if (!role) {
             console.error('❌ Live Stream role missing.');
             timers.delete(newVoiceState.id);
             return;
         }
+        */
 
         // Create an embed and send it to the channel.
         const attachment = new AttachmentBuilder('src/images/live.png', { name: 'live.png' });
@@ -88,7 +91,7 @@ module.exports = async (oldVoiceState, newVoiceState) => {
 
         // Here we send the embed to the channel!
         channel.send({
-            content: `<@&${role.id}>`,
+            content: '@here',
             embeds: [embed],
             files: [attachment]
         });
