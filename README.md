@@ -21,7 +21,6 @@ This project supports multiple .env files by using cross-env. You will need to c
 TOKEN=
 DATABASE=
 REDIS=
-OPENAI=
 ```
 
 ## Usage

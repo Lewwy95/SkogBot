@@ -9,6 +9,5 @@ dotenv.config({
 module.exports = {
     token: process.env.TOKEN,
     database: process.env.DATABASE,
-    redisUrl: process.env.REDIS,
-    openAIKey: process.env.OPENAI
+    redisUrl: process.env.REDIS
 };
