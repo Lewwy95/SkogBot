@@ -26,6 +26,17 @@ const data = new SlashCommandBuilder()
     )
     .addSubcommand((subcommand) =>
         subcommand
+            .setName('share')
+            .setDescription('Share a quote from a user to your current channel.')
+            .addUserOption((option) =>
+                option
+                    .setName('user')
+                    .setDescription('The user who\'s quote you\'d like to share.')
+                    .setRequired(true)
+            )
+    )
+    .addSubcommand((subcommand) =>
+        subcommand
             .setName('view')
             .setDescription('Fetch a list of quotes from the server or a specific user.')
             .addUserOption((option) =>
@@ -40,7 +51,7 @@ const data = new SlashCommandBuilder()
                     .setMinValue(1)
                     .setMaxValue(10)
             )
-    );
+    )
 
 /**
  * 
@@ -56,6 +67,12 @@ async function run({ interaction }) {
             // Get the quote data from the interaction options.
             const author = interaction.options.getUser('user');
             const content = interaction.options.getString('content');
+
+            // Check if the author is a bot - if they are then we stop here.
+            if (author.bot) {
+                interaction.reply({ content: 'You cannot add quotes for bots.', ephemeral: true });
+                return;
+            }
 
             // Check if there is a quoteschannel - if there isn't then we can stop here.
             const channel = interaction.client.channels.cache.find(channel => channel.name.includes('quote'));
@@ -89,6 +106,270 @@ async function run({ interaction }) {
 
             // Send a reply to the user to confirm that the quote was added.
             interaction.reply({ content: `Your quote has been submitted and can be viewed in the <#${channel.id}> channel.`, ephemeral: true });
+            break;
+        }
+
+        case 'share': {
+            // Get the quote data from the interaction options.
+            const author = interaction.options.getUser('user') || 'All';
+            const perPage = 2;
+
+            // Check the database for an existing quote schema - if one doesn't exist then create a new one.
+            // After that, we try to fetch the quotes from the database and stop if there are none to display!
+            const query = await quoteSchema.findOne({ guildId: interaction.guild.id }) || await quoteSchema.create({ guildId: interaction.guild.id });
+            if (!query || query.quotes.length <= 0) {
+                interaction.reply({ content: 'There are no quotes to display.', ephemeral: true });
+                return;
+            }
+
+            // Filter the quotes based on the author.
+            // If the author is set to 'All' then we display all quotes - if no quotes are found then we stop!
+            const filteredQuotes = author === 'All' ? query.quotes : query.quotes.filter(quote => quote.userId === author.id);
+            if (filteredQuotes.length === 0) {
+                interaction.reply({ content: `No quotes by ${author.displayName} were found.`, ephemeral: true });
+                return;
+            }
+
+            // Calculate the total number of pages based on the number of quotes and the number of quotes per page.
+            const totalPages = Math.ceil(filteredQuotes.length / perPage);
+            let currentPage = 1;
+            let startIndex = (currentPage - 1) * perPage;
+            let endIndex = startIndex + perPage;
+
+            // Helper to get the display name.
+            const getDisplayName = (guild, userId) => {
+                const member = guild.members.cache.get(userId);
+                return member ? member.displayName : 'Unknown';
+            };
+
+            // Create an embed with the quote data.
+            const embedFields = filteredQuotes.slice(startIndex, endIndex).map((quote, idx) => ({
+                name: `#${idx + 1} - ${getDisplayName(interaction.guild, quote.userId)}`,
+                value: `- ${quote.quote}`
+            }));
+
+            // Create quote selection buttons based on the perPage value.
+            const quoteButtons = [];
+            for (let i = 0; i < Math.min(perPage, filteredQuotes.length - startIndex); i++) {
+                quoteButtons.push(
+                    new ButtonKit()
+                        .setEmoji(`${i + 1}️⃣`)
+                        .setStyle(ButtonStyle.Primary)
+                        .setCustomId(`selectQuote_${i}`)
+                );
+            }
+
+            // Create a random quote button.
+            const randomButton = new ButtonKit()
+                .setEmoji('🎲')
+                .setStyle(ButtonStyle.Primary)
+                .setCustomId('randomQuote');
+
+            // Create the page navigation buttons.
+            const previousPage = new ButtonKit()
+                .setEmoji('⬅️')
+                .setStyle(ButtonStyle.Secondary)
+                .setCustomId('previousPage')
+                .setDisabled(currentPage === 1);
+
+            const nextPage = new ButtonKit()
+                .setEmoji('➡️')
+                .setStyle(ButtonStyle.Secondary)
+                .setCustomId('nextPage')
+                .setDisabled(totalPages === currentPage);
+
+            // Create a button row with navigation and quote selection buttons.
+            const buttonRow = new ActionRowBuilder().addComponents(
+                ...quoteButtons,
+                randomButton,
+                previousPage,
+                nextPage
+            );
+
+            // Create an embed with the quote data and buttons.
+            const attachment = new AttachmentBuilder('src/images/quotes.png', { name: 'quotes.png' });
+            const embed = new EmbedBuilder()
+                .setColor('Fuchsia')
+                .setTitle('Quote Board')
+                .setDescription(`Below are a list of quotes from ${author === 'All' ? 'all users' : author.displayName}.`)
+                .setThumbnail(`attachment://${attachment.name}`)
+                .addFields(embedFields)
+                .setFooter({ text: `Page ${currentPage}/${totalPages}` });
+
+            // Send the embed to the user as a reply!
+            const message = await interaction.reply({
+                embeds: [embed],
+                components: [buttonRow],
+                files: [attachment],
+                fetchReply: true,
+                ephemeral: true
+            });
+
+            // Page navigation button handlers.
+            previousPage.onClick(
+                async (buttonInteraction) => {
+                    await buttonInteraction.deferReply({ ephemeral: true });
+                    currentPage--;
+                    startIndex = (currentPage - 1) * perPage;
+                    endIndex = startIndex + perPage;
+
+                    // Update the embed fields.
+                    const embedFields = filteredQuotes.slice(startIndex, endIndex).map((quote, idx) => ({
+                        name: `#${idx + 1} - ${getDisplayName(buttonInteraction.guild, quote.userId)}`,
+                        value: `- ${quote.quote}`
+                    }));
+
+                    // Update quote selection buttons.
+                    const newQuoteButtons = [];
+                    for (let i = 0; i < Math.min(perPage, filteredQuotes.length - startIndex); i++) {
+                        newQuoteButtons.push(
+                            new ButtonKit()
+                                .setEmoji(`${i + 1}️⃣`)
+                                .setStyle(ButtonStyle.Primary)
+                                .setCustomId(`selectQuote_${i}`)
+                        );
+                    }
+
+                    // Update page navigation buttons.
+                    previousPage.setDisabled(currentPage === 1);
+                    nextPage.setDisabled(currentPage === totalPages);
+
+                    // Update button row.
+                    const newButtonRow = new ActionRowBuilder().addComponents(
+                        ...newQuoteButtons,
+                        randomButton,
+                        previousPage,
+                        nextPage
+                    );
+
+                    embed.setFields(embedFields);
+                    embed.setFooter({ text: `Page ${currentPage}/${totalPages}` });
+
+                    await interaction.editReply({ embeds: [embed], components: [newButtonRow] });
+                    buttonInteraction.deleteReply();
+                }, { message }
+            );
+
+            nextPage.onClick(
+                async (buttonInteraction) => {
+                    await buttonInteraction.deferReply({ ephemeral: true });
+                    currentPage++;
+                    startIndex = (currentPage - 1) * perPage;
+                    endIndex = startIndex + perPage;
+
+                    // Update embed fields.
+                    const embedFields = filteredQuotes.slice(startIndex, endIndex).map((quote, idx) => ({
+                        name: `#${idx + 1} - ${getDisplayName(buttonInteraction.guild, quote.userId)}`,
+                        value: `- ${quote.quote}`
+                    }));
+
+                    // Update quote selection buttons.
+                    const newQuoteButtons = [];
+                    for (let i = 0; i < Math.min(perPage, filteredQuotes.length - startIndex); i++) {
+                        newQuoteButtons.push(
+                            new ButtonKit()
+                                .setEmoji(`${i + 1}️⃣`)
+                                .setStyle(ButtonStyle.Primary)
+                                .setCustomId(`selectQuote_${i}`)
+                        );
+                    }
+
+                    // Update page navigation buttons.
+                    previousPage.setDisabled(currentPage === 1);
+                    nextPage.setDisabled(currentPage === totalPages);
+
+                    // Update button row.
+                    const newButtonRow = new ActionRowBuilder().addComponents(
+                        ...newQuoteButtons,
+                        randomButton,
+                        previousPage,
+                        nextPage
+                    );
+
+                    embed.setFields(embedFields);
+                    embed.setFooter({ text: `Page ${currentPage}/${totalPages}` });
+
+                    await interaction.editReply({ embeds: [embed], components: [newButtonRow] });
+                    buttonInteraction.deleteReply();
+                }, { message }
+            );
+
+            // Random intro messages for quote sharing.
+            const introMessages = [
+                "Somebody told me that",
+                "As the prophecy foretold",
+                "In ancient scrolls scribed in blood",
+                "You know what they say as",
+                "Words to live by are those that",
+                "I like to remind myself that",
+                "As the great person",
+                "As the prophecy states",
+                "I am to relay the words that"
+            ];
+
+            // Function to get a random intro message.
+            function getRandomIntro() {
+                return introMessages[Math.floor(Math.random() * introMessages.length)];
+            }
+
+            // Quote selection handlers.
+            for (let i = 0; i < quoteButtons.length; i++) {
+                quoteButtons[i].onClick(
+                    async (buttonInteraction) => {
+                        await buttonInteraction.deferReply({ ephemeral: true });
+                        const quoteIdx = startIndex + i;
+                        const quote = filteredQuotes[quoteIdx];
+                        
+                        // If the quote doesn't exist, we stop here.
+                        if (!quote) {
+                            await buttonInteraction.editReply({ content: 'That quote could not be found.', ephemeral: true });
+                            return;
+                        }
+
+                        // Send the selected quote to the current channel (not ephemeral).
+                        const intro = getRandomIntro();
+                        const shareEmbed = new EmbedBuilder()
+                            .setColor('Fuchsia')
+                            .setTitle('Shared Message')
+                            .setDescription(`${intro}, ${author.displayName} once said:`)
+                            .setThumbnail(author.displayAvatarURL({ dynamic: true }))
+                            .addFields({ name: 'Quote', value: `- ${quote.quote}` })
+                            .setFooter({ text: `⭐ Shared by ${buttonInteraction.user.displayName}` })
+                            .setTimestamp();
+
+                        await buttonInteraction.channel.send({ embeds: [shareEmbed] });
+                        buttonInteraction.deleteReply();
+                    }, { message }
+                );
+            }
+
+            // Random quote button handler.
+            randomButton.onClick(
+                async (buttonInteraction) => {
+                    await buttonInteraction.deferReply({ ephemeral: true });
+
+                    // Pick a random quote from filteredQuotes.
+                    const quote = filteredQuotes[Math.floor(Math.random() * filteredQuotes.length)];
+                    if (!quote) {
+                        await buttonInteraction.editReply({ content: 'No quotes could be found.', ephemeral: true });
+                        return;
+                    }
+
+                    // Send the selected quote to the current channel (not ephemeral).
+                    const intro = getRandomIntro();
+                    const shareEmbed = new EmbedBuilder()
+                        .setColor('Fuchsia')
+                        .setTitle('Shared Message')
+                        .setDescription(`${intro}, ${author.displayName} once said:`)
+                        .setThumbnail(author.displayAvatarURL({ dynamic: true }))
+                        .addFields({ name: 'Quote', value: `- ${quote.quote}` })
+                        .setFooter({ text: `⭐ Shared by ${buttonInteraction.user.displayName}` })
+                        .setTimestamp();
+
+                    await buttonInteraction.channel.send({ embeds: [shareEmbed] });
+                    buttonInteraction.deleteReply();
+                }, { message }
+            );
             break;
         }
 
