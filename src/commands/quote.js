@@ -296,15 +296,15 @@ async function run({ interaction }) {
 
             // Random intro messages for quote sharing.
             const introMessages = [
-                "Somebody told me that",
-                "As the prophecy foretold",
-                "In ancient scrolls scribed in blood",
-                "You know what they say as",
-                "Words to live by are those that",
-                "I like to remind myself that",
-                "As the great person",
-                "As the prophecy states",
-                "I am to relay the words that"
+                "Somebody once told me:",
+                "As the prophecy foretold:",
+                "It is written upon ancient scrolls scribed in blood:",
+                "You know what they say:",
+                "Words to live by:",
+                "In times like these, I like to remind myself of the following quote:",
+                "As a great person once said:",
+                "As the prophecy states:",
+                "I had a dream in which I was instructed by the gods to relay these words:"
             ];
 
             // Function to get a random intro message.
@@ -331,9 +331,9 @@ async function run({ interaction }) {
                         const shareEmbed = new EmbedBuilder()
                             .setColor('Fuchsia')
                             .setTitle('Shared Message')
-                            .setDescription(`${intro}, ${author.displayName} once said:`)
+                            .setDescription(`${intro}`)
                             .setThumbnail(author.displayAvatarURL({ dynamic: true }))
-                            .addFields({ name: 'Quote', value: `- ${quote.quote}` })
+                            .addFields({ name: 'Quote', value: `- ${quote.quote} - ${author.displayName}` })
                             .setFooter({ text: `⭐ Shared by ${buttonInteraction.user.displayName}` })
                             .setTimestamp();
 
@@ -360,9 +360,9 @@ async function run({ interaction }) {
                     const shareEmbed = new EmbedBuilder()
                         .setColor('Fuchsia')
                         .setTitle('Shared Message')
-                        .setDescription(`${intro}, ${author.displayName} once said:`)
+                        .setDescription(`${intro}`)
                         .setThumbnail(author.displayAvatarURL({ dynamic: true }))
-                        .addFields({ name: 'Quote', value: `- ${quote.quote}` })
+                        .addFields({ name: 'Quote', value: `- ${quote.quote} - ${author.displayName}` })
                         .setFooter({ text: `⭐ Shared by ${buttonInteraction.user.displayName}` })
                         .setTimestamp();
 
