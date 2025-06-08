@@ -114,6 +114,19 @@ async function run({ interaction }) {
             const author = interaction.options.getUser('user') || 'All';
             const perPage = 2;
 
+            // Check if there is a quoteschannel - if there isn't then we can stop here.
+            const channel = interaction.client.channels.cache.find(channel => channel.name.includes('quote'));
+            if (!channel) {
+                interaction.reply({ content: 'A quote channel does not exist.', ephemeral: true });
+                return;
+            }
+
+            // Check if the interaction channel is the same as the quote channel.
+            if (interaction.channel.id !== channel.id) {
+                interaction.reply({ content: `You can only share quotes in the <#${channel.id}> channel.`, ephemeral: true });
+                return;
+            };
+
             // Check the database for an existing quote schema - if one doesn't exist then create a new one.
             // After that, we try to fetch the quotes from the database and stop if there are none to display!
             const query = await quoteSchema.findOne({ guildId: interaction.guild.id }) || await quoteSchema.create({ guildId: interaction.guild.id });
