@@ -27,12 +27,11 @@ const data = new SlashCommandBuilder()
     .addSubcommand((subcommand) =>
         subcommand
             .setName('share')
-            .setDescription('Share a quote from a user to your current channel.')
+            .setDescription('Share a quote from a user or at random to your current channel.')
             .addUserOption((option) =>
                 option
                     .setName('user')
-                    .setDescription('The user who\'s quote you\'d like to share.')
-                    .setRequired(true)
+                    .setDescription('The optional user who\'s quote you\'d like to share.')
             )
     )
     .addSubcommand((subcommand) =>
@@ -143,7 +142,80 @@ async function run({ interaction }) {
                 return;
             }
 
-            // Calculate the total number of pages based on the number of quotes and the number of quotes per page.
+            // Random intro messages for quote sharing.
+            const introMessages = [
+                "Somebody once told me:",
+                "As the prophecy foretold:",
+                "It is written upon ancient scrolls scribed in blood:",
+                "You know what they say:",
+                "Words to live by:",
+                "In times like these, I like to remind myself of the following quote:",
+                "As a great person once said:",
+                "As the prophecy states:",
+                "I had a dream in which I was instructed by the gods to relay these words:",
+                "In the words of the wise:",
+                "A wise person once said:",
+                "In the annals of history, it is recorded that:",
+                "In the grand tapestry of existence, it is said that:",
+                "In the chronicles of time, it is written that:",
+                "In the great book of wisdom, it is inscribed that:",
+                "In the echoes of the past, it is remembered that:",
+                "In the whispers of the universe, it is known that:",
+                "In the cosmic dance of fate, it is foretold that:",
+                "In the labyrinth of life, it is revealed that:",
+                "In the symphony of existence, it is sung that:",
+                "In the garden of knowledge, it is blossomed that:",
+                "In the library of the cosmos, it is documented that:",
+                "In the scrolls of time, it is chronicled that:",
+                "In the book of life, it is written that:",
+                "In the annals of wisdom, it is recorded that:",
+                "In the echoes of the universe, it is said that:",
+                "In the grand scheme of things, it is known that:",
+                "In the vast expanse of the cosmos, it is whispered that:",
+                "In the tapestry of existence, it is woven that:",
+                "In the chronicles of the ancients, it is inscribed that:",
+                "In the grand narrative of life, it is told that:",
+                "In the cosmic dance of destiny, it is proclaimed that:",
+                "In the annals of time, it is recounted that:",
+                "In the chronicles of the universe, it is noted that:",
+                "In the grand design of existence, it is declared that:",
+                "In the whispers of the cosmos, it is revealed that:",
+                "In the echoes of eternity, it is proclaimed that:",
+                "In the grand tapestry of life, it is said that:",
+                "In the chronicles of the universe, it is whispered that:",
+                "In the grand narrative of existence, it is said that:",
+                "In the annals of history, it is said that:",
+                "In the grand scheme of things, it is said that:",
+                "In the cosmic dance of fate, it is said that:"
+            ];
+
+
+            // Function to get a random intro message.
+            function getRandomIntro() {
+                return introMessages[Math.floor(Math.random() * introMessages.length)];
+            }
+
+            // If author is 'All', just send a random quote by a random user.
+            if (author === 'All') {
+                const quote = filteredQuotes[Math.floor(Math.random() * filteredQuotes.length)];
+                const member = interaction.guild.members.cache.get(quote.userId);
+                const displayName = member ? member.displayName : 'Unknown';
+                const avatarURL = member ? member.displayAvatarURL({ dynamic: true }) : null;
+                const intro = getRandomIntro();
+                const shareEmbed = new EmbedBuilder()
+                    .setColor('Yellow')
+                    .setTitle('Shared Message')
+                    .setDescription(`${intro}`)
+                    .setThumbnail(avatarURL || undefined)
+                    .addFields({ name: 'Quote', value: `- ${quote.quote} - ${displayName}` })
+                    .setFooter({ text: `⭐ Shared by ${interaction.user.displayName}` })
+                    .setTimestamp();
+
+                await interaction.reply({ embeds: [shareEmbed] });
+                break;
+            }
+
+            // Otherwise, show paginated quote selection for the specific user.
             const totalPages = Math.ceil(filteredQuotes.length / perPage);
             let currentPage = 1;
             let startIndex = (currentPage - 1) * perPage;
@@ -166,9 +238,9 @@ async function run({ interaction }) {
             for (let i = 0; i < Math.min(perPage, filteredQuotes.length - startIndex); i++) {
                 quoteButtons.push(
                     new ButtonKit()
-                        .setEmoji(`${i + 1}️⃣`)
-                        .setStyle(ButtonStyle.Primary)
-                        .setCustomId(`selectQuote_${i}`)
+                    .setEmoji(`${i + 1}️⃣`)
+                    .setStyle(ButtonStyle.Primary)
+                    .setCustomId(`selectQuote_${i}`)
                 );
             }
 
@@ -204,7 +276,7 @@ async function run({ interaction }) {
             const embed = new EmbedBuilder()
                 .setColor('Fuchsia')
                 .setTitle('Quote Board')
-                .setDescription(`Below are a list of quotes from ${author === 'All' ? 'all users' : author.displayName}.`)
+                .setDescription(`Below are a list of quotes from ${author.displayName}.`)
                 .setThumbnail(`attachment://${attachment.name}`)
                 .addFields(embedFields)
                 .setFooter({ text: `Page ${currentPage}/${totalPages}` });
@@ -278,7 +350,7 @@ async function run({ interaction }) {
 
                     // Update quote selection buttons.
                     const newQuoteButtons = [];
-                    for (let i = 0; i < Math.min(perPage, filteredQuotes.length - startIndex); i++) {
+                        for (let i = 0; i < Math.min(perPage, filteredQuotes.length - startIndex); i++) {
                         newQuoteButtons.push(
                             new ButtonKit()
                                 .setEmoji(`${i + 1}️⃣`)
@@ -307,51 +379,33 @@ async function run({ interaction }) {
                 }, { message }
             );
 
-            // Random intro messages for quote sharing.
-            const introMessages = [
-                "Somebody once told me:",
-                "As the prophecy foretold:",
-                "It is written upon ancient scrolls scribed in blood:",
-                "You know what they say:",
-                "Words to live by:",
-                "In times like these, I like to remind myself of the following quote:",
-                "As a great person once said:",
-                "As the prophecy states:",
-                "I had a dream in which I was instructed by the gods to relay these words:"
-            ];
-
-            // Function to get a random intro message.
-            function getRandomIntro() {
-                return introMessages[Math.floor(Math.random() * introMessages.length)];
-            }
-
             // Quote selection handlers.
             for (let i = 0; i < quoteButtons.length; i++) {
                 quoteButtons[i].onClick(
                     async (buttonInteraction) => {
-                        await buttonInteraction.deferReply({ ephemeral: true });
-                        const quoteIdx = startIndex + i;
-                        const quote = filteredQuotes[quoteIdx];
-                        
-                        // If the quote doesn't exist, we stop here.
-                        if (!quote) {
-                            await buttonInteraction.editReply({ content: 'That quote could not be found.', ephemeral: true });
-                            return;
-                        }
+                    await buttonInteraction.deferReply({ ephemeral: true });
+                    const quoteIdx = startIndex + i;
+                    const quote = filteredQuotes[quoteIdx];
 
-                        // Send the selected quote to the current channel (not ephemeral).
-                        const intro = getRandomIntro();
-                        const shareEmbed = new EmbedBuilder()
-                            .setColor('Fuchsia')
-                            .setTitle('Shared Message')
-                            .setDescription(`${intro}`)
-                            .setThumbnail(author.displayAvatarURL({ dynamic: true }))
-                            .addFields({ name: 'Quote', value: `- ${quote.quote} - ${author.displayName}` })
-                            .setFooter({ text: `⭐ Shared by ${buttonInteraction.user.displayName}` })
-                            .setTimestamp();
+                    // If the quote doesn't exist, we stop here.
+                    if (!quote) {
+                        await buttonInteraction.editReply({ content: 'That quote could not be found.', ephemeral: true });
+                        return;
+                    }
 
-                        await buttonInteraction.channel.send({ embeds: [shareEmbed] });
-                        buttonInteraction.deleteReply();
+                    // Send the selected quote to the current channel (not ephemeral).
+                    const intro = getRandomIntro();
+                    const shareEmbed = new EmbedBuilder()
+                        .setColor('Yellow')
+                        .setTitle('Shared Message')
+                        .setDescription(`${intro}`)
+                        .setThumbnail(author.displayAvatarURL({ dynamic: true }))
+                        .addFields({ name: 'Quote', value: `- ${quote.quote} - ${author.displayName}` })
+                        .setFooter({ text: `⭐ Shared by ${buttonInteraction.user.displayName}` })
+                        .setTimestamp();
+
+                    await buttonInteraction.channel.send({ embeds: [shareEmbed] });
+                    buttonInteraction.deleteReply();
                     }, { message }
                 );
             }
@@ -371,7 +425,7 @@ async function run({ interaction }) {
                     // Send the selected quote to the current channel (not ephemeral).
                     const intro = getRandomIntro();
                     const shareEmbed = new EmbedBuilder()
-                        .setColor('Fuchsia')
+                        .setColor('Yellow')
                         .setTitle('Shared Message')
                         .setDescription(`${intro}`)
                         .setThumbnail(author.displayAvatarURL({ dynamic: true }))
