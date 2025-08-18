@@ -11,4 +11,4 @@ const quoteSchema = new Schema({
     }
 }, { timestamps: true });
 
-module.exports = model('quotes', quoteSchema); 
+module.exports = model('quotes', quoteSchema);

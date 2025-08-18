@@ -1,6 +1,6 @@
 {
   "name": "skogbot",
-  "version": "1.0.27",
+  "version": "2.0.0",
   "description": "a custom discord bot.",
   "main": "./src/index.js",
   "scripts": {
@@ -9,14 +9,11 @@
   },
   "dependencies": {
     "commandkit": "^0.1.10",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.0.0",
     "discord.js": "^14.18.0",
-    "dotenv": "^16.4.7",
+    "dotenv": "^17.2.1",
     "ioredis": "^5.6.0",
-    "mongoose": "^8.13.1"
-  },
-  "overrides": {
-    "esbuild": "^0.25.2",
-    "tsup": "^8.4.0"
+    "mongoose": "^8.13.1",
+    "node-schedule": "^2.1.1"
   }
 }

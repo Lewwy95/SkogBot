@@ -2,23 +2,20 @@ const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
 
 // List of comments to say to the user when they join the server - feel free to add or amend!
 const comments = [
-    'We\'ve been waiting for someone to blame everything on.',
-    'Commence protocol: Awkwardly pretend we\'re all cool.',
-    'We\'d offer you a guide, but we\'re all lost too.',
-    'Your free trial of hanging out with us has just begun.',
-    'No pressure, but we\'re all watching to see what you\'ll do next.',
-    'Our 100th member! Just kidding, we lost count ages ago.',
-    'We\'re all a little strange, but you\'ll get used to it.',
-    'Welcome! We promise we don\'t bite... much.',
-    "We\'re like a family here, but one of those weird ones. You know the type.",
-    'Welcome to the circus! We hope you brought popcorn.',
-    'We\'re not saying you\'re the best, but you\'re definitely in the top one.',
-    'Welcome to the server! We hope you brought snacks.',
-    'You\'re the missing puzzle piece we didn\'t know we needed.',
-    'Congratulations! You\'ve just unlocked the secret level of our server.',
-    'Welcome to the server! We hope you brought your sense of humor.',
-    'You\'re officially part of the coolest club in town.',
-    'You\'re now part of our little corner of the internet.'
+    'Alert: Awesome new member detected!',
+    'You just made this server 10% cooler.',
+    'Welcome! May your memes be ever spicy.',
+    'Brace yourself, notifications are coming.',
+    'You\'ve joined the party. Cake is not guaranteed.',
+    'Achievement unlocked: Joined the server!',
+    'Welcome! Please fasten your seatbelt.',
+    'You bring balance to the force... or chaos. We\'ll see.',
+    'Welcome! The adventure begins now.',
+    'You\'ve entered the chat. May the odds be ever in your favor.',
+    'Welcome! Don\'t forget to pet the bots.',
+    'You\'re here! Now the fun can really start.',
+    'Welcome! We saved you a virtual seat.',
+    'You\'ve joined the server — now what?'
 ];
 
 module.exports = (member) => {

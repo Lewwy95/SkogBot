@@ -3,26 +3,26 @@ const redis = require('../../config/redis');
 
 // List of names for the custom channels - feel free to add more names to the list!
 const names = [
-    'Loot Lounge',
-    'Frag Forge',
-    'GPU Gala',
-    'Chuckle Chamber',
-    'Hilarity Hangar',
-    'Glitch Gig',
-    'Warp Way',
-    'Pixel Pit',
-    'Quest Quarters',
-    'Code Cave',
-    'Byte Bunker',
-    'Tech Tavern',
-    'Nerd Nook',
-    'Hack Haven',
-    'Debug Den',
-    'Script Sanctuary',
-    'Data Dungeon',
-    'Syntax Salon',
-    'Algorithm Alley',
-    'Function Fortress'
+    'Bit Bistro',
+    'Quantum Quarters',
+    'Pixel Plaza',
+    'Frame Factory',
+    'Echo Enclave',
+    'Node Niche',
+    'Stack Station',
+    'Cache Cabin',
+    'Portal Parlor',
+    'LAN Lounge',
+    'Ping Pavilion',
+    'Render Room',
+    'Sprite Suite',
+    'Patch Pad',
+    'Compile Corner',
+    'Module Manor',
+    'Sandbox Suite',
+    'Thread Theater',
+    'Buffer Bay',
+    'Kernel Keep'
 ];
 
 module.exports = async (oldState, newState) => {
