@@ -24,11 +24,11 @@ const data = new SlashCommandBuilder()
                     .setMaxValue(7)
             )
     )
-    .addSubcommand((subcommand) =>
+    /*.addSubcommand((subcommand) =>
         subcommand
             .setName('reset-blacklist')
             .setDescription('Reset the blacklist if applicable.')
-    )
+    )*/
 
 /**
  * 

@@ -49,7 +49,7 @@ module.exports = async (message) => {
 
     // If the number is not the expected number, reset the count.
     if (parseInt(message.content) !== data.currentValue) {
-        // Fetch the user blacklist from Redis and parse the data.
+        /* Fetch the user blacklist from Redis and parse the data.
         const blacklistQuery = await redis.get(`${channel.id}_countingchannel_blacklist`);
         let blacklistData = [];
         if (blacklistQuery) {
@@ -62,19 +62,22 @@ module.exports = async (message) => {
             message.delete();
             return;
         }
+        */
 
         // Create an embed to notify the channel of the wrong number.
         const embed = new EmbedBuilder()
             .setColor('Red')
             .setTitle('Counting Game')
-            .setDescription(`Wrong number! The count has been reset to **1**.\n${message.author.displayName} has been blacklisted from ruining the game.`)
+            //.setDescription(`Wrong number! The count has been reset to **1**.\n${message.author.displayName} has been blacklisted from ruining the game.`)
+            .setDescription(`Wrong number! The count has been reset to **1**.`)
 
         // Let the channel know that the count was reset.
         channel.send({ embeds: [embed] });
 
-        // Add the user to the blacklist.
+        /* Add the user to the blacklist.
         blacklistData.push(message.author.id);
         await redis.set(`${channel.id}_countingchannel_blacklist`, JSON.stringify(blacklistData));
+        */
 
         // Reset the counting game in Redis.
         await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: message.author.id, targetDay: data.targetDay, setBy: data.setBy, pinnedMessage: data.pinnedMessage }));
@@ -116,7 +119,7 @@ module.exports = async (message) => {
         await sentMessage.pin();
 
         // Delete the blacklist for the counting game.
-        await redis.del(`${channel.id}_countingchannel_blacklist`);
+        //await redis.del(`${channel.id}_countingchannel_blacklist`);
 
         // Reset the counting game in Redis.
         await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: newTargetValue, lastUser: message.author.id, targetDay: newTargetDay, setBy: message.author.id, pinnedMessage: sentMessage.id }));
