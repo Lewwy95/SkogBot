@@ -112,7 +112,8 @@ module.exports = async (message) => {
         const embed = new EmbedBuilder()
             .setColor('Green')
             .setTitle('Counting Game')
-            .setDescription(`Well done! The next target is **${newTargetValue}** which will expire on **${expiryDayName}** night.\nPlease note that the blacklist has been reset so everyone can ruin again!`)
+            //.setDescription(`Well done! The next target is **${newTargetValue}** which will expire on **${expiryDayName}** night.\nPlease note that the blacklist has been reset so everyone can ruin again!`)
+            .setDescription(`Well done! The next target is **${newTargetValue}** which will expire on **${expiryDayName}** night.`)
 
         // Let the channel know that the target was reached and what the new target is.
         const sentMessage = await channel.send({ embeds: [embed] });
