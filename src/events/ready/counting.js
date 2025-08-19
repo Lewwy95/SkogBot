@@ -47,11 +47,14 @@ module.exports = async (client) => {
         const embed = new EmbedBuilder()
             .setColor('Red')
             .setTitle('Counting Game')
-            .setDescription(`Time is up! The count has been reset to **1** and the new expiry is **${expiryDayName}** night.\nThe targeted number is still **${data.targetValue}** and you can attempt to reach it again!`);
+            .setDescription(`Time is up! The count has been reset to **1** and the new expiry is **${expiryDayName}** night.\nThe targeted number is still **${targetValue}** and you can attempt to reach it again!\nPlease note that the blacklist has been reset so everyone can ruin again.`);
 
         // Let the channel know that the count was reset and pin the new message.
         const sentMessage = await channel.send({ embeds: [embed] });
         await sentMessage.pin();
+
+        // Delete the blacklist for the counting game (if applicable).
+        await redis.del(`${channel.id}_countingchannel_blacklist`);
         
         // Reset the counting game data in Redis.
         await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: null, targetDay: newTargetDay, setBy: data.setBy, pinnedMessage: sentMessage.id }));

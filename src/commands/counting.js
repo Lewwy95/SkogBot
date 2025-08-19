@@ -24,6 +24,11 @@ const data = new SlashCommandBuilder()
                     .setMaxValue(7)
             )
     )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName('reset-blacklist')
+            .setDescription('Reset the blacklist if applicable.')
+    )
 
 /**
  * 
@@ -108,15 +113,52 @@ async function run({ interaction }) {
                 const embed = new EmbedBuilder()
                     .setColor('Red')
                     .setTitle('Counting Game')
-                    .setDescription(`Time is up! The count has been reset to **1** and the new expiry is **${expiryDayName}** night.\nThe targeted number is still **${targetValue}** and you can attempt to reach it again!`);
+                    .setDescription(`Time is up! The count has been reset to **1** and the new expiry is **${expiryDayName}** night.\nThe targeted number is still **${targetValue}** and you can attempt to reach it again!\nPlease note that the blacklist has been reset so everyone can ruin again.`);
 
                 // Let the channel know that the count was reset and pin the new message.
                 const sentMessage = await channel.send({ embeds: [embed] });
                 await sentMessage.pin();
+
+                // Delete the blacklist for the counting game (if applicable).
+                await redis.del(`${channel.id}_countingchannel_blacklist`);
                 
                 // Reset the counting game data in Redis.
                 await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: null, targetDay: newTargetDay, setBy: data.setBy, pinnedMessage: sentMessage.id }));
             });
+            break;
+        }
+
+        case 'reset-blacklist': {
+             // Check if there is a counting channel - if there isn't then we can stop here.
+            const channel = interaction.client.channels.cache.find(channel => channel.name.includes('count'));
+            if (!channel) {
+                interaction.reply({ content: 'A counting channel does not exist.', ephemeral: true });
+                return;
+            }
+
+            // Fetch the user blacklist from Redis.
+            const query = await redis.get(`${channel.id}_countingchannel_blacklist`);
+
+            // Stop here if there is no blacklist.
+            if (!query) {
+                interaction.reply({ content: 'A counting channel blacklist does not exist.', ephemeral: true });
+                return;
+            }
+
+            // Delete the blacklist for the counting game.
+            await redis.del(`${channel.id}_countingchannel_blacklist`);
+
+            // Create an embed to notify the channel that the counting game blacklist has been reset.
+            const embed = new EmbedBuilder()
+                .setColor('Red')
+                .setTitle('Counting Game')
+                .setDescription(`Uh oh! The counting game blacklist has been reset. Everyone can ruin again!`);
+
+            // Let the channel know that the blacklist was reset.
+            await channel.send({ embeds: [embed] });
+
+            // Send a reply to the user to confirm that the blacklist was reset.
+            interaction.reply({ content: 'The counting game blacklist has been reset.', ephemeral: true });
             break;
         }
     }
