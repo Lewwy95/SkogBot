@@ -128,7 +128,7 @@ async function run({ interaction }) {
             break;
         }
 
-        case 'reset-blacklist': {
+        /*case 'reset-blacklist': {
              // Check if there is a counting channel - if there isn't then we can stop here.
             const channel = interaction.client.channels.cache.find(channel => channel.name.includes('count'));
             if (!channel) {
@@ -160,7 +160,7 @@ async function run({ interaction }) {
             // Send a reply to the user to confirm that the blacklist was reset.
             interaction.reply({ content: 'The counting game blacklist has been reset.', ephemeral: true });
             break;
-        }
+        }*/
     }
 };
 
