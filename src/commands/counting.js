@@ -75,6 +75,18 @@ async function run({ interaction }) {
             // Store the counting target in Redis with the channel ID as the key.
             await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: targetValue, lastUser: null, targetDay: targetDay, setBy: interaction.user.id, pinnedMessage: sentMessage.id }));
 
+            // Schedule a notification to be sent 1 hour before the counting game resets.
+            schedule.scheduleJob({ dayOfWeek: targetDay, hour: 22, minute: 0 }, async function() {
+                // Create an embed to notify the channel that the counting game will reset soon.
+                const embed = new EmbedBuilder()
+                    .setColor('Red')
+                    .setTitle('Counting Game')
+                    .setDescription(`The game will expire in 1 hour!\nTry to reach the target before it resets.`);
+
+                // Let the channel know that the counting game will reset soon.
+                channel.send({ embeds: [embed] });
+            });
+
             // Schedule the counting game time limit.
             schedule.scheduleJob({ dayOfWeek: targetDay, hour: 23, minute: 0 }, async function() {
                 // Check if data exists in Redis for the counting game - if it doesn't then we can stop here.

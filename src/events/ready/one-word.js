@@ -16,6 +16,18 @@ module.exports = async (client) => {
         return;
     }
 
+    // Schedule a notification to be sent 1 hour before the one word game resets.
+    schedule.scheduleJob({ hour: 22, minute: 0 }, async function() {
+        // Create an embed to notify the channel that the one word game will reset soon.
+        const embed = new EmbedBuilder()
+            .setColor('Red')
+            .setTitle('One Word Game')
+            .setDescription(`The game will reset in 1 hour!\nMake sure to finish any ongoing stories.`);
+
+        // Let the channel know that the one word game will reset soon.
+        channel.send({ embeds: [embed] });
+    });
+
     // Schedule the one word game to reset every day.
     schedule.scheduleJob({ hour: 23, minute: 0 }, async function() {
         // Create an embed to notify the channel that the one word game has been reset.

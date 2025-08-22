@@ -23,6 +23,18 @@ module.exports = async (client) => {
         return;
     }
 
+    // Schedule a notification to be sent 1 hour before the counting game resets.
+    schedule.scheduleJob({ dayOfWeek: parseInt(data.targetDay), hour: 22, minute: 0 }, async function() {
+        // Create an embed to notify the channel that the counting game will reset soon.
+        const embed = new EmbedBuilder()
+            .setColor('Red')
+            .setTitle('Counting Game')
+            .setDescription(`The game will expire in 1 hour!\nTry to reach the target before it resets.`);
+
+        // Let the channel know that the counting game will reset soon.
+        channel.send({ embeds: [embed] });
+    });
+
     // Schedule the counting game time limit.
     schedule.scheduleJob({ dayOfWeek: parseInt(data.targetDay), hour: 23, minute: 0 }, async function() {
         // Calculate a new target day that is at least 2 days away from the current target day.
