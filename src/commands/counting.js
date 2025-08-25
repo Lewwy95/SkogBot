@@ -24,11 +24,16 @@ const data = new SlashCommandBuilder()
                     .setMaxValue(7)
             )
     )
-    /*.addSubcommand((subcommand) =>
+    .addSubcommand((subcommand) =>
         subcommand
-            .setName('reset-blacklist')
-            .setDescription('Reset the blacklist if applicable.')
-    )*/
+            .setName('blacklist')
+            .setDescription('Toggle the counting game blacklist system.')
+    )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName('protections')
+            .setDescription('Toggle the counting game protection system.')
+    )
 
 /**
  * 
@@ -73,7 +78,7 @@ async function run({ interaction }) {
             await redis.del(`${channel.id}_countingchannel`);
 
             // Store the counting target in Redis with the channel ID as the key.
-            await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: targetValue, lastUser: null, targetDay: targetDay, setBy: interaction.user.id, pinnedMessage: sentMessage.id }));
+            await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: targetValue, lastUser: null, targetDay: targetDay, setBy: interaction.user.id, pinnedMessage: sentMessage.id, enableBlacklist: false, enableProtections: false }));
 
             // Schedule a notification to be sent 1 hour before the counting game resets.
             schedule.scheduleJob({ dayOfWeek: targetDay, hour: 22, minute: 0 }, async function() {
@@ -135,12 +140,12 @@ async function run({ interaction }) {
                 await redis.del(`${channel.id}_countingchannel_blacklist`);
                 
                 // Reset the counting game data in Redis.
-                await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: null, targetDay: newTargetDay, setBy: data.setBy, pinnedMessage: sentMessage.id }));
+                await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: null, targetDay: newTargetDay, setBy: data.setBy, pinnedMessage: sentMessage.id, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections }));
             });
             break;
         }
 
-        /*case 'reset-blacklist': {
+        case 'blacklist': {
              // Check if there is a counting channel - if there isn't then we can stop here.
             const channel = interaction.client.channels.cache.find(channel => channel.name.includes('count'));
             if (!channel) {
@@ -148,31 +153,63 @@ async function run({ interaction }) {
                 return;
             }
 
-            // Fetch the user blacklist from Redis.
-            const query = await redis.get(`${channel.id}_countingchannel_blacklist`);
-
-            // Stop here if there is no blacklist.
+            // Check if data exists in Redis for the counting game - if it doesn't then we can stop here.
+            const query = await redis.get(`${channel.id}_countingchannel`);
             if (!query) {
-                interaction.reply({ content: 'A counting channel blacklist does not exist.', ephemeral: true });
+                interaction.reply({ content: 'No counting game data exists in the database.', ephemeral: true });
                 return;
             }
 
-            // Delete the blacklist for the counting game.
-            await redis.del(`${channel.id}_countingchannel_blacklist`);
+            // Parse the data from Redis, store it to a variable.
+            const data = await JSON.parse(query);
+            if (!data) {
+                interaction.reply({ content: 'Counting game data could not be parsed.', ephemeral: true });
+                return;
+            }
 
-            // Create an embed to notify the channel that the counting game blacklist has been reset.
-            const embed = new EmbedBuilder()
-                .setColor('Red')
-                .setTitle('Counting Game')
-                .setDescription(`Uh oh! The counting game blacklist has been reset. Everyone can ruin again!`);
+            // Store the current blacklist toggle state.
+            const blacklistToggle = data.enableBlacklist;
 
-            // Let the channel know that the blacklist was reset.
-            await channel.send({ embeds: [embed] });
+            // Update the counting game data in Redis with the new blacklist toggle state.
+            await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: data.currentValue, targetValue: data.targetValue, lastUser: data.lastUser, targetDay: data.targetDay, setBy: data.setBy, pinnedMessage: data.pinnedMessage, enableBlacklist: !blacklistToggle, enableProtections: data.enableProtections }));
 
-            // Send a reply to the user to confirm that the blacklist was reset.
-            interaction.reply({ content: 'The counting game blacklist has been reset.', ephemeral: true });
+            // Send a reply to the user to confirm the state of the blacklist.
+            interaction.reply({ content: `The counting game blacklist system has been ${blacklistToggle ? 'disabled' : 'enabled'}.`, ephemeral: true });
             break;
-        }*/
+        }
+
+        case 'protections': {
+             // Check if there is a counting channel - if there isn't then we can stop here.
+            const channel = interaction.client.channels.cache.find(channel => channel.name.includes('count'));
+            if (!channel) {
+                interaction.reply({ content: 'A counting channel does not exist.', ephemeral: true });
+                return;
+            }
+
+            // Check if data exists in Redis for the counting game - if it doesn't then we can stop here.
+            const query = await redis.get(`${channel.id}_countingchannel`);
+            if (!query) {
+                interaction.reply({ content: 'No counting game data exists in the database.', ephemeral: true });
+                return;
+            }
+
+            // Parse the data from Redis, store it to a variable.
+            const data = await JSON.parse(query);
+            if (!data) {
+                interaction.reply({ content: 'Counting game data could not be parsed.', ephemeral: true });
+                return;
+            }
+
+            // Store the current protection toggle state.
+            const protectionToggle = data.enableProtections;
+
+            // Update the counting game data in Redis with the new protection system toggle state.
+            await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: data.currentValue, targetValue: data.targetValue, lastUser: data.lastUser, targetDay: data.targetDay, setBy: data.setBy, pinnedMessage: data.pinnedMessage, enableBlacklist: data.enableBlacklist, enableProtections: !protectionToggle }));
+
+            // Send a reply to the user to confirm the state of the protection system.
+            interaction.reply({ content: `The counting game protection system has been ${protectionToggle ? 'disabled' : 'enabled'}.`, ephemeral: true });
+            break;
+        }
     }
 };
 
