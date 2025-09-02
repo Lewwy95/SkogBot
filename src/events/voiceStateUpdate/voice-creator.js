@@ -26,18 +26,25 @@ const names = [
 ];
 
 module.exports = async (oldState, newState) => {
-    // Check if there is a creator channel - if there isn't then we can stop here!
-    const creator = await newState.client.channels.cache.find((channel) => channel.name.includes('Create') && ChannelType.GuildVoice);
-    if (!creator || newState.member.bot) {
+    // Check for all voice channels with "Create" in the name and store their id to an array.
+    const creatorChannels = await newState.client.channels.cache.filter((channel) => channel.name.includes('Create') && ChannelType.GuildVoice).map((channel) => channel.id);
+
+    // If the guild has no creator channels or if the user is a bot then we can stop here.
+    if (newState.channel && creatorChannels.length < 1 || newState.member.user.bot) {
+        return;
+    }
+
+    // If the user didn't join or leave a creator channel then we can stop here.
+    if(newState.channel && !creatorChannels.some(id => newState.channel && newState.channel.id === id)) {
         return;
     }
 
     // Check if the user joined the creator channel - if they did then we create a new channel for them.
-    if (oldState.channel !== newState.channel && newState.channel && newState.channel.id === creator.id) {
+    if (oldState.channel !== newState.channel && newState.channel && newState.channel.id === newState.channel.id) {
         const channel = await newState.guild.channels.create({
             name: names[Math.floor(Math.random() * names.length)],
             type: ChannelType.GuildVoice,
-            parent: creator.parentId,
+            parent: newState.channel.parentId,
             permissionOverwrites: [{
                     id: newState.member.id,
                     allow: [PermissionFlagsBits.Connect, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.MoveMembers, PermissionFlagsBits.MuteMembers, PermissionFlagsBits.DeafenMembers]
