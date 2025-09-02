@@ -56,10 +56,10 @@ module.exports = async (oldState, newState) => {
         newState.member.voice.setChannel(channel);
         await redis.set(`${channel.id}_customchannel`, JSON.stringify({ user: newState.member.user.displayName }));
 
-        // Check if the channel parent has "LFG" in the name.
-        if (channel.parent.name.includes('Looking For')) {
-            // Check if the role "LFG" exists in the guild - if it doesn't then we can stop here.
-            const role = newState.guild.roles.cache.find(role => role.name.includes('LFG'));
+        // Check if the channel parent has "Group Chat" in the name.
+        if (channel.parent.name.includes('Group Chat')) {
+            // Check if the role "Gamer Access" exists in the guild - if it doesn't then we can stop here.
+            const role = newState.guild.roles.cache.find(role => role.name.includes('Gamer'));
             if (!role) {
                 return;
             }
