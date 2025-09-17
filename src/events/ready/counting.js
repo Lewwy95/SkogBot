@@ -1,3 +1,4 @@
+/*
 const { EmbedBuilder } = require('discord.js');
 const schedule = require('node-schedule');
 const redis = require('../../config/redis');
@@ -73,3 +74,4 @@ module.exports = async (client) => {
         await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: null, targetDay: newTargetDay, setBy: data.setBy, pinnedMessage: sentMessage.id }));
     });
 };
+*/

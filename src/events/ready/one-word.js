@@ -1,3 +1,4 @@
+/*
 const { EmbedBuilder } = require('discord.js');
 const schedule = require('node-schedule');
 const redis = require('../../config/redis');
@@ -43,3 +44,4 @@ module.exports = async (client) => {
         await redis.del(`${channel.id}_onewordchannel`);
     });
 };
+*/
