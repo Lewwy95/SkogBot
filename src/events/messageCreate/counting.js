@@ -42,6 +42,7 @@ module.exports = async (message) => {
     // * pinnedMessage: Latest Pinned Message ID
     // * enableBlacklist: Boolean
     // * enableProtections: Boolean
+    // * enableNoFail: Boolean
 
     // Check if the message author is the last user to send a message in the counting channel.
     if (data.lastUser === message.author.id) {
@@ -51,8 +52,14 @@ module.exports = async (message) => {
         return;
     }
 
-    // If the number is not the expected number, reset the count.
+    // If the number is not the expected number, potentially reset the count.
     if (parseInt(message.content) !== data.currentValue) {
+        // If nofail is enabled, just delete the message and return.
+        if (data.enableNoFail) {
+            message.delete();
+            return;
+        }
+
         // If blacklist is enabled, check if the user is blacklisted.
         if (data.enableBlacklist) {
             // Fetch the user blacklist from Redis and parse the data.
@@ -85,7 +92,7 @@ module.exports = async (message) => {
         channel.send({ embeds: [embed] });
 
         // Reset the counting game in Redis.
-        await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: message.author.id, targetDay: data.targetDay, setBy: data.setBy, pinnedMessage: data.pinnedMessage, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections }));
+        await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: message.author.id, targetDay: data.targetDay, setBy: data.setBy, pinnedMessage: data.pinnedMessage, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections, enableNoFail: data.enableNoFail }));
         return;
     }
 
@@ -127,7 +134,7 @@ module.exports = async (message) => {
         await redis.del(`${channel.id}_countingchannel_blacklist`);
 
         // Reset the counting game in Redis.
-        await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: newTargetValue, lastUser: message.author.id, targetDay: newTargetDay, setBy: message.author.id, pinnedMessage: sentMessage.id, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections }));
+        await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: newTargetValue, lastUser: message.author.id, targetDay: newTargetDay, setBy: message.author.id, pinnedMessage: sentMessage.id, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections, enableNoFail: data.enableNoFail }));
         return;
     }
 
@@ -135,5 +142,5 @@ module.exports = async (message) => {
     const nextValue = data.currentValue + 1;
 
     // Update Redis with the next expected number.
-    await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: nextValue, targetValue: data.targetValue, lastUser: message.author.id, targetDay: data.targetDay, setBy: data.setBy, pinnedMessage: data.pinnedMessage, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections }) );
+    await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: nextValue, targetValue: data.targetValue, lastUser: message.author.id, targetDay: data.targetDay, setBy: data.setBy, pinnedMessage: data.pinnedMessage, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections, enableNoFail: data.enableNoFail }) );
 };
