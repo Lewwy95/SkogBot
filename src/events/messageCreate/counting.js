@@ -124,7 +124,8 @@ module.exports = async (message) => {
         const embed = new EmbedBuilder()
             .setColor('Green')
             .setTitle('Counting Game')
-            .setDescription(data.enableBlacklist ? `Well done! The next target is **${newTargetValue}** which will expire on **${expiryDayName}** night.\nPlease note that the blacklist has been reset so everyone can ruin again!` : `Well done! The next target is **${newTargetValue}** which will expire on **${expiryDayName}** night.`)
+            //.setDescription(data.enableBlacklist ? `Well done! The next target is **${newTargetValue}** which will expire on **${expiryDayName}** night.\nPlease note that the blacklist has been reset so everyone can ruin again!` : `Well done! The next target is **${newTargetValue}** which will expire on **${expiryDayName}** night.`)
+            .setDescription(data.enableBlacklist ? `Well done! The next target is **${newTargetValue}** so keep it going!\nPlease note that the blacklist has been reset so everyone can ruin again` : `Well done! The next target is **${newTargetValue}** so keep it going!`)
 
         // Let the channel know that the target was reached and what the new target is.
         const sentMessage = await channel.send({ embeds: [embed] });
@@ -134,7 +135,8 @@ module.exports = async (message) => {
         await redis.del(`${channel.id}_countingchannel_blacklist`);
 
         // Reset the counting game in Redis.
-        await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: newTargetValue, lastUser: message.author.id, targetDay: newTargetDay, setBy: message.author.id, pinnedMessage: sentMessage.id, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections, enableNoFail: data.enableNoFail }));
+        //await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: newTargetValue, lastUser: message.author.id, targetDay: newTargetDay, setBy: message.author.id, pinnedMessage: sentMessage.id, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections, enableNoFail: data.enableNoFail }));
+        await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: data.currentValue + 1, targetValue: newTargetValue, lastUser: message.author.id, targetDay: newTargetDay, setBy: message.author.id, pinnedMessage: sentMessage.id, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections, enableNoFail: data.enableNoFail }));
         return;
     }
 

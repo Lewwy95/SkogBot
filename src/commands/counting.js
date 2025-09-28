@@ -70,7 +70,8 @@ async function run({ interaction }) {
             const embed = new EmbedBuilder()
                 .setColor('Fuchsia')
                 .setTitle('Counting Game')
-                .setDescription(`The targeted number is **${targetValue}** which will expire on **${expiryDayName}** night!`);
+                //.setDescription(`The targeted number is **${targetValue}** which will expire on **${expiryDayName}** night!`);
+                .setDescription(`The targeted number is **${targetValue}**!`);
 
             // Send the embed to the counting channel and pin the message.
             const sentMessage = await channel.send({ embeds: [embed] });
@@ -85,6 +86,7 @@ async function run({ interaction }) {
             // Store the counting target in Redis with the channel ID as the key.
             await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: targetValue, lastUser: null, targetDay: targetDay, setBy: interaction.user.id, pinnedMessage: sentMessage.id, enableBlacklist: false, enableProtections: false }));
 
+            /*
             // Schedule a notification to be sent 1 hour before the counting game resets.
             schedule.scheduleJob({ dayOfWeek: targetDay, hour: 22, minute: 0 }, async function() {
                 // Create an embed to notify the channel that the counting game will reset soon.
@@ -147,6 +149,7 @@ async function run({ interaction }) {
                 // Reset the counting game data in Redis.
                 await redis.set(`${channel.id}_countingchannel`, JSON.stringify({ currentValue: 1, targetValue: data.targetValue, lastUser: null, targetDay: newTargetDay, setBy: data.setBy, pinnedMessage: sentMessage.id, enableBlacklist: data.enableBlacklist, enableProtections: data.enableProtections, enableNoFail: data.enableNoFail }));
             });
+            */
             break;
         }
 
