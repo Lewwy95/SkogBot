@@ -24,7 +24,7 @@ const data = new SlashCommandBuilder()
                     .setMaxLength(240)
             )
     )
-    .addSubcommand((subcommand) =>
+    /*.addSubcommand((subcommand) =>
         subcommand
             .setName('share')
             .setDescription('Share a quote from a user or at random to your current channel.')
@@ -50,7 +50,7 @@ const data = new SlashCommandBuilder()
                     .setMinValue(1)
                     .setMaxValue(10)
             )
-    )
+    )*/
 
 /**
  * 
@@ -108,6 +108,7 @@ async function run({ interaction }) {
             break;
         }
 
+        /*
         case 'share': {
             // Get the quote data from the interaction options.
             const author = interaction.options.getUser('user') || 'All';
@@ -586,6 +587,7 @@ async function run({ interaction }) {
             );
             break;
         }
+        */
     }
 };
 
