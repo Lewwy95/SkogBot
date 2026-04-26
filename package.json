@@ -1,6 +1,6 @@
 {
   "name": "skogbot",
-  "version": "2.0.15",
+  "version": "2.0.16",
   "description": "a custom discord bot.",
   "main": "./src/index.js",
   "scripts": {
