@@ -9,7 +9,7 @@ const data = {
  */
  
 function run({ interaction, client }) {
-    interaction.reply({ content: `I am currently online with a ping of ${client.ws.ping}ms.`, ephemeral: true });
+    interaction.reply({ content: `I am currently online with a latency of ${client.ws.ping}ms.`, ephemeral: true });
 };
 
 module.exports = { data, run };
