@@ -43,7 +43,7 @@ jobs:
       - name: Extract metadata
         id: meta
         run: |
-          echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_OUTPUT"
+          echo "REPO_NAME=$(echo ${GITHUB_REPOSITORY##*/} | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
           echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       # 6. Build dev Docker image
