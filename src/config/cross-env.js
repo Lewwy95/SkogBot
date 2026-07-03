@@ -9,5 +9,8 @@ dotenv.config({
 module.exports = {
     token: process.env.TOKEN,
     database: process.env.DATABASE,
-    redisUrl: process.env.REDIS
+    redisUrl: process.env.REDIS,
+    birthdayCronTime: process.env.BIRTHDAY_CRON_TIME,
+    birthdayTimezone: process.env.BIRTHDAY_TIMEZONE,
+    birthdayUpcomingRefreshInterval: process.env.BIRTHDAY_UPCOMING_REFRESH_INTERVAL
 };
