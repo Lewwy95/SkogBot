@@ -1,5 +1,6 @@
 const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const birthdaySchema = require('../models/birthday-schema');
+const redis = require('../config/redis');
 const { isTodayBirthday, getBirthdayAnnounceChannel, refreshUpcomingMessage } = require('../utils/birthday-utils');
 
 const CELEBRATION_LINES = [
@@ -22,6 +23,16 @@ async function runDailyBirthdayJob(client) {
                 if (channel) {
                     const matches = doc.birthdays.filter(entry => isTodayBirthday(entry, today));
                     for (const entry of matches) {
+                        // Guards against the same person being announced twice on the same day -
+                        // e.g. if the job somehow gets triggered more than once (duplicate/overlapping
+                        // bot instances, a restart, manual re-invocation) it can never double-post.
+                        const dateStamp = `${today.year}-${String(today.month).padStart(2, '0')}-${String(today.day).padStart(2, '0')}`;
+                        const announcedKey = `${guild.id}_${entry.userId}_${dateStamp}_birthdayannounced`;
+                        const alreadyAnnounced = await redis.get(announcedKey);
+                        if (alreadyAnnounced) {
+                            continue;
+                        }
+                        await redis.set(announcedKey, '1', 'EX', 172800);
                         await announceBirthday(guild, channel, entry);
                     }
                 }
