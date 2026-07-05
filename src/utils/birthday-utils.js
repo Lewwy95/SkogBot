@@ -3,6 +3,7 @@ const redis = require('../config/redis');
 const birthdaySchema = require('../models/birthday-schema');
 
 const DAYS_IN_MONTH = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const UPCOMING_PAGE_SIZE = 8;
 
 function isValidBirthday(day, month) {
     if (!Number.isInteger(day) || !Number.isInteger(month)) {
@@ -119,7 +120,7 @@ async function refreshBirthdayPanel(guild) {
     });
 }
 
-async function buildUpcomingEmbed(guild) {
+async function buildUpcomingEmbed(guild, page = 0) {
     const doc = await birthdaySchema.findOne({ guildId: guild.id });
     const now = new Date();
     const today = { day: now.getUTCDate(), month: now.getUTCMonth() + 1, year: now.getUTCFullYear() };
@@ -127,26 +128,47 @@ async function buildUpcomingEmbed(guild) {
     const embed = new EmbedBuilder()
         .setColor('Purple')
         .setTitle('🎉 Upcoming Birthdays')
-        .setThumbnail('attachment://upcoming-birthdays.png')
-        .setFooter({ text: '🎈 This embed will update periodically.' });
+        .setThumbnail('attachment://upcoming-birthdays.png');
 
     if (!doc || !doc.birthdays.length) {
         embed.setDescription('No birthdays have been saved yet.');
-        return embed;
+        embed.setFooter({ text: '🎈 This embed will update periodically.' });
+        return { embed, page: 0, totalPages: 1 };
     }
 
-    const upcoming = doc.birthdays
+    const sorted = doc.birthdays
         .map(entry => ({ entry, days: getDaysUntilNext(entry, today) }))
         .sort((a, b) => a.days - b.days);
 
-    const lines = upcoming.map(({ entry, days }) => {
+    const totalPages = Math.max(1, Math.ceil(sorted.length / UPCOMING_PAGE_SIZE));
+    const clampedPage = Math.min(Math.max(page, 0), totalPages - 1);
+    const pageItems = sorted.slice(clampedPage * UPCOMING_PAGE_SIZE, (clampedPage + 1) * UPCOMING_PAGE_SIZE);
+
+    const lines = pageItems.map(({ entry, days }) => {
         const monthName = new Date(Date.UTC(2000, entry.month - 1, 1)).toLocaleString('en-GB', { month: 'long', timeZone: 'UTC' });
         const when = days === 0 ? 'Today!' : days === 1 ? 'Tomorrow' : `in ${days} days`;
         return `<@${entry.userId}> - ${monthName} ${entry.day} (${when})`;
     });
 
     embed.setDescription(lines.join('\n'));
-    return embed;
+    embed.setFooter({ text: totalPages > 1 ? `🎈 Page ${clampedPage + 1}/${totalPages} - This embed will update periodically.` : '🎈 This embed will update periodically.' });
+
+    return { embed, page: clampedPage, totalPages };
+}
+
+function buildUpcomingPaginationRow(page, totalPages) {
+    if (totalPages <= 1) {
+        return null;
+    }
+    return new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId('birthday_upcoming_prev').setEmoji('⬅️').setStyle(ButtonStyle.Secondary).setDisabled(page === 0),
+        new ButtonBuilder().setCustomId('birthday_upcoming_next').setEmoji('➡️').setStyle(ButtonStyle.Secondary).setDisabled(page >= totalPages - 1)
+    );
+}
+
+async function getUpcomingPage(guild) {
+    const stored = await redis.get(`${guild.id}_birthdayupcomingpage`);
+    return stored ? parseInt(stored, 10) || 0 : 0;
 }
 
 async function ensureUpcomingMessage(guild) {
@@ -161,8 +183,11 @@ async function ensureUpcomingMessage(guild) {
     }
 
     const attachment = new AttachmentBuilder('src/images/upcoming-birthdays.png', { name: 'upcoming-birthdays.png' });
-    const embed = await buildUpcomingEmbed(guild);
-    channel.send({ embeds: [embed], files: [attachment] }).then(async (message) => {
+    const page = await getUpcomingPage(guild);
+    const { embed, totalPages, page: clampedPage } = await buildUpcomingEmbed(guild, page);
+    const row = buildUpcomingPaginationRow(clampedPage, totalPages);
+
+    channel.send({ embeds: [embed], components: row ? [row] : [], files: [attachment] }).then(async (message) => {
         await redis.set(`${guild.id}_birthdayupcoming`, JSON.stringify({ channelId: channel.id, messageId: message.id }));
         console.log(`✅ Upcoming birthdays embed posted for guild ${guild.id}.`);
     }).catch((error) => {
@@ -178,8 +203,15 @@ async function refreshUpcomingMessage(guild) {
     }
 
     const attachment = new AttachmentBuilder('src/images/upcoming-birthdays.png', { name: 'upcoming-birthdays.png' });
-    const embed = await buildUpcomingEmbed(guild);
-    await existing.edit({ embeds: [embed], files: [attachment] }).catch((error) => {
+    const page = await getUpcomingPage(guild);
+    const { embed, totalPages, page: clampedPage } = await buildUpcomingEmbed(guild, page);
+    const row = buildUpcomingPaginationRow(clampedPage, totalPages);
+
+    if (clampedPage !== page) {
+        await redis.set(`${guild.id}_birthdayupcomingpage`, String(clampedPage));
+    }
+
+    await existing.edit({ embeds: [embed], components: row ? [row] : [], files: [attachment] }).catch((error) => {
         console.error(`❌ Failed to refresh upcoming birthdays embed for guild ${guild.id}:\n`, error);
     });
 }
@@ -193,5 +225,7 @@ module.exports = {
     ensureBirthdayPanel,
     refreshBirthdayPanel,
     ensureUpcomingMessage,
-    refreshUpcomingMessage
+    refreshUpcomingMessage,
+    buildUpcomingEmbed,
+    buildUpcomingPaginationRow
 };
