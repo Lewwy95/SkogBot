@@ -137,8 +137,7 @@ async function buildUpcomingEmbed(guild) {
 
     const upcoming = doc.birthdays
         .map(entry => ({ entry, days: getDaysUntilNext(entry, today) }))
-        .sort((a, b) => a.days - b.days)
-        .slice(0, 8);
+        .sort((a, b) => a.days - b.days);
 
     const lines = upcoming.map(({ entry, days }) => {
         const monthName = new Date(Date.UTC(2000, entry.month - 1, 1)).toLocaleString('en-GB', { month: 'long', timeZone: 'UTC' });
