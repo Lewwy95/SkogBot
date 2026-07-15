@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, ButtonStyle, ActionRowBuilder, MessageFlags } = require('discord.js');
 const { ButtonKit } = require('commandkit');
 const quoteSchema = require('../models/quote-schema');
 
@@ -24,7 +24,7 @@ const data = new SlashCommandBuilder()
                     .setMaxLength(240)
             )
     )
-    /*.addSubcommand((subcommand) =>
+    .addSubcommand((subcommand) =>
         subcommand
             .setName('share')
             .setDescription('Share a quote from a user or at random to your current channel.')
@@ -50,13 +50,18 @@ const data = new SlashCommandBuilder()
                     .setMinValue(1)
                     .setMaxValue(10)
             )
-    )*/
+    )
+    .addSubcommand((subcommand) =>
+        subcommand
+            .setName('leaderboard')
+            .setDescription('See who\'s been quoted the most and who has submitted the most quotes.')
+    )
 
 /**
- * 
+ *
  * @param { import('commandkit').SlashCommandProps } param0
  */
- 
+
 async function run({ interaction }) {
     // Here we get the subcommand that was used in the interaction.
     // We can then use this to determine what action to take next!
@@ -69,14 +74,14 @@ async function run({ interaction }) {
 
             // Check if the author is a bot - if they are then we stop here.
             if (author.bot) {
-                interaction.reply({ content: 'You cannot add quotes for bots.', ephemeral: true });
+                interaction.reply({ content: 'You cannot add quotes for bots.', flags: MessageFlags.Ephemeral });
                 return;
             }
 
-            // Check if there is a quoteschannel - if there isn't then we can stop here.
-            const channel = interaction.client.channels.cache.find(channel => channel.name.includes('quote'));
+            // Check if there is a quotes channel - if there isn't then we can stop here.
+            const channel = interaction.guild.channels.cache.find(channel => channel.name.includes('quote'));
             if (!channel) {
-                interaction.reply({ content: 'A quote channel does not exist.', ephemeral: true });
+                interaction.reply({ content: 'A quote channel does not exist.', flags: MessageFlags.Ephemeral });
                 return;
             }
 
@@ -104,26 +109,25 @@ async function run({ interaction }) {
             });
 
             // Send a reply to the user to confirm that the quote was added.
-            interaction.reply({ content: `Your quote has been submitted and can be viewed in the <#${channel.id}> channel.`, ephemeral: true });
+            interaction.reply({ content: `Your quote has been submitted and can be viewed in the <#${channel.id}> channel.`, flags: MessageFlags.Ephemeral });
             break;
         }
 
-        /*
         case 'share': {
             // Get the quote data from the interaction options.
             const author = interaction.options.getUser('user') || 'All';
             const perPage = 2;
 
-            // Check if there is a quoteschannel - if there isn't then we can stop here.
-            const channel = interaction.client.channels.cache.find(channel => channel.name.includes('quote'));
+            // Check if there is a quotes channel - if there isn't then we can stop here.
+            const channel = interaction.guild.channels.cache.find(channel => channel.name.includes('quote'));
             if (!channel) {
-                interaction.reply({ content: 'A quote channel does not exist.', ephemeral: true });
+                interaction.reply({ content: 'A quote channel does not exist.', flags: MessageFlags.Ephemeral });
                 return;
             }
 
-            // Check if the interaction channel is the same as the quote channel.
+            // Quotes can be spicy - keep sharing confined to the private quotes channel itself.
             if (interaction.channel.id !== channel.id) {
-                interaction.reply({ content: `You can only share quotes in the <#${channel.id}> channel.`, ephemeral: true });
+                interaction.reply({ content: `You can only share quotes in the <#${channel.id}> channel.`, flags: MessageFlags.Ephemeral });
                 return;
             };
 
@@ -131,7 +135,7 @@ async function run({ interaction }) {
             // After that, we try to fetch the quotes from the database and stop if there are none to display!
             const query = await quoteSchema.findOne({ guildId: interaction.guild.id }) || await quoteSchema.create({ guildId: interaction.guild.id });
             if (!query || query.quotes.length <= 0) {
-                interaction.reply({ content: 'There are no quotes to display.', ephemeral: true });
+                interaction.reply({ content: 'There are no quotes to display.', flags: MessageFlags.Ephemeral });
                 return;
             }
 
@@ -139,7 +143,7 @@ async function run({ interaction }) {
             // If the author is set to 'All' then we display all quotes - if no quotes are found then we stop!
             const filteredQuotes = author === 'All' ? query.quotes : query.quotes.filter(quote => quote.userId === author.id);
             if (filteredQuotes.length === 0) {
-                interaction.reply({ content: `No quotes by ${author.displayName} were found.`, ephemeral: true });
+                interaction.reply({ content: `No quotes by ${author.displayName} were found.`, flags: MessageFlags.Ephemeral });
                 return;
             }
 
@@ -256,13 +260,13 @@ async function run({ interaction }) {
                 components: [buttonRow],
                 files: [attachment],
                 fetchReply: true,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
 
             // Page navigation button handlers.
             previousPage.onClick(
                 async (buttonInteraction) => {
-                    await buttonInteraction.deferReply({ ephemeral: true });
+                    await buttonInteraction.deferReply({ flags: MessageFlags.Ephemeral });
                     currentPage--;
                     startIndex = (currentPage - 1) * perPage;
                     endIndex = startIndex + perPage;
@@ -306,7 +310,7 @@ async function run({ interaction }) {
 
             nextPage.onClick(
                 async (buttonInteraction) => {
-                    await buttonInteraction.deferReply({ ephemeral: true });
+                    await buttonInteraction.deferReply({ flags: MessageFlags.Ephemeral });
                     currentPage++;
                     startIndex = (currentPage - 1) * perPage;
                     endIndex = startIndex + perPage;
@@ -352,13 +356,13 @@ async function run({ interaction }) {
             for (let i = 0; i < quoteButtons.length; i++) {
                 quoteButtons[i].onClick(
                     async (buttonInteraction) => {
-                    await buttonInteraction.deferReply({ ephemeral: true });
+                    await buttonInteraction.deferReply({ flags: MessageFlags.Ephemeral });
                     const quoteIdx = startIndex + i;
                     const quote = filteredQuotes[quoteIdx];
 
                     // If the quote doesn't exist, we stop here.
                     if (!quote) {
-                        await buttonInteraction.editReply({ content: 'That quote could not be found.', ephemeral: true });
+                        await buttonInteraction.editReply({ content: 'That quote could not be found.' });
                         return;
                     }
 
@@ -382,12 +386,12 @@ async function run({ interaction }) {
             // Random quote button handler.
             randomButton.onClick(
                 async (buttonInteraction) => {
-                    await buttonInteraction.deferReply({ ephemeral: true });
+                    await buttonInteraction.deferReply({ flags: MessageFlags.Ephemeral });
 
                     // Pick a random quote from filteredQuotes.
                     const quote = filteredQuotes[Math.floor(Math.random() * filteredQuotes.length)];
                     if (!quote) {
-                        await buttonInteraction.editReply({ content: 'No quotes could be found.', ephemeral: true });
+                        await buttonInteraction.editReply({ content: 'No quotes could be found.' });
                         return;
                     }
 
@@ -414,11 +418,24 @@ async function run({ interaction }) {
             const author = interaction.options.getUser('user') || 'All';
             const perPage = interaction.options.getNumber('per-page') || 3;
 
+            // Check if there is a quotes channel - if there isn't then we can stop here.
+            const channel = interaction.guild.channels.cache.find(channel => channel.name.includes('quote'));
+            if (!channel) {
+                interaction.reply({ content: 'A quote channel does not exist.', flags: MessageFlags.Ephemeral });
+                return;
+            }
+
+            // Quotes can be spicy - keep viewing confined to the private quotes channel itself.
+            if (interaction.channel.id !== channel.id) {
+                interaction.reply({ content: `You can only view quotes in the <#${channel.id}> channel.`, flags: MessageFlags.Ephemeral });
+                return;
+            }
+
             // Check the database for an existing quote schema - if one doesn't exist then create a new one.
             // After that, we try to fetch the quotes from the database and stop if there are none to display!
             const query = await quoteSchema.findOne({ guildId: interaction.guild.id }) || await quoteSchema.create({ guildId: interaction.guild.id });
             if (!query || query.quotes.length <= 0) {
-                interaction.reply({ content: 'There are no quotes to display.', ephemeral: true });
+                interaction.reply({ content: 'There are no quotes to display.', flags: MessageFlags.Ephemeral });
                 return;
             }
 
@@ -426,7 +443,7 @@ async function run({ interaction }) {
             // If the author is set to 'All' then we display all quotes - if no quotes are found then we stop!
             const filteredQuotes = author === 'All' ? query.quotes : query.quotes.filter(quote => quote.userId === author.id);
             if (filteredQuotes.length === 0) {
-                interaction.reply({ content: `No quotes by ${author.displayName} were found.`, ephemeral: true });
+                interaction.reply({ content: `No quotes by ${author.displayName} were found.`, flags: MessageFlags.Ephemeral });
                 return;
             }
 
@@ -455,7 +472,7 @@ async function run({ interaction }) {
                 .setStyle(ButtonStyle.Primary)
                 .setCustomId('previousPage')
                 .setDisabled(currentPage === 1);
-            
+
             const nextPage = new ButtonKit()
                 .setEmoji('➡️')
                 .setStyle(ButtonStyle.Primary)
@@ -481,7 +498,7 @@ async function run({ interaction }) {
                 components: [buttonRow],
                 files: [attachment],
                 fetchReply: true,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             });
 
             // Here we listen for the button interactions from the user.
@@ -489,7 +506,7 @@ async function run({ interaction }) {
             previousPage.onClick(
                 async (buttonInteraction) => {
                     // Here we defer the reply to prevent the interaction from timing out.
-                    await buttonInteraction.deferReply({ ephemeral: true });
+                    await buttonInteraction.deferReply({ flags: MessageFlags.Ephemeral });
 
                     // Increment the current page and calculate the start and end index for the quotes to display.
                     currentPage--;
@@ -501,7 +518,7 @@ async function run({ interaction }) {
                         name: quote.userId,
                         value: `- ${quote.quote}`
                     }));
-                
+
                     // Here we loop through the quotes and add them to the embed fields.
                     for (const field of embedFields) {
                         const saidBy = buttonInteraction.guild.members.cache.get(field.name);
@@ -540,7 +557,7 @@ async function run({ interaction }) {
             nextPage.onClick(
                 async (buttonInteraction) => {
                     // Here we defer the reply to prevent the interaction from timing out.
-                    await buttonInteraction.deferReply({ ephemeral: true });
+                    await buttonInteraction.deferReply({ flags: MessageFlags.Ephemeral });
 
                     // Increment the current page and calculate the start and end index for the quotes to display.
                     currentPage++;
@@ -552,7 +569,7 @@ async function run({ interaction }) {
                         name: quote.userId,
                         value: `- ${quote.quote}`
                     }));
-                
+
                     // Here we loop through the quotes and add them to the embed fields.
                     for (const field of embedFields) {
                         const saidBy = buttonInteraction.guild.members.cache.get(field.name);
@@ -587,7 +604,55 @@ async function run({ interaction }) {
             );
             break;
         }
-        */
+
+        case 'leaderboard': {
+            // Check if there is a quotes channel - if there isn't then we can stop here.
+            const channel = interaction.guild.channels.cache.find(channel => channel.name.includes('quote'));
+            if (!channel) {
+                interaction.reply({ content: 'A quote channel does not exist.', flags: MessageFlags.Ephemeral });
+                return;
+            }
+
+            // Quotes can be spicy - keep the leaderboard confined to the private quotes channel itself.
+            if (interaction.channel.id !== channel.id) {
+                interaction.reply({ content: `You can only view the leaderboard in the <#${channel.id}> channel.`, flags: MessageFlags.Ephemeral });
+                return;
+            }
+
+            // This only reads existing quote data - nothing is written or modified.
+            const query = await quoteSchema.findOne({ guildId: interaction.guild.id });
+            if (!query || query.quotes.length <= 0) {
+                interaction.reply({ content: 'There are no quotes to display.', flags: MessageFlags.Ephemeral });
+                return;
+            }
+
+            // Tally how many times each person has been quoted, and how many quotes each person has submitted.
+            const quotedCounts = new Map();
+            const submitterCounts = new Map();
+            for (const quote of query.quotes) {
+                quotedCounts.set(quote.userId, (quotedCounts.get(quote.userId) || 0) + 1);
+                submitterCounts.set(quote.quoterId, (submitterCounts.get(quote.quoterId) || 0) + 1);
+            }
+
+            const medals = ['🥇', '🥈', '🥉'];
+            const formatLeaderboard = (counts) => {
+                const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+                return sorted.map(([userId, count], index) => `${medals[index] || `${index + 1}.`} <@${userId}> - ${count} quote${count === 1 ? '' : 's'}`).join('\n');
+            };
+
+            const embed = new EmbedBuilder()
+                .setColor('Fuchsia')
+                .setTitle('Quote Board Leaderboard')
+                .addFields(
+                    { name: '🏆 Most Quoted', value: formatLeaderboard(quotedCounts) || 'No data yet.' },
+                    { name: '✍️ Top Submitters', value: formatLeaderboard(submitterCounts) || 'No data yet.' }
+                )
+                .setFooter({ text: `📜 ${query.quotes.length} quote${query.quotes.length === 1 ? '' : 's'} saved in total.` })
+                .setTimestamp();
+
+            await interaction.reply({ embeds: [embed] });
+            break;
+        }
     }
 };
 
