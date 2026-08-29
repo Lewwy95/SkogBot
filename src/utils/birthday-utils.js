@@ -147,7 +147,7 @@ async function buildUpcomingEmbed(guild, page = 0) {
     const lines = pageItems.map(({ entry, days }) => {
         const monthName = new Date(Date.UTC(2000, entry.month - 1, 1)).toLocaleString('en-GB', { month: 'long', timeZone: 'UTC' });
         const when = days === 0 ? 'Today!' : days === 1 ? 'Tomorrow' : `in ${days} days`;
-        return `**${entry.user.displayName}** - ${monthName} ${entry.day} (${when})`;
+        return `<@${entry.userId}> - ${monthName} ${entry.day} (${when})`;
     });
 
     embed.setDescription(lines.join('\n'));
