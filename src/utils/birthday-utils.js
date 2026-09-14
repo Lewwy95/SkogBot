@@ -144,11 +144,13 @@ async function buildUpcomingEmbed(guild, page = 0) {
     const clampedPage = Math.min(Math.max(page, 0), totalPages - 1);
     const pageItems = sorted.slice(clampedPage * UPCOMING_PAGE_SIZE, (clampedPage + 1) * UPCOMING_PAGE_SIZE);
 
-    const lines = pageItems.map(({ entry, days }) => {
+    const lines = await Promise.all(pageItems.map(async ({ entry, days }) => {
         const monthName = new Date(Date.UTC(2000, entry.month - 1, 1)).toLocaleString('en-GB', { month: 'long', timeZone: 'UTC' });
         const when = days === 0 ? 'Today!' : days === 1 ? 'Tomorrow' : `in ${days} days`;
-        return `<@${entry.userId}> - ${monthName} ${entry.day} (${when})`;
-    });
+        const member = guild.members.cache.get(entry.userId) || await guild.members.fetch(entry.userId).catch(() => null);
+        const name = member ? member.displayName : 'Unknown Member';
+        return `${name} - ${monthName} ${entry.day} (${when})`;
+    }));
 
     embed.setDescription(lines.join('\n'));
     embed.setFooter({ text: totalPages > 1 ? `🎈 Page ${clampedPage + 1}/${totalPages} - This embed will update periodically.` : '🎈 This embed will update periodically.' });

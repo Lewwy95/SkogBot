@@ -58,7 +58,7 @@ async function announceBirthday(guild, channel, entry) {
         .setColor('Purple')
         .setAuthor({ name: guild.name, iconURL: guild.iconURL() ?? undefined })
         .setTitle('🎉🎂 Happy Birthday! 🎂🎉')
-        .setDescription(`Everyone wish ${member} a very happy birthday!\n\n*${flavorText}*`)
+        .setDescription(`Everyone wish ${member.displayName} a very happy birthday!\n\n*${flavorText}*`)
         .setThumbnail(member.displayAvatarURL({ dynamic: true }))
         .setImage(`attachment://${attachment.name}`)
         .addFields(
